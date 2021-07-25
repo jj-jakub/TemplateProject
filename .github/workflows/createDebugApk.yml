@@ -33,3 +33,9 @@ jobs:
         with:
           name: Template_Debug_${{ github.run_number }}
           path: app/build/Template_Debug_${{ github.run_number }}
+
+      - name: Upload debug apk
+        uses: actions/upload-artifact@v1
+        with:
+          name: Template_Debug_${{ github.run_number }}.apk
+          path: app/build/Template_Debug_${{ github.run_number }}/apk/debug/Template_Debug_${{ github.run_number }}.apk
