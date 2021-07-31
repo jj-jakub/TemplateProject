@@ -17,25 +17,31 @@ jobs:
       - name: Write run number to properties
         run: echo ciBuildNumber=${{ github.run_number }} > ./local.properties
 
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+        with:
+          path: .github/workflows/parameters
+          mode: normalParameters
+
       - name: Build debug apk
         run: ./gradlew clean assembleDebug
 
       - name: Rename built artifact
-        run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Template_Debug_${{ github.run_number }}.apk
+        run: mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}.apk
 
       - name: Move artifacts to proper dir
         run: |
-         mkdir app/build/Template_Debug_${{ github.run_number }}
-         mv app/build/outputs/* app/build/Template_Debug_${{ github.run_number }}
+          mkdir app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
+          mv app/build/outputs/* app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
 
       - name: Upload debug artifacts
         uses: actions/upload-artifact@v1
         with:
-          name: Template_Debug_${{ github.run_number }}
-          path: app/build/Template_Debug_${{ github.run_number }}
+          name: ${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
+          path: app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
 
       - name: Upload debug apk
         uses: actions/upload-artifact@v1
         with:
-          name: Template_Debug_${{ github.run_number }}.apk
-          path: app/build/Template_Debug_${{ github.run_number }}/apk/debug/Template_Debug_${{ github.run_number }}.apk
+          name: ${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}.apk
+          path: app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}/apk/debug/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}.apk
