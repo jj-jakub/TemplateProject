@@ -43,7 +43,9 @@ jobs:
       - name: Move artifacts to proper dir
         run: |
           mkdir app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
-          mv app/build/outputs/ app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
+          mv app/build/outputs/* app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
+          mv app/build/generated/source/* app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
+          mv app/build/intermediates/merged_manifests/* app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
 
       - name: Create archive
         run: tar -czvf app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}.tar.gz app/build/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}
@@ -99,7 +101,9 @@ jobs:
       - name: Move artifacts to proper dir
         run: |
           mkdir app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
-          mv app/build/outputs/ app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
+          mv app/build/outputs/* app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
+          mv app/build/generated/source/* app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
+          mv app/build/intermediates/merged_manifests/* app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
 
       - name: Create archive
         run: tar -czvf app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}.tar.gz app/build/${{ env.ARTIFACT_DEBUG_NAME }}_${{ github.run_number }}
