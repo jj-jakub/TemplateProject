@@ -1,4 +1,4 @@
-name: Create unsigned Release and Debug artifact on tag
+name: Create signed Release and Debug artifact on tag
 
 on:
   push:
@@ -26,11 +26,24 @@ jobs:
           path: .github/workflows/parameters
           mode: normalParameters
 
-      - name: Build release apk
-        run: ./gradlew clean assemble
+      - name: Decode Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+        run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          mkdir "${TMP_KEYSTORE_FILE_PATH}"
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/${{ env.KEYSTORE_FILE_NAME }}
+          echo "${TMP_KEYSTORE_FILE_PATH}"/${{ env.KEYSTORE_FILE_NAME }}
+
+      - name: Build Release signed apk
+        run: ./gradlew app:assembleRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
 
       - name: Rename built artifact
-        run: mv app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}.apk
+        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/${{ env.ARTIFACT_RELEASE_NAME }}_${{ github.run_number }}.apk
 
       - name: Export release apk
         uses: softprops/action-gh-release@v1
