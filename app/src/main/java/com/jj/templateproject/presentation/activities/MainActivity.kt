@@ -2,12 +2,14 @@ package com.jj.templateproject.presentation.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.jj.templateproject.data.utils.getAboutVersionText
+import com.jj.templateproject.data.text.VersionTextProvider
 import com.jj.templateproject.databinding.ActivityMainBinding
+import org.koin.java.KoinJavaComponent
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var activityMainBinding: ActivityMainBinding
+    private val versionTextProvider: VersionTextProvider by KoinJavaComponent.inject(VersionTextProvider::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +20,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setMainLabelText() {
-        activityMainBinding.mainLabel.text = getAboutVersionText()
+        activityMainBinding.mainLabel.text = versionTextProvider.getAboutVersionText()
     }
 }
