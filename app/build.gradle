@@ -74,6 +74,12 @@ android {
             it.useJUnitPlatform()
         }
     }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.4.7'
+    }
     namespace 'com.jj.templateproject'
 }
 
