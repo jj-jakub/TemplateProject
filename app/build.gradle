@@ -50,12 +50,21 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            shrinkResources false
+
+            buildConfigField "String", "ServerBaseUrl", "\"https://www.google.com\""
+        }
+
         release {
             debuggable false
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+
+            buildConfigField "String", "ServerBaseUrl", "\"https://www.google.com\""
         }
     }
 
