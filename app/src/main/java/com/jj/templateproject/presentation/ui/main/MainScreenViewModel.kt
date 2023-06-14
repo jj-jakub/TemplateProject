@@ -2,10 +2,10 @@ package com.jj.templateproject.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jj.templateproject.data.Result
 import com.jj.templateproject.data.google.GetGoogleDataUseCase
 import com.jj.templateproject.data.google.GetGoogleStatusUseCase
 import com.jj.templateproject.data.text.VersionTextProvider
+import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.presentation.ui.main.model.MainScreenViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,8 +35,8 @@ class MainScreenViewModel(
     private fun fetchGoogleData() {
         viewModelScope.launch {
             val status = when (val result = getGoogleStatusUseCase.invoke()) {
-                is Result.Error -> result.exception.message ?: "Failure"
-                is Result.Success -> "Ok"
+                is BaseResult.Error -> result.exception.message ?: "Failure"
+                is BaseResult.Success -> "Ok"
             }
 
             _viewState.value = viewState.value.copy(
@@ -44,8 +44,8 @@ class MainScreenViewModel(
             )
 
             val data = when (val result = getGoogleDataUseCase.invoke()) {
-                is Result.Error -> "Error"
-                is Result.Success -> result.data
+                is BaseResult.Error -> "Error"
+                is BaseResult.Success -> result.data
             }
 
             _viewState.value = viewState.value.copy(

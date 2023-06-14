@@ -1,6 +1,6 @@
 package com.jj.templateproject.data.google
 
-import com.jj.templateproject.data.network.network.TemplateNetwork
+import com.jj.templateproject.data.google.network.TemplateNetwork
 import com.jj.templateproject.domain.google.TemplateRepository
 
 class DefaultTemplateRepository(
