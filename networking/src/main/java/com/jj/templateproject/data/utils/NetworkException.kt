@@ -1,4 +1,4 @@
-package com.jj.templateproject.data.network.utils
+package com.jj.templateproject.data.utils
 
 import java.io.IOException
 
