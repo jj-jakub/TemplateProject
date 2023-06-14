@@ -2,3 +2,5 @@ rootProject.name = "TemplateProject"
 include ':app'
 include ':networking'
 include ':domain'
+include ':design'
+include ':core'

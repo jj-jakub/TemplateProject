@@ -2,10 +2,8 @@ package com.jj.templateproject.di.koin
 
 import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.config.AppConfiguration
-import com.jj.templateproject.data.google.GetGoogleDataUseCase
-import com.jj.templateproject.data.google.GetGoogleStatusUseCase
+import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.data.network.RetrofitFactory
-import com.jj.templateproject.data.text.VersionTextProvider
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -32,7 +30,4 @@ val mainModule = module {
             getGoogleDataUseCase = get(),
         )
     }
-
-    single { GetGoogleStatusUseCase(templateRepository = get()) }
-    single { GetGoogleDataUseCase(templateRepository = get()) }
 }

@@ -1,4 +1,4 @@
-package com.jj.templateproject.data.google
+package com.jj.templateproject.core.data.google
 
 import com.jj.templateproject.domain.google.TemplateRepository
 

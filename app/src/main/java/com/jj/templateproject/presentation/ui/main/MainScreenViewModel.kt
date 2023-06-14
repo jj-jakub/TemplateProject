@@ -2,9 +2,9 @@ package com.jj.templateproject.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jj.templateproject.data.google.GetGoogleDataUseCase
-import com.jj.templateproject.data.google.GetGoogleStatusUseCase
-import com.jj.templateproject.data.text.VersionTextProvider
+import com.jj.templateproject.core.data.google.GetGoogleDataUseCase
+import com.jj.templateproject.core.data.google.GetGoogleStatusUseCase
+import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.presentation.ui.main.model.MainScreenViewState
 import kotlinx.coroutines.flow.MutableStateFlow
