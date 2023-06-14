@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
-import com.jj.templateproject.design.gridMultiple
 
 @Composable
 fun MainScreen(
@@ -42,15 +41,15 @@ private fun MainScreenViewContent(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
+            modifier = Modifier.padding(bottom = com.jj.templateproject.design.gridMultiple(i = 2)),
             text = text,
         )
         Text(
-            modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
+            modifier = Modifier.padding(bottom = com.jj.templateproject.design.gridMultiple(i = 2)),
             text = status,
         )
         Text(
-            modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
+            modifier = Modifier.padding(bottom = com.jj.templateproject.design.gridMultiple(i = 2)),
             text = data,
         )
         CircularProgressIndicator(

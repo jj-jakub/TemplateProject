@@ -1,4 +1,4 @@
-package com.jj.templateproject.data.text
+package com.jj.templateproject.data.config
 
 import com.jj.templateproject.BuildConfig
 
