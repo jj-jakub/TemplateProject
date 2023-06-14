@@ -9,10 +9,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Use Java8
+      - name: Use Java17
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 17
 
       - name: Write run number to properties
         run: echo ciBuildNumber=${{ github.run_number }} > ./local.properties
