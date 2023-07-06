@@ -55,6 +55,7 @@ android {
             shrinkResources false
 
             buildConfigField "String", "ServerBaseUrl", "\"https://www.google.com\""
+            applicationIdSuffix ".debug"
         }
 
         release {
@@ -124,6 +125,9 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.2'
 
     implementation 'io.insert-koin:koin-androidx-compose:3.1.6'
+
+    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'io.mockk:mockk:1.13.2'
