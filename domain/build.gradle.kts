@@ -1,25 +1,26 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
+    id("com.android.library")
+    kotlin("android")
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk = 33
     defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 33
+        minSdk = 23
+        targetSdk = 33
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = "17"
     }
     testOptions {
         unitTests.all {
             it.useJUnitPlatform()
         }
     }
-    namespace 'com.jj.templateproject.domain'
+
+    namespace = "com.jj.templateproject.domain"
 }
