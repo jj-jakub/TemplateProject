@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
+import com.jj.templateproject.design.TemplateTheme
 
 @Composable
 fun MainScreen(
@@ -61,11 +62,13 @@ private fun MainScreenViewContent(
 @Preview
 @Composable
 fun PreviewMainScreenViewContent() {
-    MainScreenViewContent(
-        loading = true,
-        data = "Data",
-        status = "Status",
-        text = "Sample text",
-    )
+    TemplateTheme {
+        MainScreenViewContent(
+            loading = true,
+            data = "Data",
+            status = "Status",
+            text = "Sample text",
+        )
+    }
 }
 
