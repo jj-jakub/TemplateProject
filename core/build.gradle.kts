@@ -4,17 +4,17 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = ConfigData.compileSdk
     defaultConfig {
-        minSdk = 23
-        targetSdk = 33
+        minSdk = ConfigData.minSdk
+        targetSdk = ConfigData.targetSdk
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = ConfigData.kotlinJvmTarget
     }
     testOptions {
         unitTests.all {
@@ -28,5 +28,5 @@ dependencies {
     implementation(project (":domain"))
     implementation(project (":networking"))
 
-    implementation("io.insert-koin:koin-android:3.4.0")
+    implementation(Dependencies.koin)
 }
