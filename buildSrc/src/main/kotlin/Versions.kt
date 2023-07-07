@@ -6,6 +6,7 @@ object Versions {
     const val koin = "3.4.0"
     const val coroutines = "1.7.1"
     const val lifecycle = "2.6.1"
+    const val system_ui_controller = "0.20.3"
     const val navigationKtx = "2.6.0"
     const val composeUi = "1.4.3"
     const val composeMaterial3 = "1.1.0"

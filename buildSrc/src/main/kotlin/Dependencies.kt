@@ -16,7 +16,8 @@ object Dependencies {
         ("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}")
     const val lifecycleLiveData =
         ("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}")
-
+    const val accompanistSystemUiController =
+        ("com.google.accompanist:accompanist-systemuicontroller:${Versions.system_ui_controller}")
     const val navigationKtx = ("androidx.navigation:navigation-ui-ktx:${Versions.navigationKtx}")
 
     const val composeUi = ("androidx.compose.ui:ui:${Versions.composeUi}")
@@ -24,7 +25,7 @@ object Dependencies {
         ("androidx.compose.material3:material3:${Versions.composeMaterial3}")
     const val composeNavigation =
         ("androidx.navigation:navigation-compose:${Versions.composeNavigation}")
-    const val composePreview = ("androidx.compose.ui:ui-tooling-preview:${Versions.composeUi}")
+    const val composePreview = ("androidx.compose.ui:ui-tooling:${Versions.composeUi}")
     const val composeActivity = ("androidx.activity:activity-compose:${Versions.composeActivity}")
     const val koinCompose = ("io.insert-koin:koin-androidx-compose:${Versions.composeKoin}")
 
@@ -72,7 +73,7 @@ fun DependencyHandler.composeDependencies() {
     implementation(Dependencies.composeNavigation)
     implementation(Dependencies.composePreview)
     implementation(Dependencies.composeActivity)
-//    implementation("androidx.compose.material3:material3-window-size-class:1.1.1")
+    implementation(Dependencies.accompanistSystemUiController)
 }
 
 fun DependencyHandler.retrofitDependencies() {

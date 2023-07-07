@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 val DarkColorScheme = darkColorScheme(
     primary = colorPrimaryDark,
@@ -23,6 +24,11 @@ fun TemplateTheme(
     isInDarkMode: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setStatusBarColor(color = colorPrimary)
+    systemUiController.setNavigationBarColor(color = colorPrimary)
+
     MaterialTheme(
         colorScheme = if (isInDarkMode) DarkColorScheme else LightColorScheme,
         content = content,
