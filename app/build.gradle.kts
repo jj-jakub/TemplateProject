@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -26,15 +24,15 @@ try {
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
 android {
-    compileSdk = 33
-    buildToolsVersion = "30.0.3"
+    compileSdk = ConfigData.compileSdk
+    buildToolsVersion = ConfigData.buildTools
 
     defaultConfig {
         applicationId = "com.jj.templateproject"
-        minSdk = 23
-        targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
+        minSdk = ConfigData.minSdk
+        targetSdk = ConfigData.targetSdk
+        versionCode = ConfigData.versionCode
+        versionName = ConfigData.versionName
 
         buildConfigField("String", "currentRevisionHash", "\"${getCurrentRevisionHash()}\"")
         buildConfigField("int", "ciBuildNumber", "$ciBuildNumber")
@@ -80,7 +78,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = ConfigData.kotlinJvmTarget
     }
     buildFeatures {
         viewBinding = true
@@ -94,7 +92,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.7"
+        kotlinCompilerExtensionVersion = ConfigData.kotlinCompilerExtension
     }
     namespace = "com.jj.templateproject"
 }
@@ -105,44 +103,8 @@ dependencies {
     implementation(project(":design"))
     implementation(project(":networking"))
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.21")
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("io.insert-koin:koin-android:3.4.0")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
-
-    implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
-    implementation("androidx.navigation:navigation-ui-ktx:2.6.0")
-
-    implementation("androidx.compose.ui:ui:1.4.3")
-    implementation("androidx.compose.material:material:1.4.3")
-    implementation("androidx.compose.material3:material3:1.1.0")
-    implementation("androidx.compose.material3:material3-window-size-class:1.1.0")
-
-    implementation("androidx.navigation:navigation-compose:2.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.4.3")
-    implementation("androidx.activity:activity-compose:1.7.2")
-
-    implementation("io.insert-koin:koin-androidx-compose:3.4.5")
-
-    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    testImplementation("io.mockk:mockk:1.13.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
-
-    androidTestImplementation("io.mockk:mockk-android:1.12.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test:rules:1.5.0")
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
+    commonDependencies()
+    composeDependencies()
+    testDependencies()
+    androidTestDependencies()
 }
