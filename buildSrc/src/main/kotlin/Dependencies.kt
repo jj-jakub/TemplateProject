@@ -31,11 +31,13 @@ object Dependencies {
 
     const val firebaseBom = ("com.google.firebase:firebase-bom:${Versions.firebaseBom}")
     const val firebaseAnalytics = ("com.google.firebase:firebase-analytics-ktx")
+    const val googleAds = ("com.google.android.gms:play-services-ads:${Versions.googleAds}")
 
     const val junit5 = ("org.junit.jupiter:junit-jupiter:${Versions.junit5}")
     const val mockk = ("io.mockk:mockk:${Versions.mockk}")
     const val coroutinesTest =
         ("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}")
+
 
     const val mockkAndroid = ("io.mockk:mockk-android:${Versions.mockkAndroid}")
     const val junitAndroid = ("androidx.test.ext:junit:${Versions.junitAndroid}")
@@ -65,6 +67,10 @@ fun DependencyHandler.commonDependencies() {
     implementation(Dependencies.koinCompose)
     implementationPlatform(Dependencies.firebaseBom)
     implementation(Dependencies.firebaseAnalytics)
+}
+
+fun DependencyHandler.adsDependencies() {
+    implementation(Dependencies.googleAds)
 }
 
 fun DependencyHandler.composeDependencies() {

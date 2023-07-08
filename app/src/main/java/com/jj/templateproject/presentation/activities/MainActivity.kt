@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.jj.templateproject.presentation.MainRoot
+import org.koin.androidx.compose.getViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,6 +14,7 @@ class MainActivity : ComponentActivity() {
             val navHostController = rememberNavController()
             MainRoot(
                 navController = navHostController,
+                viewModel = getViewModel(),
             )
         }
     }

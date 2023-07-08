@@ -14,6 +14,7 @@ object Versions {
     const val composeActivity = "1.7.2"
     const val composeKoin = "3.4.5"
     const val firebaseBom = "32.1.1"
+    const val googleAds = "22.2.0"
     const val retrofit = "2.9.0"
     const val retrofitCoroutines = "0.9.2"
     const val retrofitConverter = "2.9.0"
