@@ -56,6 +56,9 @@ android {
             isShrinkResources = false
 
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")
+            buildConfigField("String", "adMainBannerViewAdUnitId", "\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField("String", "adInterstitialAdUnitId", "\"ca-app-pub-3940256099942544/1033173712\"")
+            manifestPlaceholders["admobId"] = "ca-app-pub-7809340407306359~6994189425"
             applicationIdSuffix = ".debug"
         }
 
@@ -70,6 +73,9 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")
+            buildConfigField("String", "adMainBannerViewAdUnitId", "\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField("String", "adInterstitialAdUnitId", "\"ca-app-pub-3940256099942544/1033173712\"")
+            manifestPlaceholders["admobId"] = "ca-app-pub-7809340407306359~6994189425"
         }
     }
 
@@ -104,6 +110,7 @@ dependencies {
     implementation(project(":networking"))
 
     commonDependencies()
+    adsDependencies()
     composeDependencies()
     testDependencies()
     androidTestDependencies()

@@ -6,6 +6,7 @@ import com.jj.templateproject.core.data.google.GetGoogleDataUseCase
 import com.jj.templateproject.core.data.google.GetGoogleStatusUseCase
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.presentation.ui.main.model.MainScreenViewState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,7 @@ class MainScreenViewModel(
     versionTextProvider: VersionTextProvider,
     private val getGoogleStatusUseCase: GetGoogleStatusUseCase,
     private val getGoogleDataUseCase: GetGoogleDataUseCase,
+    adManager: AdManager,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -30,6 +32,7 @@ class MainScreenViewModel(
         )
 
         fetchGoogleData()
+        adManager.incrementActionsForAd()
     }
 
     private fun fetchGoogleData() {
