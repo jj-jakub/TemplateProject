@@ -11,6 +11,7 @@ import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
+import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -43,6 +44,9 @@ val mainModule = module {
         MainRootViewModel(
             getMainAdUnitId = get(),
         )
+    }
+    viewModel {
+        SecondaryScreenViewModel(savedStateHandle = get())
     }
     single<AdManager> {
         DefaultAdManager(
