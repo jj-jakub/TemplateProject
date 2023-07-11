@@ -57,8 +57,16 @@ android {
             isShrinkResources = false
 
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")
-            buildConfigField("String", "adMainBannerViewAdUnitId", "\"ca-app-pub-3940256099942544/6300978111\"")
-            buildConfigField("String", "adInterstitialAdUnitId", "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField(
+                "String",
+                "adMainBannerViewAdUnitId",
+                "\"ca-app-pub-3940256099942544/6300978111\""
+            )
+            buildConfigField(
+                "String",
+                "adInterstitialAdUnitId",
+                "\"ca-app-pub-3940256099942544/1033173712\""
+            )
             manifestPlaceholders["admobId"] = "ca-app-pub-7809340407306359~6994189425"
             applicationIdSuffix = ".debug"
         }
@@ -74,9 +82,27 @@ android {
             signingConfig = signingConfigs.getByName("release")
 
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")
-            buildConfigField("String", "adMainBannerViewAdUnitId", "\"ca-app-pub-3940256099942544/6300978111\"")
-            buildConfigField("String", "adInterstitialAdUnitId", "\"ca-app-pub-3940256099942544/1033173712\"")
+            buildConfigField(
+                "String",
+                "adMainBannerViewAdUnitId",
+                "\"ca-app-pub-3940256099942544/6300978111\""
+            )
+            buildConfigField(
+                "String",
+                "adInterstitialAdUnitId",
+                "\"ca-app-pub-3940256099942544/1033173712\""
+            )
             manifestPlaceholders["admobId"] = "ca-app-pub-7809340407306359~6994189425"
+        }
+    }
+
+    flavorDimensions.add("version")
+    productFlavors {
+        create("flavor1") {
+            applicationIdSuffix = ".fl1"
+        }
+        create("flavor2") {
+            applicationIdSuffix = ".fl2"
         }
     }
 
