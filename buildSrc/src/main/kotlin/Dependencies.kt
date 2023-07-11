@@ -19,7 +19,8 @@ object Dependencies {
     const val accompanistSystemUiController =
         ("com.google.accompanist:accompanist-systemuicontroller:${Versions.system_ui_controller}")
     const val navigationKtx = ("androidx.navigation:navigation-ui-ktx:${Versions.navigationKtx}")
-
+    const val accompanistPermissions =
+        ("com.google.accompanist:accompanist-permissions:${Versions.accompanistPermissions}")
     const val composeUi = ("androidx.compose.ui:ui:${Versions.composeUi}")
     const val composeMaterial3 =
         ("androidx.compose.material3:material3:${Versions.composeMaterial3}")
@@ -31,6 +32,7 @@ object Dependencies {
 
     const val firebaseBom = ("com.google.firebase:firebase-bom:${Versions.firebaseBom}")
     const val firebaseAnalytics = ("com.google.firebase:firebase-analytics-ktx")
+    const val firebaseMessaging = ("com.google.firebase:firebase-messaging-ktx")
     const val googleAds = ("com.google.android.gms:play-services-ads:${Versions.googleAds}")
 
     const val junit5 = ("org.junit.jupiter:junit-jupiter:${Versions.junit5}")
@@ -67,6 +69,8 @@ fun DependencyHandler.commonDependencies() {
     implementation(Dependencies.koinCompose)
     implementationPlatform(Dependencies.firebaseBom)
     implementation(Dependencies.firebaseAnalytics)
+    implementation(Dependencies.firebaseMessaging)
+    implementation(Dependencies.accompanistPermissions)
 }
 
 fun DependencyHandler.adsDependencies() {

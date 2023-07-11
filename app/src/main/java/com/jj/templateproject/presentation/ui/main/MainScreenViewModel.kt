@@ -1,5 +1,7 @@
 package com.jj.templateproject.presentation.ui.main
 
+import android.Manifest
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jj.templateproject.core.data.google.GetGoogleDataUseCase
@@ -22,8 +24,10 @@ class MainScreenViewModel(
     private val _viewState = MutableStateFlow(
         MainScreenViewState(
             loading = true,
+            requiredPermissions = getRequiredPermissions(),
         )
     )
+
     val viewState = _viewState.asStateFlow()
 
     init {
@@ -57,4 +61,11 @@ class MainScreenViewModel(
             )
         }
     }
+
+    private fun getRequiredPermissions() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            emptyList()
+        }
 }
