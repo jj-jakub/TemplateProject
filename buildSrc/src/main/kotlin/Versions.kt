@@ -8,6 +8,7 @@ object Versions {
     const val lifecycle = "2.6.1"
     const val system_ui_controller = "0.20.3"
     const val navigationKtx = "2.6.0"
+    const val accompanistPermissions = "0.27.1"
     const val composeUi = "1.4.3"
     const val composeMaterial3 = "1.1.0"
     const val composeNavigation = "2.6.0"

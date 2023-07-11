@@ -5,4 +5,5 @@ data class MainScreenViewState(
     val text: String = "",
     val data: String = "",
     val status: String = "",
+    val requiredPermissions: List<String> = listOf(),
 )
