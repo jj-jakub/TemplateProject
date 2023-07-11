@@ -1,4 +1,4 @@
-name: Create signed Release and Debug artifact on tag
+name: Create signed Release artifacts on tag
 
 on:
   push:
@@ -81,7 +81,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ env.FLAVOR1_BUILT_AAB_DIR }}${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}.aab/${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}.aab
+          files: ${{ env.FLAVOR1_BUILT_AAB_DIR }}${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -110,9 +110,3 @@ jobs:
           files: app/build/output_${{ github.run_number }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: output_${{ github.run_number }}
-          path: app/build/output_${{ github.run_number }}
