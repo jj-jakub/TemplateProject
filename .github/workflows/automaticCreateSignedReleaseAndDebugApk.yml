@@ -7,7 +7,6 @@ on:
 
 jobs:
   Build_release_artifact:
-    runs-on: ubuntu-18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
