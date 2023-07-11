@@ -8,6 +8,8 @@ import com.jj.templateproject.navigation.model.GraphNavigation
 import com.jj.templateproject.navigation.model.Route
 import com.jj.templateproject.presentation.ui.main.MainScreen
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
+import com.jj.templateproject.presentation.ui.secondary.SecondaryScreen
+import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
 import org.koin.androidx.compose.getViewModel
 
 @Composable
@@ -24,6 +26,15 @@ fun MainNavGraph(
         ) {
             val viewModel: MainScreenViewModel = getViewModel()
             MainScreen(
+                navController = navController,
+                viewModel = viewModel,
+            )
+        }
+        composable(
+            route = Route.SecondaryScreen.route,
+        ) {
+            val viewModel: SecondaryScreenViewModel = getViewModel()
+            SecondaryScreen(
                 viewModel = viewModel,
             )
         }
