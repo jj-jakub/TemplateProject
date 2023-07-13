@@ -137,7 +137,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":design"))
     implementation(project(":networking"))
-    implementation(project(":googleLicensingLibrary"))
+    implementation(project(":play-licensing"))
 
     commonDependencies()
     adsDependencies()

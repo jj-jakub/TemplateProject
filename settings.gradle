@@ -4,4 +4,5 @@ include ':networking'
 include ':domain'
 include ':design'
 include ':core'
-include ':googleLicensingLibrary'
+include ':play-licensing'
+project(':play-licensing').projectDir = file("./play-licensing/lvl_library/")
