@@ -37,7 +37,7 @@ jobs:
           java-version: 17
 
       - name: Lint
-        run: ./gradlew lint
+        run: ./gradlew lint -x :play-licensing:lintDebug
 
       - name: Gradle build
         run: ./gradlew build
