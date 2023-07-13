@@ -12,7 +12,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class DefaultAppInfoRepository(
-    context: Context,
+    private val context: Context,
 ) : AppInfoRepository {
 
     private val salt = byteArrayOf(
@@ -35,17 +35,17 @@ class DefaultAppInfoRepository(
         )
     )
 
-    // Construct the LicenseChecker with a policy.
-    private val checker = LicenseChecker(
-        /* context = */ context,
-        /* policy = */ serverManagedPolicy,
-        /* encodedPublicKey = */ base64PublicKey,
-    )
 
     override suspend fun installedFromValidSource(): Boolean = suspendCoroutine {
         if (base64PublicKey.isBlank()) {
             it.resume(true)
         } else {
+            val checker = LicenseChecker(
+                /* context = */ context,
+                /* policy = */ serverManagedPolicy,
+                /* encodedPublicKey = */ base64PublicKey,
+            )
+            // Construct the LicenseChecker with a policy.
             checker.checkAccess(
                 getCallback(
                     onVerificationSuccess = { it.resume(true) },
