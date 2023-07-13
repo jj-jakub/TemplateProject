@@ -40,7 +40,7 @@ jobs:
         run: ./gradlew lint -x :play-licensing:lintDebug
 
       - name: Gradle build
-        run: ./gradlew build
+        run: ./gradlew build -x :play-licensing:lintDebug
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
