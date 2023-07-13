@@ -33,6 +33,8 @@ object Dependencies {
     const val firebaseBom = ("com.google.firebase:firebase-bom:${Versions.firebaseBom}")
     const val firebaseAnalytics = ("com.google.firebase:firebase-analytics-ktx")
     const val firebaseMessaging = ("com.google.firebase:firebase-messaging-ktx")
+    const val firebaseCrashlytics = ("com.google.firebase:firebase-crashlytics-ktx")
+
     const val googleAds = ("com.google.android.gms:play-services-ads:${Versions.googleAds}")
 
     const val junit5 = ("org.junit.jupiter:junit-jupiter:${Versions.junit5}")
@@ -70,6 +72,7 @@ fun DependencyHandler.commonDependencies() {
     implementationPlatform(Dependencies.firebaseBom)
     implementation(Dependencies.firebaseAnalytics)
     implementation(Dependencies.firebaseMessaging)
+    implementation(Dependencies.firebaseCrashlytics)
     implementation(Dependencies.accompanistPermissions)
 }
 

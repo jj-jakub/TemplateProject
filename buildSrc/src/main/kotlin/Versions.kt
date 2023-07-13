@@ -2,6 +2,7 @@ object Versions {
     const val gradlePlugin = "7.4.2"
     const val kotlin = "1.8.21"
     const val googleServices = "4.3.15"
+    const val googleCrashlytics = "2.9.6"
 
     const val koin = "3.4.0"
     const val coroutines = "1.7.1"
