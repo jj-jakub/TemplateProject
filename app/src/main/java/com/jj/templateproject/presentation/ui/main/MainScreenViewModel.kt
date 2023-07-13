@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jj.templateproject.core.data.google.GetGoogleDataUseCase
 import com.jj.templateproject.core.data.google.GetGoogleStatusUseCase
+import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.ad.AdManager
@@ -19,9 +20,10 @@ import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
     versionTextProvider: VersionTextProvider,
+    adManager: AdManager,
     private val getGoogleStatusUseCase: GetGoogleStatusUseCase,
     private val getGoogleDataUseCase: GetGoogleDataUseCase,
-    adManager: AdManager,
+    private val getIsInstalledFromValidSource: GetIsInstalledFromValidSource,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -41,6 +43,7 @@ class MainScreenViewModel(
         )
 
         fetchGoogleData()
+        fetchInstallationValidity()
         adManager.incrementActionsForAd()
     }
 
@@ -63,6 +66,14 @@ class MainScreenViewModel(
             _viewState.value = viewState.value.copy(
                 data = data,
                 loading = false,
+            )
+        }
+    }
+
+    private fun fetchInstallationValidity() {
+        viewModelScope.launch {
+            _viewState.value = viewState.value.copy(
+                installedFromValidSource = getIsInstalledFromValidSource()
             )
         }
     }

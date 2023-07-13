@@ -14,10 +14,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.presentation.ui.main.model.MainScreenNavigation
@@ -54,6 +56,7 @@ fun MainScreen(
         text = state.text,
         status = state.status,
         data = state.data,
+        installedFromValidSource = state.installedFromValidSource,
         navigateWithoutOptionalArgs = viewModel::navigateWithoutOptionalArgs,
         navigateWithFirstOptionalArg = viewModel::navigateWithFirstOptionalArg,
         navigateWithSecondOptionalArg = viewModel::navigateWithSecondOptionalArg,
@@ -67,6 +70,7 @@ private fun MainScreenViewContent(
     text: String,
     status: String,
     data: String,
+    installedFromValidSource: Boolean?,
     navigateWithoutOptionalArgs: () -> Unit,
     navigateWithFirstOptionalArg: () -> Unit,
     navigateWithSecondOptionalArg: () -> Unit,
@@ -77,56 +81,51 @@ private fun MainScreenViewContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            modifier = Modifier.padding(
-                bottom = gridMultiple(i = 2)
-            ),
-            text = text,
+        TextField(text = text)
+        TextField(text = status)
+        TextField(text = data)
+        TextField(
+            text = "${stringResource(R.string.installed_from_valid_source)}: ${
+                installedFromValidSource?.toString() ?: stringResource(R.string.loading)
+            }"
         )
-        Text(
-            modifier = Modifier.padding(
-                bottom = gridMultiple(i = 2)
-            ),
-            text = status,
+        ActionButton(
+            text = "Navigate without optional args",
+            onClick = navigateWithoutOptionalArgs,
         )
-        Text(
-            modifier = Modifier.padding(
-                bottom = gridMultiple(i = 2)
-            ),
-            text = data,
+        ActionButton(
+            text = "Navigate with first optional arg",
+            onClick = navigateWithFirstOptionalArg,
         )
-        Button(
-            onClick = { navigateWithoutOptionalArgs() }
-        ) {
-            Text(
-                text = "Navigate without optional args"
-            )
-        }
-        Button(
-            onClick = { navigateWithFirstOptionalArg() }
-        ) {
-            Text(
-                text = "Navigate with first optional arg"
-            )
-        }
-        Button(
-            onClick = { navigateWithSecondOptionalArg() }
-        ) {
-            Text(
-                text = "Navigate with second optional arg"
-            )
-        }
-        Button(
-            onClick = { navigateWithAllOptionalArgs() }
-        ) {
-            Text(
-                text = "Navigate with all optional args"
-            )
-        }
+        ActionButton(
+            text = "Navigate with second optional arg",
+            onClick = navigateWithSecondOptionalArg,
+        )
+        ActionButton(
+            text = "Navigate with all optional args",
+            onClick = navigateWithAllOptionalArgs,
+        )
         CircularProgressIndicator(
             modifier = Modifier.alpha(if (loading) 1f else 0f)
         )
     }
+}
+
+@Composable
+fun ActionButton(text: String, onClick: () -> Unit) {
+    Button(onClick = onClick) {
+        Text(text = text)
+    }
+}
+
+@Composable
+private fun TextField(text: String) {
+    Text(
+        modifier = Modifier.padding(
+            bottom = gridMultiple(i = 2)
+        ),
+        text = text,
+    )
 }
 
 @Preview
@@ -138,6 +137,7 @@ fun PreviewMainScreenViewContent() {
             data = "Data",
             status = "Status",
             text = "Sample text",
+            installedFromValidSource = null,
             navigateWithoutOptionalArgs = {},
             navigateWithFirstOptionalArg = {},
             navigateWithSecondOptionalArg = {},

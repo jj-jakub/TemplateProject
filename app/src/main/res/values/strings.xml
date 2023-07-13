@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TemplateProject</string>
+    <string name="loading">Loading</string>
+    <string name="installed_from_valid_source">Installed from valid source</string>
 </resources>
