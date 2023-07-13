@@ -81,6 +81,7 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
 
+            buildConfigField("String", "licensingBase64PublicKey", "\"\"")
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")
             buildConfigField(
                 "String",
@@ -135,6 +136,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":design"))
     implementation(project(":networking"))
+    implementation(project(":googleLicensingLibrary"))
 
     commonDependencies()
     adsDependencies()

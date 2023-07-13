@@ -6,4 +6,5 @@ data class MainScreenViewState(
     val data: String = "",
     val status: String = "",
     val requiredPermissions: List<String> = listOf(),
+    val installedFromValidSource: Boolean? = null,
 )

@@ -4,11 +4,14 @@ import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
+import com.jj.templateproject.data.app.DefaultAppInfoRepository
+import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.data.network.RetrofitFactory
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
@@ -35,9 +38,10 @@ val mainModule = module {
     viewModel {
         MainScreenViewModel(
             versionTextProvider = get(),
+            adManager = get(),
             getGoogleStatusUseCase = get(),
             getGoogleDataUseCase = get(),
-            adManager = get(),
+            getIsInstalledFromValidSource = get(),
         )
     }
     viewModel {
@@ -58,4 +62,6 @@ val mainModule = module {
     single { ActivityProvider(application = androidApplication()) }
     single { GetMainAdUnitId() }
     single { GetInterstitialAdUnitId() }
+    single<AppInfoRepository> { DefaultAppInfoRepository(context = androidContext()) }
+    single { GetIsInstalledFromValidSource(appInfoRepository = get()) }
 }
