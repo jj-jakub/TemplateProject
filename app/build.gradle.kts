@@ -2,7 +2,16 @@ plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("org.sonarqube") version "4.2.1.3168"
     kotlin("android")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "jj-jakub_TemplateProject")
+        property("sonar.organization", "jj-jakub")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
 }
 
 fun getCurrentRevisionHash(): String {
