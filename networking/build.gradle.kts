@@ -4,28 +4,33 @@ plugins {
 }
 
 android {
-    compileSdk = ConfigData.compileSdk
+    namespace = "com.jj.templateproject.networking"
+    compileSdk = 34
     defaultConfig {
-        minSdk = ConfigData.minSdk
-        targetSdk = ConfigData.targetSdk
+        minSdk = 23
+        targetSdk = 34
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = ConfigData.kotlinJvmTarget
+        jvmTarget = "17"
     }
     testOptions {
         unitTests.all {
             it.useJUnitPlatform()
         }
     }
-    namespace = "com.jj.templateproject.networking"
 }
 
 dependencies {
     implementation(project(":domain"))
-    retrofitDependencies()
-    implementation(Dependencies.koin)
+
+    api(libs.retrofit)
+    api(libs.retrofitCoroutines)
+    api(libs.retrofitConverter)
+    api(libs.okhttpInterceptor)
+
+    implementation(libs.koin)
 }
