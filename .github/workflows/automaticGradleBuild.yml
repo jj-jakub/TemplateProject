@@ -38,10 +38,10 @@ jobs:
           java-version: 17
 
       - name: Lint
-        run: ./gradlew lint -x :play-licensing:lintDebug
+        run: ./gradlew lint
 
       - name: Gradle build
-        run: ./gradlew build -x :play-licensing:lintDebug
+        run: ./gradlew build
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -79,7 +79,7 @@ jobs:
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew buildFlavor1Debug sonar --info -x :play-licensing:lintDebug
+        run: ./gradlew buildFlavor1Debug sonar --info
 
   Unit_tests:
     runs-on: ubuntu-latest
