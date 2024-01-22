@@ -1,0 +1,19 @@
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.google.android.vending.licensing'
+    compileSdkVersion 23
+    buildFeatures.aidl = true
+
+    defaultConfig {
+        minSdkVersion 4
+        targetSdkVersion 33
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
