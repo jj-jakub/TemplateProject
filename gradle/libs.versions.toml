@@ -1,0 +1,74 @@
+[versions]
+agp = "8.4.0-alpha01"
+kotlin = "1.9.22"
+compose-compiler = "1.5.8"
+googleServices = "4.4.0"
+googleCrashlytics = "2.9.6"
+sonarQube = "4.2.1.3168"
+koin = "3.5.0"
+coroutines = "1.7.3"
+lifecycle = "2.7.0"
+system_ui_controller = "0.20.3"
+navigationKtx = "2.7.6"
+accompanistPermissions = "0.30.1"
+composeUi = "1.5.4"
+composeMaterial3 = "1.1.2"
+composeNavigation = "2.7.6"
+composeActivity = "1.8.2"
+composeKoin = "3.4.5"
+firebaseBom = "32.7.0"
+googleAds = "22.2.0"
+retrofit = "2.9.0"
+retrofitCoroutines = "0.9.2"
+retrofitConverter = "2.9.0"
+okhttpInterceptor = "4.11.0"
+junit5 = "5.9.3"
+mockk = "1.13.2"
+mockkAndroid = "1.12.0"
+junitAndroid = "1.1.5"
+espressoAndroid = "3.5.1"
+androidTestRunner = "1.5.2"
+androidTestRules = "1.5.0"
+uiAutomator = "2.2.0"
+
+[libraries]
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
+kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+koin = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+coroutinesCore = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
+lifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+lifecycleRuntimeKtx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycleLiveData = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
+accompanistSystemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "system_ui_controller" }
+navigationKtx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtx" }
+accompanistPermissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+composeUi = { module = "androidx.compose.ui:ui", version.ref = "composeUi" }
+composeMaterial3 = { module = "androidx.compose.material3:material3", version.ref = "composeMaterial3" }
+composeNavigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigation" }
+composePreview = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUi" }
+composeActivity = { module = "androidx.activity:activity-compose", version.ref = "composeActivity" }
+koinCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "composeKoin" }
+firebaseBom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebaseAnalytics = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebaseMessaging = { module = "com.google.firebase:firebase-messaging-ktx" }
+firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+googleAds = { module = "com.google.android.gms:play-services-ads", version.ref = "googleAds" }
+junit5 = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit5" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+coroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+mockkAndroid = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
+junitAndroid = { module = "androidx.test.ext:junit", version.ref = "junitAndroid" }
+espressoAndroid = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoAndroid" }
+androidTestRunner = { module = "androidx.test:runner", version.ref = "androidTestRunner" }
+androidTestRules = { module = "androidx.test:rules", version.ref = "androidTestRules" }
+uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiAutomator" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofitCoroutines = { module = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter", version.ref = "retrofitCoroutines" }
+retrofitConverter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofitConverter" }
+okhttpInterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttpInterceptor" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
