@@ -1,17 +1,13 @@
-plugins {
-    id("com.android.application")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
-    id("org.sonarqube") version "4.2.1.3168"
-    kotlin("android")
+repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
 }
 
-sonar {
-    properties {
-        property("sonar.projectKey", "jj-jakub_TemplateProject")
-        property("sonar.organization", "jj-jakub")
-        property("sonar.host.url", "https://sonarcloud.io")
-    }
+plugins {
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
+    id("kotlin-kapt")
 }
 
 fun getCurrentRevisionHash(): String {
@@ -35,15 +31,14 @@ try {
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
 android {
-    compileSdk = ConfigData.compileSdk
-    buildToolsVersion = ConfigData.buildTools
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.jj.templateproject"
-        minSdk = ConfigData.minSdk
-        targetSdk = ConfigData.targetSdk
-        versionCode = ConfigData.versionCode
-        versionName = ConfigData.versionName
+        minSdk = 23
+        targetSdk = 34
+        versionCode = 1
+        versionName = "0.1"
 
         buildConfigField("String", "currentRevisionHash", "\"${getCurrentRevisionHash()}\"")
         buildConfigField("int", "ciBuildNumber", "$ciBuildNumber")
@@ -122,10 +117,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = ConfigData.kotlinJvmTarget
-    }
-    buildFeatures {
-        viewBinding = true
+        jvmTarget = "17"
     }
     testOptions {
         unitTests.all {
@@ -133,10 +125,11 @@ android {
         }
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = ConfigData.kotlinCompilerExtension
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
     namespace = "com.jj.templateproject"
 }
@@ -148,9 +141,38 @@ dependencies {
     implementation(project(":networking"))
     implementation(project(":play-licensing"))
 
-    commonDependencies()
-    adsDependencies()
-    composeDependencies()
-    testDependencies()
-    androidTestDependencies()
+    implementation(libs.kotlinStdlib)
+    implementation(libs.koin)
+    implementation(libs.coroutinesCore)
+    implementation(libs.coroutinesAndroid)
+    implementation(libs.lifecycleViewModelKtx)
+    implementation(libs.lifecycleRuntimeKtx)
+    implementation(libs.lifecycleLiveData)
+    implementation(libs.navigationKtx)
+    implementation(libs.koinCompose)
+    implementation(platform(libs.firebaseBom))
+    implementation(libs.firebaseAnalytics)
+    implementation(libs.firebaseMessaging)
+    implementation(libs.firebaseCrashlytics)
+    implementation(libs.accompanistPermissions)
+
+    implementation(libs.googleAds)
+
+    implementation(libs.composeUi)
+    implementation(libs.composeMaterial3)
+    implementation(libs.composeNavigation)
+    implementation(libs.composePreview)
+    implementation(libs.composeActivity)
+    implementation(libs.accompanistSystemUiController)
+
+    testImplementation(libs.junit5)
+    testImplementation(libs.mockk)
+    testImplementation(libs.coroutinesTest)
+
+    androidTestImplementation(libs.mockkAndroid)
+    androidTestImplementation(libs.junitAndroid)
+    androidTestImplementation(libs.espressoAndroid)
+    androidTestImplementation(libs.androidTestRunner)
+    androidTestImplementation(libs.androidTestRules)
+    androidTestImplementation(libs.uiAutomator)
 }

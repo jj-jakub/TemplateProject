@@ -1,24 +1,15 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath(BuildPlugins.android)
-        classpath(BuildPlugins.kotlin)
-        classpath(BuildPlugins.googleServices)
-        classpath(BuildPlugins.crashlytics)
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+plugins {
+    //trick: for the same plugin versions in all sub-modules
+    alias(libs.plugins.androidApplication).apply(false)
+    alias(libs.plugins.androidLibrary).apply(false)
+    alias(libs.plugins.kotlinAndroid).apply(false)
+
+    val kotlinVersion = libs.versions.kotlin.get()
+    kotlin("plugin.serialization") version kotlinVersion apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
+buildscript {
+    dependencies {
+        classpath(libs.google.services)
     }
 }
