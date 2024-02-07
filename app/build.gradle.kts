@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.detekt)
     id("kotlin-kapt")
     id("org.sonarqube") version "4.2.1.3168"
 }
@@ -35,6 +36,10 @@ val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
 android {
     compileSdk = 34
+
+    detekt {
+        config.from(rootProject.files("detekt.yml"))
+    }
 
     defaultConfig {
         applicationId = "com.jj.templateproject"
