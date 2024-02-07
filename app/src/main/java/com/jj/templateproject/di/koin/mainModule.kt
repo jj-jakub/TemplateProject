@@ -13,6 +13,7 @@ import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.presentation.MainRootViewModel
+import com.jj.templateproject.presentation.ui.login.LoginScreenViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -34,6 +35,10 @@ val mainModule = module {
         )
     }
     single { VersionTextProvider() }
+
+    viewModel {
+        LoginScreenViewModel()
+    }
 
     viewModel {
         MainScreenViewModel(
