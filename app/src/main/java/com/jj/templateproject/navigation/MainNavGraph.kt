@@ -6,6 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.jj.templateproject.navigation.model.GraphNavigation
 import com.jj.templateproject.navigation.model.Route
+import com.jj.templateproject.presentation.ui.login.LoginScreen
+import com.jj.templateproject.presentation.ui.login.LoginScreenViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreen
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreen
@@ -18,7 +20,7 @@ fun MainNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.MainScreen.route,
+        startDestination = Route.LoginScreen.route,
         route = GraphNavigation.MainNavGraph.route,
     ) {
         composable(
@@ -26,6 +28,15 @@ fun MainNavGraph(
         ) {
             val viewModel: MainScreenViewModel = getViewModel()
             MainScreen(
+                navController = navController,
+                viewModel = viewModel,
+            )
+        }
+        composable(
+            route = Route.LoginScreen.route,
+        ) {
+            val viewModel: LoginScreenViewModel = getViewModel()
+            LoginScreen(
                 navController = navController,
                 viewModel = viewModel,
             )

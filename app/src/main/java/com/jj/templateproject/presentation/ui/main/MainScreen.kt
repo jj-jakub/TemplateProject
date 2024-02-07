@@ -4,9 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,6 +19,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
+import com.jj.templateproject.design.components.ActionButton
+import com.jj.templateproject.design.components.BaseTextField
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.presentation.ui.main.model.MainScreenNavigation
 
@@ -87,7 +87,7 @@ private fun MainScreenViewContent(
         TextField(
             text = "${stringResource(R.string.installed_from_valid_source)}: ${
                 installedFromValidSource?.toString() ?: stringResource(R.string.loading)
-            }"
+            }",
         )
         ActionButton(
             text = "Navigate without optional args",
@@ -112,15 +112,8 @@ private fun MainScreenViewContent(
 }
 
 @Composable
-fun ActionButton(text: String, onClick: () -> Unit) {
-    Button(onClick = onClick) {
-        Text(text = text)
-    }
-}
-
-@Composable
 private fun TextField(text: String) {
-    Text(
+    BaseTextField(
         modifier = Modifier.padding(
             bottom = gridMultiple(i = 2)
         ),
