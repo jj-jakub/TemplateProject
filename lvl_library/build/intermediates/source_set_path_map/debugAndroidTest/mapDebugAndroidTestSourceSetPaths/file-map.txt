@@ -1,5 +1,0 @@
-com.google.android.vending.licensing.test.play-licensing-androidTest-0 /Users/j/AndroidStudioProjects/TemplateProject/play-licensing/lvl_library/build/generated/res/resValues/androidTest/debug
-com.google.android.vending.licensing.test.play-licensing-mergeDebugAndroidTestResources-1 /Users/j/AndroidStudioProjects/TemplateProject/play-licensing/lvl_library/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
-com.google.android.vending.licensing.test.play-licensing-mergeDebugAndroidTestResources-2 /Users/j/AndroidStudioProjects/TemplateProject/play-licensing/lvl_library/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
-com.google.android.vending.licensing.test.play-licensing-debugAndroidTest-3 /Users/j/AndroidStudioProjects/TemplateProject/play-licensing/lvl_library/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources
-com.google.android.vending.licensing.test.play-licensing-debug-4 /Users/j/AndroidStudioProjects/TemplateProject/play-licensing/lvl_library/build/intermediates/packaged_res/debug/packageDebugResources
