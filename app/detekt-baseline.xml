@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LongParameterList:LoginScreen.kt$( isLoading: Boolean, usernameValue: String, passwordValue: String, onUsernameChanged: (String) -&gt; Unit, onPasswordChanged: (String) -&gt; Unit, onLoginClicked: () -&gt; Unit, onSignInClicked: () -&gt; Unit, )</ID>
+    <ID>LongParameterList:MainScreen.kt$( loading: Boolean, text: String, status: String, data: String, installedFromValidSource: Boolean?, navigateWithoutOptionalArgs: () -&gt; Unit, navigateWithFirstOptionalArg: () -&gt; Unit, navigateWithSecondOptionalArg: () -&gt; Unit, navigateWithAllOptionalArgs: () -&gt; Unit, )</ID>
+    <ID>MagicNumber:LoginScreenViewModel.kt$LoginScreenViewModel$2000L</ID>
+    <ID>MaxLineLength:Route.kt$Route.SecondaryScreen$"?${SecondaryScreenArgument.TextOptionalSecondary.name}={${SecondaryScreenArgument.TextOptionalSecondary.name}}"</ID>
+    <ID>MaxLineLength:Route.kt$Route.SecondaryScreen$"?${SecondaryScreenArgument.TextOptionalTertiary.name}={${SecondaryScreenArgument.TextOptionalTertiary.name}}"</ID>
+  </CurrentIssues>
+</SmellBaseline>
