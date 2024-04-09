@@ -21,6 +21,7 @@ import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.components.ActionButton
 import com.jj.templateproject.design.components.InputField
 import com.jj.templateproject.design.gridMultiple
+import com.jj.templateproject.navigation.navigateAndClose
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenNavigation
 
 @Composable
@@ -35,7 +36,7 @@ fun LoginScreen(
             when (navigation) {
                 is LoginScreenNavigation.MainScreen,
                 LoginScreenNavigation.CreateAccountScreen,
-                -> navController.navigate(route = navigation.route)
+                -> navController.navigateAndClose(route = navigation.route)
             }
         }
     }
