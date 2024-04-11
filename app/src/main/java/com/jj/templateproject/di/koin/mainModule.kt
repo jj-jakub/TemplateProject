@@ -1,6 +1,7 @@
 package com.jj.templateproject.di.koin
 
 import com.jj.templateproject.BuildConfig
+import com.jj.templateproject.core.data.createaccount.DefaultCreateAccountRepository
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
@@ -12,6 +13,8 @@ import com.jj.templateproject.data.network.RetrofitFactory
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.createaccount.CreateAccountRepository
+import com.jj.templateproject.domain.createaccount.CreateAccountUseCase
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.login.LoginScreenViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
@@ -69,4 +72,7 @@ val mainModule = module {
     single { GetInterstitialAdUnitId() }
     single<AppInfoRepository> { DefaultAppInfoRepository(context = androidContext()) }
     single { GetIsInstalledFromValidSource(appInfoRepository = get()) }
+
+    single<CreateAccountRepository> { DefaultCreateAccountRepository(get()) }
+    single { CreateAccountUseCase(get()) }
 }
