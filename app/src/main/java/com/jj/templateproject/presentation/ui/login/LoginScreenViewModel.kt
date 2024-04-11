@@ -2,6 +2,8 @@ package com.jj.templateproject.presentation.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.login.LoginWithPasswordUseCase
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenNavigation
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenViewState
 import kotlinx.coroutines.delay
@@ -9,9 +11,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginScreenViewModel : ViewModel() {
+class LoginScreenViewModel(
+    private val loginWithPasswordUseCase: LoginWithPasswordUseCase,
+) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
         LoginScreenViewState(
@@ -41,7 +46,20 @@ class LoginScreenViewModel : ViewModel() {
     }
 
     fun onLoginClicked() {
-        navigate(LoginScreenNavigation.MainScreen)
+        _viewState.update { viewState.value.copy(isLoading = true) }
+        viewModelScope.launch {
+            val state = viewState
+            when (loginWithPasswordUseCase(
+                LoginWithPasswordUseCase.LoginWithPasswordParams(
+                    state.value.username,
+                    state.value.password,
+                )
+            )) {
+                is BaseResult.Error -> TODO()
+                is BaseResult.Success -> navigate(LoginScreenNavigation.MainScreen)
+            }
+        }
+        _viewState.update { viewState.value.copy(isLoading = false) }
     }
 
     fun onSignInClicked() {

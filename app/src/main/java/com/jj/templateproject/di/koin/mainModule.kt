@@ -2,6 +2,7 @@ package com.jj.templateproject.di.koin
 
 import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.core.data.createaccount.DefaultCreateAccountRepository
+import com.jj.templateproject.core.data.login.DefaultLoginRepository
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
@@ -15,6 +16,8 @@ import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.createaccount.CreateAccountRepository
 import com.jj.templateproject.domain.createaccount.CreateAccountUseCase
+import com.jj.templateproject.domain.login.LoginRepository
+import com.jj.templateproject.domain.login.LoginWithPasswordUseCase
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.login.LoginScreenViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
@@ -75,4 +78,7 @@ val mainModule = module {
 
     single<CreateAccountRepository> { DefaultCreateAccountRepository(get()) }
     single { CreateAccountUseCase(get()) }
+
+    single<LoginRepository> { DefaultLoginRepository(get()) }
+    single { LoginWithPasswordUseCase(get()) }
 }
