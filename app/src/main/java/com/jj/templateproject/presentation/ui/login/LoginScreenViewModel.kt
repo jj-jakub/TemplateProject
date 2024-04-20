@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.login.LoginWithPasswordUseCase
+import com.jj.templateproject.presentation.ui.login.model.LoginScreenErrorType
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenNavigation
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenViewState
 import kotlinx.coroutines.delay
@@ -21,6 +22,7 @@ class LoginScreenViewModel(
     private val _viewState = MutableStateFlow(
         LoginScreenViewState(
             isLoading = true,
+            error = LoginScreenErrorType.None,
             username = "",
             password = "",
         )
@@ -46,20 +48,20 @@ class LoginScreenViewModel(
     }
 
     fun onLoginClicked() {
-        _viewState.update { viewState.value.copy(isLoading = true) }
+        onLoadingStarted()
         viewModelScope.launch {
             val state = viewState
-            when (loginWithPasswordUseCase(
+            when (val result = loginWithPasswordUseCase(
                 LoginWithPasswordUseCase.LoginWithPasswordParams(
-                    state.value.username,
-                    state.value.password,
+                    username = state.value.username,
+                    password = state.value.password,
                 )
             )) {
-                is BaseResult.Error -> TODO()
+                is BaseResult.Error -> onLoginError(result.exception)
                 is BaseResult.Success -> navigate(LoginScreenNavigation.MainScreen)
             }
         }
-        _viewState.update { viewState.value.copy(isLoading = false) }
+        onLoadingFinished()
     }
 
     fun onSignInClicked() {
@@ -68,5 +70,19 @@ class LoginScreenViewModel(
 
     private fun navigate(event: LoginScreenNavigation) {
         viewModelScope.launch { _navigation.emit(event) }
+    }
+
+    private fun onLoadingStarted() {
+        _viewState.update { viewState.value.copy(isLoading = true) }
+    }
+
+    private fun onLoadingFinished() {
+        _viewState.update { viewState.value.copy(isLoading = false) }
+    }
+
+    private fun onLoginError(exception: Exception) {
+        _viewState.update {
+            viewState.value.copy(error = LoginScreenErrorType.GenericError(exception = exception))
+        }
     }
 }

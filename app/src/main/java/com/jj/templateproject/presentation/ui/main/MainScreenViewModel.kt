@@ -64,7 +64,7 @@ class MainScreenViewModel(
             }
 
             _viewState.value = viewState.value.copy(
-                data = data,
+                data = data.orEmpty(),
                 loading = false,
             )
         }

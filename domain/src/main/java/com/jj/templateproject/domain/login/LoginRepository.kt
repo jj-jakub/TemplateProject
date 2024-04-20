@@ -4,5 +4,5 @@ import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.login.model.LoginType
 
 interface LoginRepository {
-    suspend fun login(loginType: LoginType): BaseResult<String>
+    suspend fun login(loginType: LoginType): BaseResult<Unit>
 }

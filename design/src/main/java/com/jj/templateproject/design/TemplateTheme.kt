@@ -11,12 +11,14 @@ val DarkColorScheme = darkColorScheme(
     primary = colorPrimaryDark,
     background = white,
     secondary = colorAccent,
+    error = colorError,
 )
 
 val LightColorScheme = lightColorScheme(
     primary = colorPrimary,
     background = white,
     secondary = colorAccent,
+    error = colorError,
 )
 
 @Composable

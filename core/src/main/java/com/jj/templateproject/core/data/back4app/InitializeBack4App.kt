@@ -25,9 +25,9 @@ class InitializeBack4App(
         firstObject.put("message", "Hey! First message from android. Parse is now connected.")
         firstObject.saveInBackground { e ->
             if (e != null) {
-                Log.e("MainActivity", e.localizedMessage)
+                Log.e("MainActivity Back4App", e.localizedMessage)
             } else {
-                Log.d("MainActivity", "Object saved.")
+                Log.d("MainActivity Back4App", "Object saved.")
             }
         }
     }

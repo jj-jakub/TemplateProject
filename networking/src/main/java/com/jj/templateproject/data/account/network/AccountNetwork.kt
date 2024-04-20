@@ -1,7 +1,7 @@
 package com.jj.templateproject.data.account.network
 
-import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.data.utils.NetworkCallResult
 
 interface AccountNetwork {
-    suspend fun createAccount(username: String, password: String): BaseResult<String>
+    suspend fun createAccount(username: String, password: String): NetworkCallResult<Unit>
 }

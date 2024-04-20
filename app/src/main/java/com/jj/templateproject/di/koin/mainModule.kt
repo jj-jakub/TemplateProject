@@ -43,7 +43,9 @@ val mainModule = module {
     single { VersionTextProvider() }
 
     viewModel {
-        LoginScreenViewModel()
+        LoginScreenViewModel(
+            loginWithPasswordUseCase = get(),
+        )
     }
 
     viewModel {
@@ -76,9 +78,9 @@ val mainModule = module {
     single<AppInfoRepository> { DefaultAppInfoRepository(context = androidContext()) }
     single { GetIsInstalledFromValidSource(appInfoRepository = get()) }
 
-    single<CreateAccountRepository> { DefaultCreateAccountRepository(get()) }
-    single { CreateAccountUseCase(get()) }
+    single<CreateAccountRepository> { DefaultCreateAccountRepository(accountNetwork = get()) }
+    single { CreateAccountUseCase(createAccountRepository = get()) }
 
-    single<LoginRepository> { DefaultLoginRepository(get()) }
-    single { LoginWithPasswordUseCase(get()) }
+    single<LoginRepository> { DefaultLoginRepository(loginNetwork = get()) }
+    single { LoginWithPasswordUseCase(loginRepository = get()) }
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +23,7 @@ import com.jj.templateproject.design.components.ActionButton
 import com.jj.templateproject.design.components.InputField
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.navigation.navigateAndClose
+import com.jj.templateproject.presentation.ui.login.model.LoginScreenErrorType
 import com.jj.templateproject.presentation.ui.login.model.LoginScreenNavigation
 
 @Composable
@@ -43,6 +45,7 @@ fun LoginScreen(
 
     LoginScreenContent(
         isLoading = state.isLoading,
+        errorType = state.error,
         usernameValue = state.username,
         passwordValue = state.password,
         onUsernameChanged = viewModel::onUsernameChanged,
@@ -55,6 +58,7 @@ fun LoginScreen(
 @Composable
 private fun LoginScreenContent(
     isLoading: Boolean,
+    errorType: LoginScreenErrorType,
     usernameValue: String,
     passwordValue: String,
     onUsernameChanged: (String) -> Unit,
@@ -88,6 +92,7 @@ private fun LoginScreenContent(
                 onValueChange = onPasswordChanged,
                 visualTransformation = PasswordVisualTransformation(),
             )
+            ErrorLabel(errorType)
             ActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 text = "Log in",
@@ -99,6 +104,19 @@ private fun LoginScreenContent(
                 onClick = onSignInClicked,
             )
         }
+    }
+}
+
+@Composable
+private fun ErrorLabel(errorType: LoginScreenErrorType) {
+    when (errorType) {
+        is LoginScreenErrorType.GenericError -> {
+            com.jj.templateproject.design.components.ErrorLabel(
+                message = "Login error: ${errorType.exception.message}",
+            )
+        }
+
+        LoginScreenErrorType.None -> return
     }
 }
 
@@ -114,6 +132,7 @@ fun PreviewLoginScreen() {
             onPasswordChanged = {},
             onLoginClicked = {},
             onSignInClicked = {},
+            errorType = LoginScreenErrorType.GenericError(NullPointerException()),
         )
     }
 }
@@ -130,6 +149,7 @@ fun PreviewLoginScreenLoading() {
             onPasswordChanged = {},
             onLoginClicked = {},
             onSignInClicked = {},
+            errorType = LoginScreenErrorType.None,
         )
     }
 }
