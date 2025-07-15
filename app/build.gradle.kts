@@ -36,12 +36,12 @@ try {
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
 android {
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.jj.templateproject"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "0.1"
 
