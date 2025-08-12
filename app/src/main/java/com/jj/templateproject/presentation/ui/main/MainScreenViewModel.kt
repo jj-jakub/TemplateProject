@@ -4,11 +4,6 @@ import android.Manifest
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jj.templateproject.domain.google.GetGoogleDataUseCase
-import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
-import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
-import com.jj.templateproject.data.config.VersionTextProvider
-import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.presentation.ui.main.model.MainScreenNavigation
 import com.jj.templateproject.presentation.ui.main.model.MainScreenViewState
@@ -19,11 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
-    versionTextProvider: VersionTextProvider,
     adManager: AdManager,
-    private val getGoogleStatusUseCase: GetGoogleStatusUseCase,
-    private val getGoogleDataUseCase: GetGoogleDataUseCase,
-    private val getIsInstalledFromValidSource: GetIsInstalledFromValidSource,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -38,44 +29,7 @@ class MainScreenViewModel(
     val navigation = _navigation.asSharedFlow()
 
     init {
-        _viewState.value = viewState.value.copy(
-            versionText = versionTextProvider.getAboutVersionText(),
-        )
-
-        fetchGoogleData()
-        fetchInstallationValidity()
         adManager.incrementActionsForAd()
-    }
-
-    private fun fetchGoogleData() {
-        viewModelScope.launch {
-            val status = when (val result = getGoogleStatusUseCase.invoke()) {
-                is BaseResult.Error -> result.error.message
-                is BaseResult.Success -> "Ok"
-            }
-
-            _viewState.value = viewState.value.copy(
-                apiCallStatus = status,
-            )
-
-            val data = when (val result = getGoogleDataUseCase.invoke()) {
-                is BaseResult.Error -> "Error"
-                is BaseResult.Success -> result.data
-            }
-
-            _viewState.value = viewState.value.copy(
-                apiCallData = data,
-                loading = false,
-            )
-        }
-    }
-
-    private fun fetchInstallationValidity() {
-        viewModelScope.launch {
-            _viewState.value = viewState.value.copy(
-                installedFromValidSource = getIsInstalledFromValidSource()
-            )
-        }
     }
 
     fun navigateWithoutOptionalArgs() {

@@ -15,6 +15,7 @@ import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
+import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -37,8 +38,12 @@ val mainModule = module {
 
     viewModel {
         MainScreenViewModel(
-            versionTextProvider = get(),
             adManager = get(),
+        )
+    }
+    viewModel {
+        SettingsScreenViewModel(
+            versionTextProvider = get(),
             getGoogleStatusUseCase = get(),
             getGoogleDataUseCase = get(),
             getIsInstalledFromValidSource = get(),

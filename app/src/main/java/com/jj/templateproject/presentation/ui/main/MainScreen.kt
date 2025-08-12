@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,7 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,11 +59,6 @@ fun MainScreen(
     }
 
     MainScreenViewContent(
-        loading = state.loading,
-        versionText = state.versionText,
-        apiCallStatus = state.apiCallStatus,
-        apiCallData = state.apiCallData,
-        installedFromValidSource = state.installedFromValidSource,
         navigateWithoutOptionalArgs = viewModel::navigateWithoutOptionalArgs,
         navigateWithFirstOptionalArg = viewModel::navigateWithFirstOptionalArg,
         navigateWithSecondOptionalArg = viewModel::navigateWithSecondOptionalArg,
@@ -75,11 +68,6 @@ fun MainScreen(
 
 @Composable
 private fun MainScreenViewContent(
-    loading: Boolean,
-    versionText: String,
-    apiCallStatus: String,
-    apiCallData: String,
-    installedFromValidSource: Boolean?,
     navigateWithoutOptionalArgs: () -> Unit,
     navigateWithFirstOptionalArg: () -> Unit,
     navigateWithSecondOptionalArg: () -> Unit,
@@ -92,19 +80,6 @@ private fun MainScreenViewContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
-            TextField(text = stringResource(R.string.version, versionText))
-            TextField(text = stringResource(R.string.api_call_status, apiCallStatus))
-            TextField(text = stringResource(R.string.api_call_data, apiCallData))
-            TextField(
-                text = stringResource(R.string.installed_from_valid_source) + ": " +
-                    (installedFromValidSource?.toString() ?: stringResource(R.string.loading)),
-            )
-        }
         Column {
             TextField(stringResource(R.string.navigation_testing))
             Column(
@@ -150,11 +125,6 @@ private fun MainScreenViewContent(
                 }
             }
         }
-        CircularProgressIndicator(
-            modifier = Modifier
-                .alpha(if (loading) 1f else 0f)
-                .padding(top = 24.dp)
-        )
     }
 }
 
@@ -188,11 +158,6 @@ private fun TextField(text: String) {
 fun PreviewMainScreenViewContent() {
     TemplateTheme {
         MainScreenViewContent(
-            loading = true,
-            apiCallData = "Data",
-            apiCallStatus = "Status",
-            versionText = "Version text",
-            installedFromValidSource = null,
             navigateWithoutOptionalArgs = {},
             navigateWithFirstOptionalArg = {},
             navigateWithSecondOptionalArg = {},
