@@ -2,9 +2,9 @@ package com.jj.templateproject.presentation.ui.main.model
 
 data class MainScreenViewState(
     val loading: Boolean = false,
-    val text: String = "",
-    val data: String = "",
-    val status: String = "",
+    val versionText: String = "",
+    val apiCallData: String = "",
+    val apiCallStatus: String = "",
     val requiredPermissions: List<String> = listOf(),
     val installedFromValidSource: Boolean? = null,
 )

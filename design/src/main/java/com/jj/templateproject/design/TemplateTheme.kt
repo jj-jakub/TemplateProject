@@ -9,13 +9,13 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 val DarkColorScheme = darkColorScheme(
     primary = colorPrimaryDark,
-    background = white,
+    background = colorBackground,
     secondary = colorAccent,
 )
 
 val LightColorScheme = lightColorScheme(
     primary = colorPrimary,
-    background = white,
+    background = colorBackground,
     secondary = colorAccent,
 )
 

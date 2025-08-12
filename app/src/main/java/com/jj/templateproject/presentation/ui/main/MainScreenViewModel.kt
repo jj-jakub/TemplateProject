@@ -39,7 +39,7 @@ class MainScreenViewModel(
 
     init {
         _viewState.value = viewState.value.copy(
-            text = versionTextProvider.getAboutVersionText(),
+            versionText = versionTextProvider.getAboutVersionText(),
         )
 
         fetchGoogleData()
@@ -55,7 +55,7 @@ class MainScreenViewModel(
             }
 
             _viewState.value = viewState.value.copy(
-                status = status,
+                apiCallStatus = status,
             )
 
             val data = when (val result = getGoogleDataUseCase.invoke()) {
@@ -64,7 +64,7 @@ class MainScreenViewModel(
             }
 
             _viewState.value = viewState.value.copy(
-                data = data,
+                apiCallData = data,
                 loading = false,
             )
         }

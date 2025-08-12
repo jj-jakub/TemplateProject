@@ -1,9 +1,14 @@
 package com.jj.templateproject.presentation.ui.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -16,13 +21,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
+import com.jj.templateproject.design.colorBackground
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.presentation.ui.main.model.MainScreenNavigation
+
+private const val ACTION_BUTTON_HEIGHT = 80
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -53,9 +62,9 @@ fun MainScreen(
 
     MainScreenViewContent(
         loading = state.loading,
-        text = state.text,
-        status = state.status,
-        data = state.data,
+        versionText = state.versionText,
+        apiCallStatus = state.apiCallStatus,
+        apiCallData = state.apiCallData,
         installedFromValidSource = state.installedFromValidSource,
         navigateWithoutOptionalArgs = viewModel::navigateWithoutOptionalArgs,
         navigateWithFirstOptionalArg = viewModel::navigateWithFirstOptionalArg,
@@ -67,9 +76,9 @@ fun MainScreen(
 @Composable
 private fun MainScreenViewContent(
     loading: Boolean,
-    text: String,
-    status: String,
-    data: String,
+    versionText: String,
+    apiCallStatus: String,
+    apiCallData: String,
     installedFromValidSource: Boolean?,
     navigateWithoutOptionalArgs: () -> Unit,
     navigateWithFirstOptionalArg: () -> Unit,
@@ -77,43 +86,89 @@ private fun MainScreenViewContent(
     navigateWithAllOptionalArgs: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorBackground),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
     ) {
-        TextField(text = text)
-        TextField(text = status)
-        TextField(text = data)
-        TextField(
-            text = "${stringResource(R.string.installed_from_valid_source)}: ${
-                installedFromValidSource?.toString() ?: stringResource(R.string.loading)
-            }"
-        )
-        ActionButton(
-            text = "Navigate without optional args",
-            onClick = navigateWithoutOptionalArgs,
-        )
-        ActionButton(
-            text = "Navigate with first optional arg",
-            onClick = navigateWithFirstOptionalArg,
-        )
-        ActionButton(
-            text = "Navigate with second optional arg",
-            onClick = navigateWithSecondOptionalArg,
-        )
-        ActionButton(
-            text = "Navigate with all optional args",
-            onClick = navigateWithAllOptionalArgs,
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            TextField(text = stringResource(R.string.version, versionText))
+            TextField(text = stringResource(R.string.api_call_status, apiCallStatus))
+            TextField(text = stringResource(R.string.api_call_data, apiCallData))
+            TextField(
+                text = stringResource(R.string.installed_from_valid_source) + ": " +
+                    (installedFromValidSource?.toString() ?: stringResource(R.string.loading)),
+            )
+        }
+        Column {
+            TextField(stringResource(R.string.navigation_testing))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth(0.85f)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    ActionButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(ACTION_BUTTON_HEIGHT.dp),
+                        text = stringResource(R.string.navigate_without_optional_args),
+                        onClick = navigateWithoutOptionalArgs,
+                    )
+                    ActionButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(ACTION_BUTTON_HEIGHT.dp),
+                        text = stringResource(R.string.navigate_with_first_optional_arg),
+                        onClick = navigateWithFirstOptionalArg,
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    ActionButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(ACTION_BUTTON_HEIGHT.dp),
+                        text = stringResource(R.string.navigate_with_second_optional_arg),
+                        onClick = navigateWithSecondOptionalArg,
+                    )
+                    ActionButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(ACTION_BUTTON_HEIGHT.dp),
+                        text = stringResource(R.string.navigate_with_all_optional_args),
+                        onClick = navigateWithAllOptionalArgs,
+                    )
+                }
+            }
+        }
         CircularProgressIndicator(
-            modifier = Modifier.alpha(if (loading) 1f else 0f)
+            modifier = Modifier
+                .alpha(if (loading) 1f else 0f)
+                .padding(top = 24.dp)
         )
     }
 }
 
 @Composable
-fun ActionButton(text: String, onClick: () -> Unit) {
-    Button(onClick = onClick) {
+fun ActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(5.dp),
+        modifier = modifier,
+    ) {
         Text(text = text)
     }
 }
@@ -134,9 +189,9 @@ fun PreviewMainScreenViewContent() {
     TemplateTheme {
         MainScreenViewContent(
             loading = true,
-            data = "Data",
-            status = "Status",
-            text = "Sample text",
+            apiCallData = "Data",
+            apiCallStatus = "Status",
+            versionText = "Version text",
             installedFromValidSource = null,
             navigateWithoutOptionalArgs = {},
             navigateWithFirstOptionalArg = {},
@@ -145,4 +200,3 @@ fun PreviewMainScreenViewContent() {
         )
     }
 }
-
