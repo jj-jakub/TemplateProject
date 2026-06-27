@@ -34,5 +34,4 @@ dependencies {
     implementation(libs.composeNavigation)
     implementation(libs.composePreview)
     implementation(libs.composeActivity)
-    implementation(libs.accompanistSystemUiController)
 }
