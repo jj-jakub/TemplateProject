@@ -19,7 +19,6 @@ googleAds = "24.4.0"
 parseSDK = "4.2.1"
 
 retrofit = "3.0.0"
-retrofitCoroutines = "0.9.2"
 retrofitConverter = "3.0.0"
 okhttpInterceptor = "4.12.0"
 
@@ -75,8 +74,7 @@ mockkAndroid = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid"
 androidTestRules = { module = "androidx.test:rules", version.ref = "androidTestRules" }
 uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiAutomator" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofitCoroutines = { module = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter", version.ref = "retrofitCoroutines" }
-retrofitConverter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofitConverter" }
+retrofitConverter = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofitConverter" }
 okhttpInterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttpInterceptor" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ui-test-junit4-android = { group = "androidx.compose.ui", name = "ui-test-junit4-android", version.ref = "uiTestJunit4Android" }
