@@ -35,7 +35,10 @@ fun TemplateTheme(
         SideEffect {
             // Safe cast: this composable may be hosted outside an Activity (tests, tooling).
             val window = (view.context as? Activity)?.window ?: return@SideEffect
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isInDarkMode
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !isInDarkMode
+                isAppearanceLightNavigationBars = !isInDarkMode
+            }
         }
     }
 

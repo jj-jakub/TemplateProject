@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,8 +34,11 @@ fun MainRoot(
                 .background(color = MaterialTheme.colorScheme.background)
         ) {
             Column(
-                // Inset below the status bar; the bottom NavigationBar handles the nav-bar inset.
-                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
+                // Inset the top (status bar) and sides (display cutout); the bottom
+                // NavigationBar inside the Scaffold consumes the navigation-bar inset.
+                modifier = Modifier.windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+                ),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 ComposeAdView(
