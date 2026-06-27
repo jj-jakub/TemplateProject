@@ -51,6 +51,8 @@ Each item below was implemented and the project was rebuilt/retested after every
   junit-jupiter 5.13 needs a matching launcher. This was pre-existing on `develop`.
 - Review follow-ups: added an explicit `androidx.core` dependency to `:design` (was relying on
   `WindowCompat` resolving transitively) and made the theme's Activity cast defensive.
+- Edge-to-edge polish: also adapt navigation-bar icon contrast (`isAppearanceLightNavigationBars`)
+  and inset the top-level content for display cutouts (`safeDrawing.only(Horizontal + Top)`).
 
 ## Verification
 - `./gradlew :app:compileFlavor1DebugKotlin` — green after every commit.
