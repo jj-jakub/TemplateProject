@@ -1,7 +1,6 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.templateproject.android.application)
+    alias(libs.plugins.templateproject.android.application.compose)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.sonarqube)
 }
@@ -30,12 +29,10 @@ if (propertiesFile.exists()) {
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
 android {
-    compileSdk = 35
-
+    // compileSdk (36), minSdk (23), targetSdk (35), Java 17, JUnit5 and Compose are
+    // configured by the templateproject.android.application[.compose] convention plugins.
     defaultConfig {
         applicationId = "com.jj.templateproject"
-        minSdk = 23
-        targetSdk = 35
         versionCode = 1
         versionName = "0.1"
 
@@ -117,23 +114,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    testOptions {
-        unitTests.isIncludeAndroidResources = true
-        unitTests.all {
-            it.useJUnitPlatform()
-        }
-    }
-    buildFeatures {
-        buildConfig = true
-        compose = true
-    }
     namespace = "com.jj.templateproject"
 }
 

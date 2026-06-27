@@ -36,6 +36,9 @@ uiTestJunit4Android = "1.8.3"
 robolectric = "4.12.2"
 
 [libraries]
+# Used only by the build-logic convention plugins to compile against the AGP / Kotlin DSL.
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 bolts-tasks = { module = "com.github.parse-community.Parse-SDK-Android:parse", version.ref = "parseSDK" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
@@ -85,3 +88,9 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+
+# Convention plugins provided by the included build-logic build.
+templateproject-android-application = { id = "templateproject.android.application", version = "unspecified" }
+templateproject-android-application-compose = { id = "templateproject.android.application.compose", version = "unspecified" }
+templateproject-android-library = { id = "templateproject.android.library", version = "unspecified" }
+templateproject-android-library-compose = { id = "templateproject.android.library.compose", version = "unspecified" }
