@@ -4,6 +4,10 @@ import retrofit2.Response
 import retrofit2.http.GET
 
 interface TemplateService {
+
     @GET("/")
     suspend fun getGoogleData(): Response<Unit>
+
+    @GET("/")
+    suspend fun getGoogleStatus(): Response<Unit>
 }
