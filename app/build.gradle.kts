@@ -158,6 +158,9 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.ui.test.junit4.android)
     testRuntimeOnly(libs.junitVintageEngine)
+    // Aligns the JUnit Platform launcher with junit-jupiter 5.13 so test discovery works
+    // (Gradle's bundled launcher is older). Without it the test task fails to start.
+    testRuntimeOnly(libs.junitPlatformLauncher)
 
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.konsist)
