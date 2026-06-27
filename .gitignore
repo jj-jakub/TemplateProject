@@ -15,3 +15,6 @@
 .cxx
 local.properties
 /keystore/*
+# Real Firebase config is environment-specific and contains project keys.
+# Copy app/google-services.json.example to app/google-services.json and fill it in.
+app/google-services.json
