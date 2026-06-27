@@ -1,11 +1,14 @@
 package com.jj.templateproject.design
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 val DarkColorScheme = darkColorScheme(
     primary = colorPrimaryDark,
@@ -24,10 +27,16 @@ fun TemplateTheme(
     isInDarkMode: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(color = colorPrimary)
-    systemUiController.setNavigationBarColor(color = colorPrimary)
+    // Edge-to-edge replacement for the deprecated accompanist-systemuicontroller:
+    // the Activity draws behind transparent system bars (see MainActivity.enableEdgeToEdge),
+    // and here we only adapt the status bar icon contrast to the current theme.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isInDarkMode
+        }
+    }
 
     MaterialTheme(
         colorScheme = if (isInDarkMode) DarkColorScheme else LightColorScheme,

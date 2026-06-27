@@ -6,7 +6,6 @@ googleServices = "4.4.3"
 koin = "3.5.6"
 coroutines = "1.10.2"
 lifecycle = "2.9.2"
-system_ui_controller = "0.34.0"
 navigationKtx = "2.9.3"
 accompanistPermissions = "0.34.0"
 composeUi = "1.8.3"
@@ -46,7 +45,6 @@ coroutinesAndroid = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android
 lifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycleRuntimeKtx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 lifecycleLiveData = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
-accompanistSystemUiController = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "system_ui_controller" }
 navigationKtx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationKtx" }
 accompanistPermissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 composeUi = { module = "androidx.compose.ui:ui", version.ref = "composeUi" }
