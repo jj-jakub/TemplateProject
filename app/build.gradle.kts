@@ -3,8 +3,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
-    id("kotlin-kapt")
-    id("org.sonarqube") version "4.2.1.3168"
+    alias(libs.plugins.sonarqube)
 }
 
 sonar {
@@ -15,22 +14,17 @@ sonar {
     }
 }
 
-fun getCurrentRevisionHash(): String {
-    val stdout = `java.io`.ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().substring(0, 8)
-}
+// Read the git short hash lazily via a provider so it is compatible with the
+// Gradle configuration cache (exec {} at configuration time is not).
+val gitShortHash = providers.exec {
+    commandLine("git", "rev-parse", "--short=8", "HEAD")
+    isIgnoreExitValue = true
+}.standardOutput.asText.map { it.trim() }
 
-val propertiesFile = rootProject.file("./local.properties")
+val propertiesFile = rootProject.file("local.properties")
 val properties = `java.util`.Properties()
-
-try {
-    properties.load(`java.io`.FileInputStream(propertiesFile))
-} catch (e: Exception) {
-    println("Exception occurred while loading propertiesFile, $e")
+if (propertiesFile.exists()) {
+    propertiesFile.inputStream().use(properties::load)
 }
 
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
@@ -45,7 +39,7 @@ android {
         versionCode = 1
         versionName = "0.1"
 
-        buildConfigField("String", "currentRevisionHash", "\"${getCurrentRevisionHash()}\"")
+        buildConfigField("String", "currentRevisionHash", "\"${gitShortHash.get()}\"")
         buildConfigField("int", "ciBuildNumber", "$ciBuildNumber")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
