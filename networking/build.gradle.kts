@@ -27,7 +27,6 @@ dependencies {
     implementation(project(":domain"))
 
     api(libs.retrofit)
-    api(libs.retrofitCoroutines)
     api(libs.retrofitConverter)
     api(libs.okhttpInterceptor)
 
