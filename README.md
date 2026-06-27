@@ -1,54 +1,68 @@
 # TemplateProject
 
-## Overview
-
-TemplateProject is an Android template providing a solid foundation for building apps. It includes necessary dependencies, a well-structured architecture, and a CI pipeline to streamline your development process.
+A modern, multi-module Android starter that wires up the things most apps need on day
+one — Compose UI, dependency injection, networking, theming, CI and an enforced
+architecture — so a new app can be branched from it and built on immediately.
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=jj-jakub_TemplateProject&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jj-jakub_TemplateProject)
 
-## Features
+## Highlights
 
-- **Modern Tech Stack:** Leverages the latest Android technologies for optimal performance and maintainability.
-- **Well-Defined Architecture:** Utilizes a clean architecture with distinct layers such as `data`, `domain`, `presentation`, and `app`, ensuring a clear separation of concerns and scalability.
-- **CI Integration:** Includes a CI pipeline using GitHub Actions for automated testing, linting, and deployment.
-- **Ready-to-Use Components:** Preconfigured with essential components like networking (Retrofit), dependency injection (Koin), and UI navigation (Jetpack Compose).
-- **Theming and Styles:** Supports modern theming with Material Design 3, making it easy to customize the look and feel of your app.
-- **Sample Code:** Includes sample implementations of common features such as user authentication, data fetching, and UI navigation to help you get started quickly.
+- **Multi-module clean architecture** with an enforced dependency direction (see below).
+- **Jetpack Compose + Material 3**, type-safe navigation and edge-to-edge system bars.
+- **Koin** for dependency injection.
+- **Retrofit + kotlinx-serialization** networking with a `BaseResult`/`BaseError` result type.
+- **Firebase** (Analytics, Messaging, Crashlytics) and **AdMob** preconfigured.
+- **Gradle convention plugins** (`build-logic`) so module build files stay tiny and versions
+  live in a single catalog.
+- **CI** via GitHub Actions (build, UI tests, signed APK/AAB per flavor).
 
-## Technologies
+## Modules & architecture
 
-- **Android Gradle Plugin:** `8.5.0`
-- **Kotlin:** `2.0.0`
-- **Google Services:** `4.4.2`
-- **Koin:** `3.5.0` ([insert-koin.io](https://insert-koin.io/))
-- **Kotlin Coroutines:** `1.7.3` ([kotlinlang.org](https://kotlinlang.org/docs/coroutines-overview.html))
-- **AndroidX Lifecycle:** `2.8.2` ([developer.android.com](https://developer.android.com/topic/libraries/architecture/lifecycle))
-- **System UI Controller:** `0.20.3`
-- **Navigation KTX:** `2.7.7` ([developer.android.com](https://developer.android.com/jetpack/compose/navigation))
-- **Accompanist Permissions:** `0.30.1`
-- **Compose UI:** `1.6.8` ([developer.android.com](https://developer.android.com/jetpack/compose))
-- **Compose Material 3:** `1.2.1` ([developer.android.com](https://developer.android.com/jetpack/compose/material3))
-- **Compose Navigation:** `2.7.7` ([developer.android.com](https://developer.android.com/jetpack/compose/navigation))
-- **Compose Activity:** `1.9.0` ([developer.android.com](https://developer.android.com/jetpack/compose/interop/interop-apis))
-- **Compose Koin:** `3.4.5`
-- **Firebase BOM:** `33.1.1` ([firebase.google.com](https://firebase.google.com/))
-- **Google Ads:** `23.1.0`
-- **Parse SDK:** `4.2.1`
+| Module        | Responsibility                                                        |
+|---------------|-----------------------------------------------------------------------|
+| `:app`        | Presentation (Compose screens, ViewModels), navigation, DI wiring.    |
+| `:domain`     | Use cases, repository interfaces, result/error types. No dependencies.|
+| `:networking` | Retrofit services and repository implementations.                     |
+| `:core`       | Cross-cutting platform glue (notifications, Back4App init).           |
+| `:design`     | Theme, colors, typography, shapes — the design system.                |
 
-### Networking
+The layering is **enforced by Konsist tests** (`app/src/test/java/konsist`): `domain`
+depends on nothing, `data` depends on `domain`, and `presentation` depends on `domain` and
+`data`. Use cases must live in the `domain` package and ViewModels must expose a single
+constructor of private dependencies.
 
-- **Retrofit:** `2.9.0` ([square.github.io/retrofit](https://square.github.io/retrofit/))
-- **Retrofit Coroutines Adapter:** `0.9.2`
-- **Retrofit Gson Converter:** `2.9.0`
-- **OkHttp Interceptor:** `4.11.0` ([square.github.io/okhttp](https://square.github.io/okhttp/))
+## Versions
 
-### Testing
+All dependency, plugin and SDK versions are declared in
+[`gradle/libs.versions.toml`](gradle/libs.versions.toml) — that file is the single source of
+truth (no hand-maintained version table here that can drift out of date). The shared Android
+configuration (compileSdk, minSdk, Java/JVM target, JUnit5, Compose) lives in the
+convention plugins under [`build-logic`](build-logic).
 
-- **JUnit 5:** `5.10.2` ([junit.org/junit5](https://junit.org/junit5/))
-- **MockK:** `1.13.2` ([mockk.io](https://mockk.io/))
-- **MockK Android:** `1.13.8`
-- **AndroidX JUnit:** `1.1.5` ([developer.android.com](https://developer.android.com/training/testing/unit-testing/local-unit-tests))
-- **Espresso:** `3.5.1` ([developer.android.com](https://developer.android.com/training/testing/espresso))
-- **Android Test Runner:** `1.5.2`
-- **Android Test Rules:** `1.5.0`
-- **UI Automator:** `2.3.0` ([developer.android.com](https://developer.android.com/training/testing/ui-automator))
+## Getting started
+
+1. **Firebase config:** copy `app/google-services.json.example` to
+   `app/google-services.json` and replace the placeholders with your own Firebase project
+   values. The real file is git-ignored so project keys are not committed.
+2. **`local.properties`:** Android Studio creates it with `sdk.dir`. CI also reads an
+   optional `ciBuildNumber` from it.
+3. **Rename the app:** change the `applicationId`/`namespace` (`com.jj.templateproject`) and
+   the `app_name` string for your own app.
+4. Open in Android Studio and run a `flavor1`/`flavor2` × `debug`/`release` variant.
+
+### Release signing
+
+The `release` build type reads its keystore path and the
+`SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD` credentials from
+environment variables (see `app/build.gradle.kts`), so secrets stay out of the repo.
+
+## Build & test
+
+```bash
+./gradlew assembleFlavor1Debug      # build a variant
+./gradlew testFlavor1DebugUnitTest  # unit tests + Konsist architecture checks
+./gradlew build sonar               # full build + SonarCloud analysis
+```
+
+The configuration cache is enabled by default (`gradle.properties`).

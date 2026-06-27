@@ -29,7 +29,7 @@ import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MainNavScaffold(
+fun MainNavGraph(
     navController: NavHostController,
 ) {
     val navItems = listOf(
@@ -95,10 +95,3 @@ fun MainNavScaffold(
 }
 
 private data class NavItem(val route: Route, val label: String, val icon: ImageVector)
-
-@Composable
-fun MainNavGraph(
-    navController: NavHostController,
-) {
-    MainNavScaffold(navController = navController)
-}
