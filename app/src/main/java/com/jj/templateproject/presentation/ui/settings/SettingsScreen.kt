@@ -33,8 +33,9 @@ fun SettingsScreen(
     val state by viewModel.viewState.collectAsState()
     val permissionState = rememberMultiplePermissionsState(
         state.requiredPermissions,
-        onPermissionsResult = {
-            // TODO
+        onPermissionsResult = { _: Map<String, Boolean> ->
+            // Template seam: react to the grant/denial result here, e.g. forward it to the
+            // ViewModel to update UI state or show a rationale. Intentionally a no-op.
         },
     )
     LaunchedEffect(key1 = Unit) {
