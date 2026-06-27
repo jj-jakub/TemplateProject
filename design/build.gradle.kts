@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidxCore)
     implementation(libs.composeUi)
     implementation(libs.composeMaterial3)
     implementation(libs.composeNavigation)

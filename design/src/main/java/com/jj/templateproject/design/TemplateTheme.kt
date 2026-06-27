@@ -33,7 +33,8 @@ fun TemplateTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
+            // Safe cast: this composable may be hosted outside an Activity (tests, tooling).
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isInDarkMode
         }
     }
