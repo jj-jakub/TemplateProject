@@ -14,6 +14,7 @@ dependencies {
     api(libs.okhttpInterceptor)
 
     implementation(libs.koin)
+    implementation(libs.coroutinesCore)
 
     testImplementation(libs.junit5)
     testImplementation(libs.mockk)

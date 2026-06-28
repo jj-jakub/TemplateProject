@@ -1,5 +1,6 @@
 package com.jj.templateproject.data.google
 
+import com.jj.templateproject.data.TestDispatcherProvider
 import com.jj.templateproject.data.google.network.TemplateNetwork
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.google.exception.NetworkError
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 class DefaultTemplateRepositoryTest {
 
     private val network = mockk<TemplateNetwork>()
-    private val repository = DefaultTemplateRepository(network)
+    private val repository = DefaultTemplateRepository(network, TestDispatcherProvider())
 
     @Test
     fun `getGoogleData delegates to the network layer`() = runTest {
