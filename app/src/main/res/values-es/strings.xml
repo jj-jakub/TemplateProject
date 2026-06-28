@@ -1,0 +1,27 @@
+<resources>
+    <!--
+      Sample Spanish translation, included so the template ships localization-ready: every
+      user-facing string lives in resources and has a worked second-locale translation.
+      Add more locales by copying this file under values-<lang> (e.g. values-fr).
+    -->
+    <string name="loading">Cargando</string>
+    <string name="installed_from_valid_source_value">¿La app está instalada desde una fuente válida?: %1$s</string>
+    <string name="version">Versión: %1$s</string>
+    <string name="api_call_status">Estado de la llamada a la API: %1$s</string>
+    <string name="api_call_data">Datos de la llamada a la API: %1$s</string>
+    <string name="navigation_testing">Prueba de navegación</string>
+    <string name="navigate_without_optional_args">Navegar sin argumentos opcionales</string>
+    <string name="navigate_with_first_optional_arg">Navegar con el primer argumento opcional</string>
+    <string name="navigate_with_second_optional_arg">Navegar con el segundo argumento opcional</string>
+    <string name="navigate_with_all_optional_args">Navegar con todos los argumentos opcionales</string>
+    <string name="theme_section">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_secondary">Secundaria</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="secondary_first">Primero: %1$s</string>
+    <string name="secondary_secondary">Secundario: %1$s</string>
+    <string name="secondary_tertiary">Terciario: %1$s</string>
+</resources>

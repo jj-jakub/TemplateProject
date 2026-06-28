@@ -14,10 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.jj.templateproject.R
 import com.jj.templateproject.framework.navigation.model.Route
 import com.jj.templateproject.framework.navigation.model.findSelectedIndex
 import com.jj.templateproject.presentation.ui.main.MainScreen
@@ -33,9 +35,9 @@ fun MainNavGraph(
     navController: NavHostController,
 ) {
     val navItems = listOf(
-        NavItem(Route.MainScreen, "Home", Icons.Default.Home),
-        NavItem(Route.SecondaryScreen(), "Secondary", Icons.Default.MailOutline),
-        NavItem(Route.SettingsScreen, "Settings", Icons.Default.Settings),
+        NavItem(Route.MainScreen, stringResource(R.string.nav_home), Icons.Default.Home),
+        NavItem(Route.SecondaryScreen(), stringResource(R.string.nav_secondary), Icons.Default.MailOutline),
+        NavItem(Route.SettingsScreen, stringResource(R.string.nav_settings), Icons.Default.Settings),
     )
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()

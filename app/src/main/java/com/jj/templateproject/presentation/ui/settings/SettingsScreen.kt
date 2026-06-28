@@ -92,8 +92,10 @@ private fun SettingsScreenViewContent(
             }
 
             SettingsTextField(
-                text = stringResource(R.string.installed_from_valid_source) + ": " +
-                    (installedFromValidSource?.toString() ?: stringResource(R.string.loading)),
+                text = stringResource(
+                    R.string.installed_from_valid_source_value,
+                    installedFromValidSource?.toString() ?: stringResource(R.string.loading),
+                ),
             )
 
             ThemeSelector(selected = themeMode, onSelect = onSelectTheme)

@@ -9,7 +9,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.jj.templateproject.R
 
 @Composable
 fun SecondaryScreen(
@@ -36,13 +38,13 @@ private fun SecondaryScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "First: $text",
+            text = stringResource(R.string.secondary_first, text),
         )
         Text(
-            text = "Secondary: $secondaryText",
+            text = stringResource(R.string.secondary_secondary, secondaryText),
         )
         Text(
-            text = "Tertiary: $tertiaryText",
+            text = stringResource(R.string.secondary_tertiary, tertiaryText),
         )
     }
 }
