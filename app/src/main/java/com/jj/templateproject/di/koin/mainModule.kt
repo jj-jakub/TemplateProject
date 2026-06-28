@@ -1,5 +1,9 @@
 package com.jj.templateproject.di.koin
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
@@ -9,11 +13,13 @@ import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.data.network.RetrofitFactory
+import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
+import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
@@ -38,6 +44,13 @@ val mainModule = module {
     }
     single { VersionTextProvider() }
     single<DispatcherProvider> { DefaultDispatcherProvider() }
+
+    single<DataStore<Preferences>> {
+        PreferenceDataStoreFactory.create(
+            produceFile = { androidContext().preferencesDataStoreFile("app_preferences") },
+        )
+    }
+    single<AppPreferencesRepository> { DataStoreAppPreferencesRepository(dataStore = get()) }
 
     viewModel {
         MainScreenViewModel(

@@ -127,6 +127,7 @@ dependencies {
     implementation(libs.koin)
     implementation(libs.coroutinesCore)
     implementation(libs.coroutinesAndroid)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.lifecycleViewModelKtx)
     implementation(libs.lifecycleRuntimeKtx)
     implementation(libs.lifecycleLiveData)

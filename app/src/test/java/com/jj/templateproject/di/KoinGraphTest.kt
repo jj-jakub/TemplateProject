@@ -16,6 +16,7 @@ import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.TemplateRepository
 import com.jj.templateproject.domain.notifications.NotificationManager
+import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
@@ -79,6 +80,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<GetIsInstalledFromValidSource>())
         assertNotNull(get<VersionTextProvider>())
         assertNotNull(get<NotificationManager>())
+        assertNotNull(get<AppPreferencesRepository>())
     }
 
     @Test
