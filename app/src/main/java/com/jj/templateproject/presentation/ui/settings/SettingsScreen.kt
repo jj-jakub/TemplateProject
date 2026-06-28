@@ -20,8 +20,10 @@ import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.colorBackground
 import com.jj.templateproject.design.components.BodyText
-import com.jj.templateproject.design.components.LoadingState
 import com.jj.templateproject.design.gridMultiple
+import com.jj.templateproject.presentation.ui.settings.model.ApiData
+import com.jj.templateproject.presentation.ui.state.UiState
+import com.jj.templateproject.presentation.ui.state.UiStateContent
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -41,21 +43,19 @@ fun SettingsScreen(
     }
 
     SettingsScreenViewContent(
-        loading = state.loading,
         versionText = state.versionText,
-        apiCallStatus = state.apiCallStatus,
-        apiCallData = state.apiCallData,
+        apiState = state.apiState,
         installedFromValidSource = state.installedFromValidSource,
+        onRetry = viewModel::retry,
     )
 }
 
 @Composable
 private fun SettingsScreenViewContent(
-    loading: Boolean,
     versionText: String,
-    apiCallStatus: String,
-    apiCallData: String,
+    apiState: UiState<ApiData>,
     installedFromValidSource: Boolean?,
+    onRetry: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -71,15 +71,21 @@ private fun SettingsScreenViewContent(
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
             SettingsTextField(text = stringResource(R.string.version, versionText))
-            SettingsTextField(text = stringResource(R.string.api_call_status, apiCallStatus))
-            SettingsTextField(text = stringResource(R.string.api_call_data, apiCallData))
+
+            UiStateContent(state = apiState, onRetry = onRetry) { apiData ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    SettingsTextField(text = stringResource(R.string.api_call_status, apiData.status))
+                    SettingsTextField(text = stringResource(R.string.api_call_data, apiData.data))
+                }
+            }
+
             SettingsTextField(
                 text = stringResource(R.string.installed_from_valid_source) + ": " +
                     (installedFromValidSource?.toString() ?: stringResource(R.string.loading)),
             )
-        }
-        if (loading) {
-            LoadingState(modifier = Modifier.padding(top = 24.dp))
         }
     }
 }
@@ -99,11 +105,10 @@ private fun SettingsTextField(text: String) {
 fun PreviewSettingsScreenViewContent() {
     TemplateTheme {
         SettingsScreenViewContent(
-            loading = true,
-            apiCallData = "Data",
-            apiCallStatus = "Status",
             versionText = "Version text",
+            apiState = UiState.Success(ApiData(status = "Ok", data = "200")),
             installedFromValidSource = null,
+            onRetry = {},
         )
     }
 }

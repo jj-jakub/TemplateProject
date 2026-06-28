@@ -6,12 +6,13 @@ import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.exception.NetworkError
+import com.jj.templateproject.presentation.ui.settings.model.ApiData
+import com.jj.templateproject.presentation.ui.state.UiState
 import com.jj.templateproject.util.MainDispatcherExtension
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -47,7 +48,7 @@ class SettingsScreenViewModelTest {
     }
 
     @Test
-    fun `successful api calls expose Ok status, data and stop loading`() {
+    fun `successful api calls expose a Success state with Ok status and data`() {
         every { versionTextProvider.getAboutVersionText() } returns "v"
         coEvery { getGoogleStatusUseCase.invoke() } returns BaseResult.Success(Unit)
         coEvery { getGoogleDataUseCase.invoke() } returns BaseResult.Success("200")
@@ -56,28 +57,36 @@ class SettingsScreenViewModelTest {
         val viewModel = createViewModel()
         val state = viewModel.viewState.value
 
-        assertEquals("Ok", state.apiCallStatus)
-        assertEquals("200", state.apiCallData)
+        assertEquals(UiState.Success(ApiData(status = "Ok", data = "200")), state.apiState)
         assertEquals(true, state.installedFromValidSource)
-        assertFalse(state.loading)
     }
 
     @Test
-    fun `status error surfaces the error message and data error shows Error`() {
+    fun `a status error surfaces an error state with the message`() {
         every { versionTextProvider.getAboutVersionText() } returns "v"
         coEvery { getGoogleStatusUseCase.invoke() } returns
             BaseResult.Error(NetworkError.Http(500, "server down"))
-        coEvery { getGoogleDataUseCase.invoke() } returns
-            BaseResult.Error(NetworkError.Http(500, "server down"))
+        coEvery { getGoogleDataUseCase.invoke() } returns BaseResult.Success("200")
         coEvery { getIsInstalledFromValidSource.invoke() } returns false
 
         val viewModel = createViewModel()
         val state = viewModel.viewState.value
 
-        assertEquals("server down", state.apiCallStatus)
-        assertEquals("Error", state.apiCallData)
+        assertEquals(UiState.Error("server down"), state.apiState)
         assertEquals(false, state.installedFromValidSource)
-        assertFalse(state.loading)
+    }
+
+    @Test
+    fun `a data error surfaces an error state with the message`() {
+        every { versionTextProvider.getAboutVersionText() } returns "v"
+        coEvery { getGoogleStatusUseCase.invoke() } returns BaseResult.Success(Unit)
+        coEvery { getGoogleDataUseCase.invoke() } returns
+            BaseResult.Error(NetworkError.Connectivity)
+        coEvery { getIsInstalledFromValidSource.invoke() } returns true
+
+        val state = createViewModel().viewState.value
+
+        assertEquals(UiState.Error("No network connection"), state.apiState)
     }
 
     @Test

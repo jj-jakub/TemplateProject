@@ -1,10 +1,16 @@
 package com.jj.templateproject.presentation.ui.settings.model
 
+import com.jj.templateproject.presentation.ui.state.UiState
+
 data class SettingsScreenViewState(
-    val loading: Boolean = false,
     val versionText: String = "",
-    val apiCallStatus: String = "",
-    val apiCallData: String = "",
+    val apiState: UiState<ApiData> = UiState.Loading,
     val installedFromValidSource: Boolean? = null,
     val requiredPermissions: List<String> = emptyList(),
+)
+
+/** The data fetched from the API, shown once [SettingsScreenViewState.apiState] is a success. */
+data class ApiData(
+    val status: String,
+    val data: String,
 )

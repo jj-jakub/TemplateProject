@@ -4,15 +4,20 @@ import android.Manifest
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jj.templateproject.domain.google.GetGoogleDataUseCase
-import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.google.GetGoogleDataUseCase
+import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
+import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
+import com.jj.templateproject.presentation.ui.state.UiState
+import com.jj.templateproject.presentation.ui.state.map
+import com.jj.templateproject.presentation.ui.state.toUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsScreenViewModel(
@@ -24,49 +29,43 @@ class SettingsScreenViewModel(
 
     private val _viewState = MutableStateFlow(
         SettingsScreenViewState(
-            loading = true,
+            versionText = versionTextProvider.getAboutVersionText(),
             requiredPermissions = getRequiredPermissions(),
         )
     )
     val viewState: StateFlow<SettingsScreenViewState> = _viewState.asStateFlow()
 
     init {
-        _viewState.value = viewState.value.copy(
-            versionText = versionTextProvider.getAboutVersionText(),
-        )
-
-        fetchGoogleData()
+        fetchApiData()
         fetchInstallationValidity()
     }
 
-    private fun fetchGoogleData() {
+    /** Re-runs the API fetch; wired to the error state's Retry action. */
+    fun retry() {
+        fetchApiData()
+    }
+
+    private fun fetchApiData() {
+        _viewState.update { it.copy(apiState = UiState.Loading) }
         viewModelScope.launch {
-            val status = when (val result = getGoogleStatusUseCase.invoke()) {
-                is BaseResult.Error -> result.error.message
-                is BaseResult.Success -> "Ok"
-            }
+            val apiState = loadApiData()
+            _viewState.update { it.copy(apiState = apiState) }
+        }
+    }
 
-            _viewState.value = viewState.value.copy(
-                apiCallStatus = status,
-            )
-
-            val data = when (val result = getGoogleDataUseCase.invoke()) {
-                is BaseResult.Error -> "Error"
-                is BaseResult.Success -> result.data
-            }
-
-            _viewState.value = viewState.value.copy(
-                apiCallData = data,
-                loading = false,
-            )
+    private suspend fun loadApiData(): UiState<ApiData> {
+        val statusResult = getGoogleStatusUseCase()
+        if (statusResult is BaseResult.Error) {
+            return UiState.Error(statusResult.error.message)
+        }
+        return getGoogleDataUseCase().toUiState().map { data ->
+            ApiData(status = "Ok", data = data)
         }
     }
 
     private fun fetchInstallationValidity() {
         viewModelScope.launch {
-            _viewState.value = viewState.value.copy(
-                installedFromValidSource = getIsInstalledFromValidSource()
-            )
+            _viewState.update { it.copy(installedFromValidSource = getIsInstalledFromValidSource()) }
         }
     }
 
