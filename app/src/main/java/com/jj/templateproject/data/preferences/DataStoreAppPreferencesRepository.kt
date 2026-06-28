@@ -4,11 +4,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
 /**
  * [AppPreferencesRepository] backed by Jetpack [DataStore]. The [DataStore] is injected (rather
@@ -19,20 +22,30 @@ class DataStoreAppPreferencesRepository(
 ) : AppPreferencesRepository {
 
     override val onboardingCompleted: Flow<Boolean> =
-        dataStore.data.map { preferences -> preferences[ONBOARDING_COMPLETED] ?: false }
+        dataStore.data
+            .recoverFromReadErrors()
+            .map { preferences -> preferences[ONBOARDING_COMPLETED] ?: false }
 
     override suspend fun setOnboardingCompleted(completed: Boolean) {
         dataStore.edit { preferences -> preferences[ONBOARDING_COMPLETED] = completed }
     }
 
-    override val themeMode: Flow<ThemeMode> = dataStore.data.map { preferences ->
-        preferences[THEME_MODE]
-            ?.let { stored -> runCatching { ThemeMode.valueOf(stored) }.getOrNull() }
-            ?: ThemeMode.SYSTEM
-    }
+    override val themeMode: Flow<ThemeMode> = dataStore.data
+        .recoverFromReadErrors()
+        .map { preferences ->
+            preferences[THEME_MODE]
+                ?.let { stored -> runCatching { ThemeMode.valueOf(stored) }.getOrNull() }
+                ?: ThemeMode.SYSTEM
+        }
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { preferences -> preferences[THEME_MODE] = mode.name }
+    }
+
+    // A failed DataStore read (corruption / disk error) emits an IOException; fall back to empty
+    // preferences (defaults) instead of terminating the collector and freezing the UI.
+    private fun Flow<Preferences>.recoverFromReadErrors(): Flow<Preferences> = catch { error ->
+        if (error is IOException) emit(emptyPreferences()) else throw error
     }
 
     private companion object {

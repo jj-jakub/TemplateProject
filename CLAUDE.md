@@ -75,8 +75,11 @@ each module has its own `README`.
 Java 17+ is required to run Gradle here. Unit tests use **JUnit 5** (`useJUnitPlatform`);
 `junit-platform-launcher` must stay on the test runtime classpath or test discovery fails.
 Detekt is a **root task** (not wired into `check`), so the unit-test loop stays fast; run it
-explicitly. Compose tests run device-free via Robolectric + `createAndroidComposeRule` (base
-classes register `ComponentActivity` with the shadow `PackageManager`).
+explicitly. Its bundled Kotlin frontend trails the project's `kotlin` version (detekt 1.23.x ships
+the Kotlin 2.0 analysis API vs. the project's 2.2) — harmless today, but bump detekt when a build
+targeting the Kotlin 2.x frontend is stable if you start using 2.2-only syntax. Compose tests run
+device-free via Robolectric + `createAndroidComposeRule` (base classes register `ComponentActivity`
+with the shadow `PackageManager`).
 
 ## Conventions
 

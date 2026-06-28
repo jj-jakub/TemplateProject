@@ -9,8 +9,11 @@ import androidx.compose.material3.lightColorScheme
  * Every Material 3 role is set explicitly so components (cards, text fields, snackbars, chips,
  * navigation bars, …) render correctly in both themes instead of falling back to half-styled
  * defaults. [TemplateTheme] selects between these (or a dynamic-color scheme on Android 12+).
+ *
+ * `internal` so screens can only obtain colors through `MaterialTheme.colorScheme` — binding a raw
+ * scheme would bypass dark/dynamic theming. This is the type-level counterpart to the Konsist guard.
  */
-val LightColorScheme = lightColorScheme(
+internal val LightColorScheme = lightColorScheme(
     primary = md_light_primary,
     onPrimary = md_light_onPrimary,
     primaryContainer = md_light_primaryContainer,
@@ -41,7 +44,7 @@ val LightColorScheme = lightColorScheme(
     inversePrimary = md_light_inversePrimary,
 )
 
-val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = md_dark_primary,
     onPrimary = md_dark_onPrimary,
     primaryContainer = md_dark_primaryContainer,
