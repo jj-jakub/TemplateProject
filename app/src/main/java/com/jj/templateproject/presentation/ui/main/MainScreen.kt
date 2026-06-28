@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +23,8 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.colorBackground
+import com.jj.templateproject.design.components.PrimaryButton
+import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.presentation.ui.main.model.MainScreenNavigation
 
@@ -82,7 +81,10 @@ private fun MainScreenViewContent(
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
     ) {
         Column {
-            TextField(stringResource(R.string.navigation_testing))
+            SectionHeader(
+                text = stringResource(R.string.navigation_testing),
+                modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
+            )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -91,14 +93,14 @@ private fun MainScreenViewContent(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    ActionButton(
+                    PrimaryButton(
                         modifier = Modifier
                             .weight(1f)
                             .height(ACTION_BUTTON_HEIGHT.dp),
                         text = stringResource(R.string.navigate_without_optional_args),
                         onClick = navigateWithoutOptionalArgs,
                     )
-                    ActionButton(
+                    PrimaryButton(
                         modifier = Modifier
                             .weight(1f)
                             .height(ACTION_BUTTON_HEIGHT.dp),
@@ -109,14 +111,14 @@ private fun MainScreenViewContent(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    ActionButton(
+                    PrimaryButton(
                         modifier = Modifier
                             .weight(1f)
                             .height(ACTION_BUTTON_HEIGHT.dp),
                         text = stringResource(R.string.navigate_with_second_optional_arg),
                         onClick = navigateWithSecondOptionalArg,
                     )
-                    ActionButton(
+                    PrimaryButton(
                         modifier = Modifier
                             .weight(1f)
                             .height(ACTION_BUTTON_HEIGHT.dp),
@@ -127,31 +129,6 @@ private fun MainScreenViewContent(
             }
         }
     }
-}
-
-@Composable
-fun ActionButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(5.dp),
-        modifier = modifier,
-    ) {
-        Text(text = text)
-    }
-}
-
-@Composable
-private fun TextField(text: String) {
-    Text(
-        modifier = Modifier.padding(
-            bottom = gridMultiple(i = 2)
-        ),
-        text = text,
-    )
 }
 
 @Preview
