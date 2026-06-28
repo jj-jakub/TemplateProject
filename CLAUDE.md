@@ -18,8 +18,34 @@ foundation rather than adding app-specific features.
 
 The dependency direction is **enforced by Konsist** in `app/src/test/java/konsist/KonsistTests.kt`:
 `domain` → nothing, `data` → `domain`, `presentation` → `domain` + `data`. Use cases must
-reside in the `domain` package; ViewModels must have a single constructor of private deps.
+reside in the `domain` package; ViewModels must have a single constructor of private deps;
+**presentation must not import raw design color vals** (read `MaterialTheme.colorScheme`).
 If you add/restructure code, keep these rules satisfied (they run as unit tests).
+
+See `ARCHITECTURE.md` for the full design and `CONTRIBUTING.md` for the "add a feature" recipe;
+each module has its own `README`.
+
+## Core patterns (use these, don't reinvent)
+
+- **Results:** domain returns `BaseResult<Data, Err : BaseError>`; use the inline operators in
+  `domain/.../BaseResultExt.kt` (`fold`/`map`/`mapError`/`flatMap`/`onSuccess`/`onError`/
+  `getOrNull`/`getOrElse`/`recover`) instead of unwrapping by hand.
+- **Screen state:** model it with `UiState<T>` (`presentation/ui/state/UiState.kt`) — Loading/
+  Success/Error/Empty — and render it with `UiStateContent(state, onRetry) { … }`. Bridge domain
+  results with `BaseResult.toUiState()`. `SettingsScreen` is the worked example (with retry).
+- **Threading:** inject `DispatcherProvider` (`domain/.../coroutines/`) and switch with
+  `withContext(dispatcherProvider.io)`; never hardcode `Dispatchers`.
+- **Design system (`:design`):** compose screens from `design/.../components/` (`PrimaryButton`,
+  `SecondaryButton`, `AppCard`, `SectionHeader`, `BodyText`, `LoadingState`, `ErrorState`,
+  `EmptyState`). Colors/typography/shapes come from `MaterialTheme.*`; the palette is in
+  `ColorTokens`/`ColorSchemes`, re-brand from the seeds in `BaseColors`. Use `TestTags` for test
+  hooks and `@ThemePreviews` for light+dark previews; see `ComponentCatalog`.
+- **Theme:** `ThemeMode` (System/Light/Dark) is persisted via `AppPreferencesRepository` (DataStore)
+  and applied through `MainRootViewModel.themeMode` → `MainRoot` → `TemplateTheme`. `TemplateTheme`
+  defaults to dynamic color on API 31+ (`dynamicColor = false` to brand-lock).
+- **Preferences:** add prefs to `AppPreferencesRepository` (domain interface) + its DataStore impl.
+- **Observability:** log via the `AnalyticsLogger` / `CrashReporter` domain interfaces — bound to
+  NoOp by default; the Firebase impls are a one-line Koin swap (see `mainModule`).
 
 ## Build configuration (important)
 
@@ -41,17 +67,24 @@ If you add/restructure code, keep these rules satisfied (they run as unit tests)
 ./gradlew assembleFlavor1Debug          # build (flavors: flavor1/flavor2)
 ./gradlew testFlavor1DebugUnitTest      # unit tests + Konsist architecture checks
 ./gradlew :app:lintFlavor1Debug         # lint
+./gradlew detekt                        # static analysis (config + baseline in config/detekt)
+./gradlew detektBaseline                # regenerate the detekt baseline after accepted changes
 ./gradlew build sonar                   # full build + SonarCloud (needs network/token)
 ```
 
 Java 17+ is required to run Gradle here. Unit tests use **JUnit 5** (`useJUnitPlatform`);
 `junit-platform-launcher` must stay on the test runtime classpath or test discovery fails.
+Detekt is a **root task** (not wired into `check`), so the unit-test loop stays fast; run it
+explicitly. Compose tests run device-free via Robolectric + `createAndroidComposeRule` (base
+classes register `ComponentActivity` with the shadow `PackageManager`).
 
 ## Conventions
 
-- Networking maps Retrofit `Response` to `BaseResult` via `Response.toResult { }` in
-  `networking/.../data/utils/NetworkUtils.kt`; serialization is **kotlinx-serialization**
-  (no Gson). Retrofit `suspend` functions are used directly (no call adapter).
+- Networking maps Retrofit `Response` and thrown exceptions to `BaseResult` via `toResult { }` and
+  `safeApiCall { }` in `networking/.../data/utils/NetworkUtils.kt`; failures become a typed
+  `NetworkError` (Http/Connectivity/Timeout/Serialization/Unknown). `RetrofitFactory` (in `:app`)
+  sets OkHttp timeouts, a `RetryInterceptor` and a `headerProvider` auth seam. Serialization is
+  **kotlinx-serialization** (no Gson); Retrofit `suspend` functions are used directly (no call adapter).
 - UI is edge-to-edge: `MainActivity` calls `enableEdgeToEdge()`, `TemplateTheme` adjusts
   status-bar icon contrast via `WindowCompat`, and screens handle insets (don't reintroduce
   `accompanist-systemuicontroller`).
