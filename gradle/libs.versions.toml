@@ -1,6 +1,7 @@
 [versions]
 agp = "8.10.1"
 konsist = "0.17.2"
+detekt = "1.23.7"
 kotlin = "2.2.0"
 googleServices = "4.4.3"
 sonarqube = "7.3.1.8318"
@@ -97,6 +98,7 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 # Convention plugins provided by the included build-logic build.
 templateproject-android-application = { id = "templateproject.android.application", version = "unspecified" }

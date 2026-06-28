@@ -1,0 +1,33 @@
+# Detekt configuration for TemplateProject.
+# Used with `buildUponDefaultConfig = true`, so this only overrides the defaults below; the full
+# default rule set still applies. Run `./gradlew detekt`; regenerate the baseline after large
+# changes with `./gradlew detektBaseline`.
+
+build:
+  maxIssues: 0
+
+complexity:
+  LongParameterList:
+    # ViewModels / composables legitimately take several injected dependencies / slots.
+    functionThreshold: 8
+    constructorThreshold: 8
+  TooManyFunctions:
+    active: false
+
+naming:
+  FunctionNaming:
+    # @Composable functions are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: false
+
+style:
+  MagicNumber:
+    # Dimensions, colors and sample data carry many literals in a UI template.
+    ignoreNumbers: ['-1', '0', '1', '2', '3', '4', '5', '8', '16', '24', '100']
+    ignoreAnnotated: ['Composable', 'Preview']
+    ignorePropertyDeclaration: true
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview', 'ThemePreviews']
+  ReturnCount:
+    max: 4
