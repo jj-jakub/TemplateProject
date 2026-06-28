@@ -1,11 +1,13 @@
 package com.jj.templateproject.presentation
 
 import com.jj.templateproject.data.ad.GetMainAdUnitId
+import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.util.MainDispatcherExtension
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -19,11 +21,12 @@ class MainRootViewModelTest {
 
     private val getMainAdUnitId = mockk<GetMainAdUnitId>()
     private val getThemeModeUseCase = mockk<GetThemeModeUseCase>()
+    private val analyticsLogger = mockk<AnalyticsLogger>(relaxed = true)
 
     private fun createViewModel(themeMode: ThemeMode = ThemeMode.SYSTEM): MainRootViewModel {
         every { getMainAdUnitId() } returns "ca-app-pub/main"
         every { getThemeModeUseCase() } returns flowOf(themeMode)
-        return MainRootViewModel(getMainAdUnitId, getThemeModeUseCase)
+        return MainRootViewModel(getMainAdUnitId, getThemeModeUseCase, analyticsLogger)
     }
 
     @Test
@@ -37,12 +40,13 @@ class MainRootViewModelTest {
     }
 
     @Test
-    fun `onAdClicked does not mutate state`() {
+    fun `onAdClicked logs an analytics event and does not mutate state`() {
         val viewModel = createViewModel()
         val before = viewModel.viewState.value
 
         viewModel.onAdClicked()
 
         assertEquals(before, viewModel.viewState.value)
+        verify { analyticsLogger.logEvent("ad_clicked") }
     }
 }

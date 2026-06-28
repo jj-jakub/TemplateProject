@@ -8,6 +8,8 @@ import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
+import com.jj.templateproject.data.analytics.NoOpAnalyticsLogger
+import com.jj.templateproject.data.analytics.NoOpCrashReporter
 import com.jj.templateproject.data.app.DefaultAppInfoRepository
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
@@ -16,6 +18,8 @@ import com.jj.templateproject.data.network.RetrofitFactory
 import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.analytics.AnalyticsLogger
+import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
@@ -52,6 +56,13 @@ val mainModule = module {
     }
     single<AppPreferencesRepository> { DataStoreAppPreferencesRepository(dataStore = get()) }
 
+    // No-op by default so the template runs without a google-services.json. To enable Firebase,
+    // configure Firebase (google-services.json + the google-services plugin) and swap these for:
+    //   single<AnalyticsLogger> { FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(androidContext())) }
+    //   single<CrashReporter> { FirebaseCrashReporter(FirebaseCrashlytics.getInstance()) }
+    single<AnalyticsLogger> { NoOpAnalyticsLogger() }
+    single<CrashReporter> { NoOpCrashReporter() }
+
     viewModel {
         MainScreenViewModel(
             adManager = get(),
@@ -71,6 +82,7 @@ val mainModule = module {
         MainRootViewModel(
             getMainAdUnitId = get(),
             getThemeModeUseCase = get(),
+            analyticsLogger = get(),
         )
     }
     viewModel {

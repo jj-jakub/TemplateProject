@@ -24,28 +24,29 @@ Sequenced so foundational primitives land before their consumers.
 ## Roadmap & status
 
 ### Design system (`:design`)
-- [ ] **1. Material 3 color scheme + real dark theme** — brand seed colors in `BaseColors`,
+- [x] **1. Material 3 color scheme + real dark theme** — brand seed colors in `BaseColors`,
   full light/dark `ColorScheme`s (every M3 role), a genuinely dark dark-theme background.
-- [ ] **2. Material 3 typography scale** — complete type scale + a documented `FontFamily` seam.
-- [ ] **3. Shape token system** — `Shapes(extraSmall..extraLarge)`; screens reference `MaterialTheme.shapes`.
-- [ ] **4. Opt-in dynamic color (Material You)** — `dynamicColor` flag gated on API 31+, brand fallback.
-- [ ] **5. Reusable themed component library** — `PrimaryButton`/`SecondaryButton`, `AppCard`,
+- [x] **2. Material 3 typography scale** — complete type scale + a documented `FontFamily` seam.
+- [x] **3. Shape token system** — `Shapes(extraSmall..extraLarge)`; screens reference `MaterialTheme.shapes`.
+- [x] **4. Opt-in dynamic color (Material You)** — `dynamicColor` flag gated on API 31+, brand fallback.
+- [x] **5. Reusable themed component library** — `PrimaryButton`/`SecondaryButton`, `AppCard`,
   `SectionHeader`/`BodyText`; 48dp min touch target; `testTag` seams; screens refactored to use them.
-- [ ] **6. Loading / Error / Empty state components + `TestTags`** — replace the alpha-hacked
+- [x] **6. Loading / Error / Empty state components + `TestTags`** — replaced the alpha-hacked
   Settings spinner with a real conditional `LoadingState`; `ErrorState` exposes `onRetry`.
 
 ### Core patterns
-- [ ] **7. `BaseResult` extension toolkit** — `map`/`mapError`/`fold`/`onSuccess`/`onError`/
-  `getOrNull`/`getOrElse`; pure, fully unit-tested.
-- [ ] **8. `DispatcherProvider`** — injected so coroutine code is testable; networking repo uses it.
-- [ ] **9. Networking resilience** — richer `NetworkError` hierarchy, `safeApiCall` boundary
+- [x] **7. `BaseResult` extension toolkit** — `map`/`mapError`/`fold`/`onSuccess`/`onError`/
+  `getOrNull`/`getOrElse`/`flatMap`/`recover`; pure, fully unit-tested.
+- [x] **8. `DispatcherProvider`** — injected so coroutine code is testable; networking repo uses it.
+- [x] **9. Networking resilience** — richer `NetworkError` hierarchy, `safeApiCall` boundary
   (maps IO/serialization/HTTP exceptions), OkHttp timeouts + retry + auth-header interceptor seam.
-- [ ] **10. Generic `UiState<T>` + `renderUiState`** — canonical screen-state type; Settings refactored.
+- [x] **10. Generic `UiState<T>` + `UiStateContent`** — canonical screen-state type; Settings refactored
+  with functional retry.
 
 ### Data, persistence & observability
-- [ ] **11. DataStore preferences repository** — `AppPreferencesRepository` interface in `domain`,
+- [x] **11. DataStore preferences repository** — `AppPreferencesRepository` interface in `domain`,
   DataStore-backed impl; unit-tested against a temp store.
-- [ ] **12. End-to-end theme switching** — `ThemeMode` + `Get/SetThemeModeUseCase` (domain) backed
+- [x] **12. End-to-end theme switching** — `ThemeMode` + `Get/SetThemeModeUseCase` (domain) backed
   by DataStore; `MainRootViewModel` exposes it; `TemplateTheme` consumes it; Settings control.
 - [ ] **13. Analytics + CrashReporter abstraction** — domain interfaces, Firebase-backed impls,
   no-op default for debug/tests; a few events wired.
