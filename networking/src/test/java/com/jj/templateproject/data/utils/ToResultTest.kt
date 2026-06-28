@@ -38,7 +38,9 @@ class ToResultTest {
         val result = response.toResult { }
 
         assertTrue(result is BaseResult.Error)
-        assertEquals(404, (result as BaseResult.Error).error.code)
+        val error = (result as BaseResult.Error).error
+        assertEquals(404, error.code)
+        assertEquals(response.message(), error.message)
     }
 
     @Test
