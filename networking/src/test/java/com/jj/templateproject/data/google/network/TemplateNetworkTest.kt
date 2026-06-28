@@ -20,12 +20,13 @@ class TemplateNetworkTest {
 
     @Test
     fun `getGoogleData returns the http status code as success data`() = runTest {
-        coEvery { service.getGoogleData() } returns Response.success(Unit)
+        // A non-200 2xx pins the mapping to response.code(), not a hardcoded "200".
+        coEvery { service.getGoogleData() } returns Response.success(206, Unit)
 
         val result = network.getGoogleData()
 
         assertTrue(result is BaseResult.Success)
-        assertEquals("200", (result as BaseResult.Success).data)
+        assertEquals("206", (result as BaseResult.Success).data)
     }
 
     @Test

@@ -4,7 +4,7 @@ import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class BuildConfigProvidersTest {
@@ -20,11 +20,15 @@ class BuildConfigProvidersTest {
     }
 
     @Test
-    fun `version text combines revision, build number and version name`() {
-        val text = VersionTextProvider().getAboutVersionText()
+    fun `banner and interstitial ad unit ids are distinct`() {
+        assertNotEquals(GetMainAdUnitId().invoke(), GetInterstitialAdUnitId().invoke())
+    }
 
-        assertTrue(text.contains(BuildConfig.currentRevisionHash))
-        assertTrue(text.contains(BuildConfig.ciBuildNumber.toString()))
-        assertTrue(text.contains(BuildConfig.VERSION_NAME))
+    @Test
+    fun `version text uses the exact revision, build number and version name format`() {
+        val expected = "Revision: ${BuildConfig.currentRevisionHash}, " +
+            "Build number: ${BuildConfig.ciBuildNumber}, Version: ${BuildConfig.VERSION_NAME}"
+
+        assertEquals(expected, VersionTextProvider().getAboutVersionText())
     }
 }

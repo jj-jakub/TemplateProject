@@ -12,6 +12,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
@@ -77,5 +78,15 @@ class SettingsScreenViewModelTest {
         assertEquals("Error", state.apiCallData)
         assertEquals(false, state.installedFromValidSource)
         assertFalse(state.loading)
+    }
+
+    @Test
+    fun `no runtime permission is required below tiramisu`() {
+        every { versionTextProvider.getAboutVersionText() } returns "v"
+        coEvery { getGoogleStatusUseCase.invoke() } returns BaseResult.Success(Unit)
+        coEvery { getGoogleDataUseCase.invoke() } returns BaseResult.Success("200")
+        coEvery { getIsInstalledFromValidSource.invoke() } returns true
+
+        assertTrue(createViewModel().viewState.value.requiredPermissions.isEmpty())
     }
 }

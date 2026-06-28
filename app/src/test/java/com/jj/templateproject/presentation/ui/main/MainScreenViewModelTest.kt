@@ -43,6 +43,14 @@ class MainScreenViewModelTest {
     }
 
     @Test
+    @Config(sdk = [30])
+    fun `no runtime permission is required below API 33`() {
+        val state = createViewModel().viewState.value
+
+        assertTrue(state.requiredPermissions.isEmpty())
+    }
+
+    @Test
     fun `navigateWithoutOptionalArgs emits secondary screen without optional args`() = runTest {
         val viewModel = createViewModel()
 

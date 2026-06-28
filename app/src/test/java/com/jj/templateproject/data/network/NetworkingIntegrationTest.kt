@@ -42,12 +42,13 @@ class NetworkingIntegrationTest {
 
     @Test
     fun `getGoogleData returns Success with the status code on a 2xx response`() = runTest {
-        server.enqueue(MockResponse().setResponseCode(200).setBody("<html>ok</html>"))
+        // 206 (not the default 200) pins the result to the real response code.
+        server.enqueue(MockResponse().setResponseCode(206).setBody("<html>ok</html>"))
 
         val result = repository().getGoogleData()
 
         assertTrue(result is BaseResult.Success)
-        assertEquals("200", (result as BaseResult.Success).data)
+        assertEquals("206", (result as BaseResult.Success).data)
     }
 
     @Test
