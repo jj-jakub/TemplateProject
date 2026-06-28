@@ -11,6 +11,8 @@ import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.core.di.coreModule
 import com.jj.templateproject.di.koin.mainModule
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.analytics.AnalyticsLogger
+import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
@@ -81,6 +83,8 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<VersionTextProvider>())
         assertNotNull(get<NotificationManager>())
         assertNotNull(get<AppPreferencesRepository>())
+        assertNotNull(get<AnalyticsLogger>())
+        assertNotNull(get<CrashReporter>())
     }
 
     @Test
