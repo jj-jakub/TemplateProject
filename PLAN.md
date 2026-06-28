@@ -48,16 +48,16 @@ Sequenced so foundational primitives land before their consumers.
   DataStore-backed impl; unit-tested against a temp store.
 - [x] **12. End-to-end theme switching** — `ThemeMode` + `Get/SetThemeModeUseCase` (domain) backed
   by DataStore; `MainRootViewModel` exposes it; `TemplateTheme` consumes it; Settings control.
-- [ ] **13. Analytics + CrashReporter abstraction** — domain interfaces, Firebase-backed impls,
-  no-op default for debug/tests; a few events wired.
+- [x] **13. Analytics + CrashReporter abstraction** — domain interfaces, Firebase-backed impls,
+  no-op default (bound by default; Firebase a one-line Koin swap); ad-click event wired.
 
 ### DX, tooling & docs
-- [ ] **14. String externalization + i18n sample** — move hardcoded UI text to resources,
-  mark translatable, add a sample `values-es`.
-- [ ] **15. Konsist guard rules + component multipreview/catalog** — new architecture rules
-  (e.g. no raw design colors in presentation); `@ThemePreviews`; a design-system `Catalog`.
-- [ ] **16. Detekt static analysis** — convention plugin + config + baseline so the build stays green.
-- [ ] **17. Docs** — `ARCHITECTURE.md`, `CONTRIBUTING.md`, module READMEs; refresh `README`/`CLAUDE.md`.
+- [x] **14. String externalization + i18n sample** — moved hardcoded UI text to resources,
+  marked translatable, added a sample `values-es`.
+- [x] **15. Konsist guard rules + component multipreview/catalog** — new "no raw design colors in
+  presentation" rule; `@ThemePreviews`; a design-system `ComponentCatalog`.
+- [x] **16. Detekt static analysis** — root `detekt` task + config + baseline (kept out of `check`).
+- [x] **17. Docs** — `ARCHITECTURE.md`, `CONTRIBUTING.md`, per-module READMEs; refreshed `README`/`CLAUDE.md`.
 - [ ] **18. Final adversarial review** — multi-agent review of the full diff; fix findings; green build.
 
 ## How this pass was planned
