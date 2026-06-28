@@ -16,9 +16,8 @@ import org.robolectric.Shadows.shadowOf
 abstract class BaseInstrumentedKoinTest<T : ComponentActivity> : KoinTest {
 
     @get:Rule
-    @Suppress("LeakingThis")
     val koinTestRule = KoinTestRule(
-        modules = listOf(*getInstrumentedTestModules().toTypedArray())
+        modulesProvider = { getInstrumentedTestModules() }
     )
 
     abstract fun getInstrumentedTestModules(): List<Module>
