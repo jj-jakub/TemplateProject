@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -98,14 +101,14 @@ private fun SettingsScreenViewContent(
                 ),
             )
 
-            ThemeSelector(selected = themeMode, onSelect = onSelectTheme)
+            ThemeSelector(selectedMode = themeMode, onSelect = onSelectTheme)
         }
     }
 }
 
 @Composable
 private fun ThemeSelector(
-    selected: ThemeMode,
+    selectedMode: ThemeMode,
     onSelect: (ThemeMode) -> Unit,
 ) {
     val options = listOf(
@@ -119,13 +122,19 @@ private fun ThemeSelector(
         modifier = Modifier.padding(top = 8.dp),
     ) {
         SectionHeader(text = stringResource(R.string.theme_section))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // selectableGroup() + per-option `selected` semantics so TalkBack announces the active
+        // theme, not just the visual fill/outline difference.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.selectableGroup(),
+        ) {
             options.forEach { (mode, labelRes) ->
                 val label = stringResource(labelRes)
-                if (mode == selected) {
-                    PrimaryButton(text = label, onClick = { onSelect(mode) })
+                val optionModifier = Modifier.semantics { selected = (mode == selectedMode) }
+                if (mode == selectedMode) {
+                    PrimaryButton(text = label, onClick = { onSelect(mode) }, modifier = optionModifier)
                 } else {
-                    SecondaryButton(text = label, onClick = { onSelect(mode) })
+                    SecondaryButton(text = label, onClick = { onSelect(mode) }, modifier = optionModifier)
                 }
             }
         }

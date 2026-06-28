@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.jj.templateproject.R
+import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.ThemePreviews
 import com.jj.templateproject.design.components.BodyText
 
@@ -52,10 +53,12 @@ private fun SecondaryScreenContent(
 @ThemePreviews
 @Composable
 fun PreviewSecondaryScreen() {
-    SecondaryScreenContent(
-        text = "state.text",
-        secondaryText = "state.secondaryText",
-        tertiaryText = "state.tertiaryText",
-    )
+    TemplateTheme {
+        SecondaryScreenContent(
+            text = "state.text",
+            secondaryText = "state.secondaryText",
+            tertiaryText = "state.tertiaryText",
+        )
+    }
 }
 
