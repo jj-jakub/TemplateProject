@@ -3,7 +3,6 @@ package com.jj.templateproject.presentation.ui.secondary
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jj.templateproject.R
+import com.jj.templateproject.design.components.BodyText
 
 @Composable
 fun SecondaryScreen(
@@ -37,13 +37,13 @@ private fun SecondaryScreenContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
+        BodyText(
             text = stringResource(R.string.secondary_first, text),
         )
-        Text(
+        BodyText(
             text = stringResource(R.string.secondary_secondary, secondaryText),
         )
-        Text(
+        BodyText(
             text = stringResource(R.string.secondary_tertiary, tertiaryText),
         )
     }
