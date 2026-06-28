@@ -6,8 +6,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerializationException
 import retrofit2.Response
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.ConnectException
-import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 /**
@@ -47,7 +47,9 @@ suspend fun <T, R> safeApiCall(
         apiCall().toResult(onSuccess)
     } catch (cancellation: CancellationException) {
         throw cancellation
-    } catch (timeout: SocketTimeoutException) {
+    } catch (timeout: InterruptedIOException) {
+        // Covers connect/read SocketTimeoutException AND OkHttp's call-level timeout, which
+        // surfaces as a bare InterruptedIOException("timeout") rather than a SocketTimeoutException.
         BaseResult.Error(NetworkError.Timeout)
     } catch (noHost: UnknownHostException) {
         BaseResult.Error(NetworkError.Connectivity)
