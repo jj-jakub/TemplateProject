@@ -9,6 +9,9 @@ import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
+import com.jj.templateproject.domain.theme.GetThemeModeUseCase
+import com.jj.templateproject.domain.theme.SetThemeModeUseCase
+import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
 import com.jj.templateproject.presentation.ui.state.UiState
@@ -17,6 +20,8 @@ import com.jj.templateproject.presentation.ui.state.toUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -25,6 +30,8 @@ class SettingsScreenViewModel(
     private val getGoogleStatusUseCase: GetGoogleStatusUseCase,
     private val getGoogleDataUseCase: GetGoogleDataUseCase,
     private val getIsInstalledFromValidSource: GetIsInstalledFromValidSource,
+    getThemeModeUseCase: GetThemeModeUseCase,
+    private val setThemeModeUseCase: SetThemeModeUseCase,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -38,11 +45,18 @@ class SettingsScreenViewModel(
     init {
         fetchApiData()
         fetchInstallationValidity()
+        getThemeModeUseCase()
+            .onEach { mode -> _viewState.update { it.copy(themeMode = mode) } }
+            .launchIn(viewModelScope)
     }
 
     /** Re-runs the API fetch; wired to the error state's Retry action. */
     fun retry() {
         fetchApiData()
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { setThemeModeUseCase(mode) }
     }
 
     private fun fetchApiData() {

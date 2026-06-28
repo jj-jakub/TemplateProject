@@ -4,12 +4,15 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.jj.templateproject.BaseInstrumentedKoinTest
+import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
 import com.jj.templateproject.presentation.ui.state.UiState
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
@@ -47,5 +50,26 @@ class SettingsScreenUiTest : BaseInstrumentedKoinTest<ComponentActivity>() {
         composeTestRule.onNodeWithText("Version: 1.0").assertIsDisplayed()
         composeTestRule.onNodeWithText("API call status: Ok").assertIsDisplayed()
         composeTestRule.onNodeWithText("API call data: 200").assertIsDisplayed()
+    }
+
+    @Test
+    fun `selecting a theme option calls the view model`() {
+        val viewModel = mockk<SettingsScreenViewModel>(relaxed = true) {
+            every { viewState } returns MutableStateFlow(
+                SettingsScreenViewState(
+                    versionText = "1.0",
+                    apiState = UiState.Success(ApiData(status = "Ok", data = "200")),
+                    themeMode = ThemeMode.SYSTEM,
+                )
+            )
+        }
+
+        composeTestRule.setContent {
+            SettingsScreen(viewModel = viewModel)
+        }
+
+        composeTestRule.onNodeWithText("Dark").performClick()
+
+        verify { viewModel.setThemeMode(ThemeMode.DARK) }
     }
 }

@@ -1,6 +1,7 @@
 package com.jj.templateproject.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import com.jj.templateproject.design.TemplateTheme
+import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.framework.navigation.MainNavGraph
 import com.jj.templateproject.presentation.ui.ads.ComposeAdView
 
@@ -26,8 +28,14 @@ fun MainRoot(
     viewModel: MainRootViewModel,
 ) {
     val state by viewModel.viewState.collectAsState()
+    val themeMode by viewModel.themeMode.collectAsState()
+    val isInDarkMode = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
 
-    TemplateTheme {
+    TemplateTheme(isInDarkMode = isInDarkMode) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

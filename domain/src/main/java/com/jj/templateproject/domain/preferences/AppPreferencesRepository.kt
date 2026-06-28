@@ -1,5 +1,6 @@
 package com.jj.templateproject.domain.preferences
 
+import com.jj.templateproject.domain.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,4 +16,9 @@ interface AppPreferencesRepository {
     val onboardingCompleted: Flow<Boolean>
 
     suspend fun setOnboardingCompleted(completed: Boolean)
+
+    /** The user's theme preference, defaulting to [ThemeMode.SYSTEM]. */
+    val themeMode: Flow<ThemeMode>
+
+    suspend fun setThemeMode(mode: ThemeMode)
 }

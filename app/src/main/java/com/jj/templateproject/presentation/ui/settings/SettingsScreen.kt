@@ -3,6 +3,7 @@ package com.jj.templateproject.presentation.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -20,7 +21,11 @@ import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
 import com.jj.templateproject.design.colorBackground
 import com.jj.templateproject.design.components.BodyText
+import com.jj.templateproject.design.components.PrimaryButton
+import com.jj.templateproject.design.components.SecondaryButton
+import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
+import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.state.UiState
 import com.jj.templateproject.presentation.ui.state.UiStateContent
@@ -46,7 +51,9 @@ fun SettingsScreen(
         versionText = state.versionText,
         apiState = state.apiState,
         installedFromValidSource = state.installedFromValidSource,
+        themeMode = state.themeMode,
         onRetry = viewModel::retry,
+        onSelectTheme = viewModel::setThemeMode,
     )
 }
 
@@ -55,7 +62,9 @@ private fun SettingsScreenViewContent(
     versionText: String,
     apiState: UiState<ApiData>,
     installedFromValidSource: Boolean?,
+    themeMode: ThemeMode,
     onRetry: () -> Unit,
+    onSelectTheme: (ThemeMode) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -86,6 +95,37 @@ private fun SettingsScreenViewContent(
                 text = stringResource(R.string.installed_from_valid_source) + ": " +
                     (installedFromValidSource?.toString() ?: stringResource(R.string.loading)),
             )
+
+            ThemeSelector(selected = themeMode, onSelect = onSelectTheme)
+        }
+    }
+}
+
+@Composable
+private fun ThemeSelector(
+    selected: ThemeMode,
+    onSelect: (ThemeMode) -> Unit,
+) {
+    val options = listOf(
+        ThemeMode.SYSTEM to R.string.theme_system,
+        ThemeMode.LIGHT to R.string.theme_light,
+        ThemeMode.DARK to R.string.theme_dark,
+    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 8.dp),
+    ) {
+        SectionHeader(text = stringResource(R.string.theme_section))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            options.forEach { (mode, labelRes) ->
+                val label = stringResource(labelRes)
+                if (mode == selected) {
+                    PrimaryButton(text = label, onClick = { onSelect(mode) })
+                } else {
+                    SecondaryButton(text = label, onClick = { onSelect(mode) })
+                }
+            }
         }
     }
 }
@@ -108,7 +148,9 @@ fun PreviewSettingsScreenViewContent() {
             versionText = "Version text",
             apiState = UiState.Success(ApiData(status = "Ok", data = "200")),
             installedFromValidSource = null,
+            themeMode = ThemeMode.SYSTEM,
             onRetry = {},
+            onSelectTheme = {},
         )
     }
 }

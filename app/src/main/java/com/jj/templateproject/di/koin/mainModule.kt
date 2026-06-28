@@ -63,11 +63,14 @@ val mainModule = module {
             getGoogleStatusUseCase = get(),
             getGoogleDataUseCase = get(),
             getIsInstalledFromValidSource = get(),
+            getThemeModeUseCase = get(),
+            setThemeModeUseCase = get(),
         )
     }
     viewModel {
         MainRootViewModel(
             getMainAdUnitId = get(),
+            getThemeModeUseCase = get(),
         )
     }
     viewModel {
