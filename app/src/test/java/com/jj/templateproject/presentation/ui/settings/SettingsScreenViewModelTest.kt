@@ -114,6 +114,27 @@ class SettingsScreenViewModelTest {
     }
 
     @Test
+    fun `retry re-runs the fetch and recovers from an error`() {
+        every { versionTextProvider.getAboutVersionText() } returns "v"
+        coEvery { getIsInstalledFromValidSource.invoke() } returns true
+        coEvery { getGoogleDataUseCase.invoke() } returns BaseResult.Success("200")
+        coEvery { getGoogleStatusUseCase.invoke() } returns
+            BaseResult.Error(NetworkError.Connectivity)
+
+        val viewModel = createViewModel()
+        assertEquals(UiState.Error("No network connection"), viewModel.viewState.value.apiState)
+
+        coEvery { getGoogleStatusUseCase.invoke() } returns BaseResult.Success(Unit)
+        viewModel.retry()
+
+        assertEquals(
+            UiState.Success(ApiData(status = "Ok", data = "200")),
+            viewModel.viewState.value.apiState,
+        )
+        coVerify(exactly = 2) { getGoogleStatusUseCase.invoke() }
+    }
+
+    @Test
     fun `setThemeMode delegates to the use case`() {
         every { versionTextProvider.getAboutVersionText() } returns "v"
         coEvery { getGoogleStatusUseCase.invoke() } returns BaseResult.Success(Unit)
