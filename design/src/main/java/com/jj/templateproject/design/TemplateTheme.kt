@@ -3,24 +3,10 @@ package com.jj.templateproject.design
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-
-val DarkColorScheme = darkColorScheme(
-    primary = colorPrimaryDark,
-    background = colorBackground,
-    secondary = colorAccent,
-)
-
-val LightColorScheme = lightColorScheme(
-    primary = colorPrimary,
-    background = colorBackground,
-    secondary = colorAccent,
-)
 
 @Composable
 fun TemplateTheme(
