@@ -4,6 +4,7 @@ import com.jj.templateproject.data.google.DefaultTemplateRepository
 import com.jj.templateproject.data.google.network.TemplateNetwork
 import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.google.TemplateRepository
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -37,7 +38,7 @@ class NetworkingIntegrationTest {
     private fun repository(): TemplateRepository {
         val retrofit = RetrofitFactory().retrofit(server.url("/").toString())
         val service = retrofit.create(TemplateService::class.java)
-        return DefaultTemplateRepository(TemplateNetwork(service))
+        return DefaultTemplateRepository(TemplateNetwork(service), DefaultDispatcherProvider())
     }
 
     @Test

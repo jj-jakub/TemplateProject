@@ -11,5 +11,7 @@ val networkingModule = module {
     single { get<Retrofit>().create(TemplateService::class.java) }
 
     single { TemplateNetwork(templateService = get()) }
-    single<TemplateRepository> { DefaultTemplateRepository(templateNetwork = get()) }
+    single<TemplateRepository> {
+        DefaultTemplateRepository(templateNetwork = get(), dispatcherProvider = get())
+    }
 }

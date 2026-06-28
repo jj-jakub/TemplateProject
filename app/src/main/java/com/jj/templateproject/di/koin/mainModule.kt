@@ -12,6 +12,8 @@ import com.jj.templateproject.data.network.RetrofitFactory
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
+import com.jj.templateproject.domain.coroutines.DispatcherProvider
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
@@ -35,6 +37,7 @@ val mainModule = module {
         )
     }
     single { VersionTextProvider() }
+    single<DispatcherProvider> { DefaultDispatcherProvider() }
 
     viewModel {
         MainScreenViewModel(
