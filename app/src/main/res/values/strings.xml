@@ -10,4 +10,8 @@
     <string name="navigate_with_first_optional_arg">Navigate with first optional arg</string>
     <string name="navigate_with_second_optional_arg">Navigate with second optional arg</string>
     <string name="navigate_with_all_optional_args">Navigate with all optional args</string>
+    <string name="theme_section">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 </resources>
