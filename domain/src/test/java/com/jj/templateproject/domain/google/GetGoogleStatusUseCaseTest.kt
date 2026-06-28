@@ -35,7 +35,7 @@ class GetGoogleStatusUseCaseTest {
 
     @Test
     fun `invoke propagates repository errors`() = runTest {
-        val expected = BaseResult.Error<Unit, NetworkError>(NetworkError(404, "not found"))
+        val expected = BaseResult.Error<Unit, NetworkError>(NetworkError.Http(404, "not found"))
         coEvery { repository.getGoogleStatus() } returns expected
 
         val result = useCase()

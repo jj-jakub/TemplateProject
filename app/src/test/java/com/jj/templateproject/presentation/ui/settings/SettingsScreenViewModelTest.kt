@@ -66,9 +66,9 @@ class SettingsScreenViewModelTest {
     fun `status error surfaces the error message and data error shows Error`() {
         every { versionTextProvider.getAboutVersionText() } returns "v"
         coEvery { getGoogleStatusUseCase.invoke() } returns
-            BaseResult.Error(NetworkError(500, "server down"))
+            BaseResult.Error(NetworkError.Http(500, "server down"))
         coEvery { getGoogleDataUseCase.invoke() } returns
-            BaseResult.Error(NetworkError(500, "server down"))
+            BaseResult.Error(NetworkError.Http(500, "server down"))
         coEvery { getIsInstalledFromValidSource.invoke() } returns false
 
         val viewModel = createViewModel()

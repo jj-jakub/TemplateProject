@@ -1,6 +1,7 @@
 package com.jj.templateproject.data.utils
 
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.google.exception.NetworkError
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,7 +32,7 @@ class ToResultTest {
     }
 
     @Test
-    fun `error response maps to Error carrying the http code`() {
+    fun `error response maps to a typed Http error carrying the code`() {
         val body = "nope".toResponseBody("text/plain".toMediaType())
         val response = Response.error<Unit>(404, body)
 
@@ -39,8 +40,8 @@ class ToResultTest {
 
         assertTrue(result is BaseResult.Error)
         val error = (result as BaseResult.Error).error
-        assertEquals(404, error.code)
-        assertEquals(response.message(), error.message)
+        assertTrue(error is NetworkError.Http)
+        assertEquals(404, (error as NetworkError.Http).code)
     }
 
     @Test
