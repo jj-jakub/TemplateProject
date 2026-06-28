@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import retrofit2.Response
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -42,6 +43,14 @@ class SafeApiCallTest {
     @Test
     fun `a socket timeout maps to Timeout`() = runTest {
         val result = safeApiCall<Unit, Unit>(apiCall = { throw SocketTimeoutException() }) { }
+
+        assertEquals(NetworkError.Timeout, (result as BaseResult.Error).error)
+    }
+
+    @Test
+    fun `a call-level timeout (bare InterruptedIOException) maps to Timeout`() = runTest {
+        // OkHttp's callTimeout throws a plain InterruptedIOException, not a SocketTimeoutException.
+        val result = safeApiCall<Unit, Unit>(apiCall = { throw InterruptedIOException("timeout") }) { }
 
         assertEquals(NetworkError.Timeout, (result as BaseResult.Error).error)
     }
