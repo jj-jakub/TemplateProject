@@ -14,4 +14,9 @@ dependencies {
     api(libs.okhttpInterceptor)
 
     implementation(libs.koin)
+
+    testImplementation(libs.junit5)
+    testImplementation(libs.mockk)
+    testImplementation(libs.coroutinesTest)
+    testRuntimeOnly(libs.junitPlatformLauncher)
 }

@@ -14,4 +14,7 @@ dependencies {
     implementation(libs.composeNavigation)
     implementation(libs.composePreview)
     implementation(libs.composeActivity)
+
+    testImplementation(libs.junit5)
+    testRuntimeOnly(libs.junitPlatformLauncher)
 }
