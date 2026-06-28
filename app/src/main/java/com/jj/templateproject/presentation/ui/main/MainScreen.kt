@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,7 +23,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.jj.templateproject.R
 import com.jj.templateproject.design.TemplateTheme
-import com.jj.templateproject.design.colorBackground
 import com.jj.templateproject.design.components.PrimaryButton
 import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
@@ -76,7 +76,7 @@ private fun MainScreenViewContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorBackground),
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
     ) {
