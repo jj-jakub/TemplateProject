@@ -5,6 +5,8 @@
       Add more locales by copying this file under values-<lang> (e.g. values-fr).
     -->
     <string name="loading">Cargando</string>
+    <string name="retry">Reintentar</string>
+    <string name="empty_default">No hay nada aquí</string>
     <string name="installed_from_valid_source_value">¿La app está instalada desde una fuente válida?: %1$s</string>
     <string name="version">Versión: %1$s</string>
     <string name="api_call_status">Estado de la llamada a la API: %1$s</string>
