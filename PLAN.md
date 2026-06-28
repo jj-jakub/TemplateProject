@@ -58,7 +58,21 @@ Sequenced so foundational primitives land before their consumers.
   presentation" rule; `@ThemePreviews`; a design-system `ComponentCatalog`.
 - [x] **16. Detekt static analysis** — root `detekt` task + config + baseline (kept out of `check`).
 - [x] **17. Docs** — `ARCHITECTURE.md`, `CONTRIBUTING.md`, per-module READMEs; refreshed `README`/`CLAUDE.md`.
-- [ ] **18. Final adversarial review** — multi-agent review of the full diff; fix findings; green build.
+- [x] **18. Final adversarial review** — multi-agent review of the full diff; findings fixed; green build.
+
+## Review outcome
+A 6-lens adversarial review workflow (correctness, architecture/Konsist, Compose, concurrency,
+tests, build) independently verified each finding. **No blockers or highs**; all hard constraints
+held. The confirmed findings were all addressed:
+- **Correctness:** OkHttp call-timeout (`InterruptedIOException`) was misclassified as Connectivity
+  instead of Timeout — fixed + regression test.
+- **i18n:** the Loading/Error/Empty slots used in Settings carried hardcoded English — `UiStateContent`
+  now defaults its labels from string resources (added in `values` + `values-es`).
+- **Tests:** added coverage for the Settings `retry()` flow, the `RetryInterceptor` through the real
+  OkHttp stack (retry-on-IO, no-retry-on-5xx), and the Firebase analytics/crash adapter routing.
+- **Hardening:** DataStore flows recover from read `IOException`s; `LightColorScheme`/`DarkColorScheme`
+  made `internal` (type-enforces the no-raw-colors rule); theme switcher exposes `selected` semantics
+  for TalkBack; preview wrapped in `TemplateTheme`; detekt frontend-lag noted.
 
 ## How this pass was planned
 A multi-agent planning workflow proposed candidates from four lenses (UX/design, architecture/state,
