@@ -1,6 +1,82 @@
-# Template modernization plan
+# TemplateProject plan
 
-Status of the modernization pass on `chore/template-modernization` (branched from `develop`).
+This is a living document. The **current pass** is at the top; previous passes are kept below
+as history. Every item is implemented as its own commit, and the project is rebuilt/retested
+after each change (`./gradlew testFlavor1DebugUnitTest` + the relevant module test tasks).
+
+---
+
+# Pro enhancement pass (`feature/template-pro-enhancements`)
+
+Goal: turn the template into a **top-class deliverable** — a developer who branches it inherits
+a real design system, reusable state/result/dispatcher primitives, a resilient networking layer,
+persisted preferences, an observability seam, localization-readiness, static analysis and docs.
+
+Hard constraints respected throughout: Konsist layering (`domain` → nothing, `data` → `domain`,
+`presentation` → `domain`+`data`; UseCases named `*UseCase` in `domain`; ViewModels = single
+constructor of plain/`private val` params); all versions in `gradle/libs.versions.toml`; module
+build files only declare convention plugins + namespace + deps; configuration-cache safe; JUnit5;
+kotlinx-serialization; edge-to-edge; type-safe `Route` navigation; **stays a generic template**;
+**builds and is unit-testable without a device** (Robolectric/JUnit5).
+
+Sequenced so foundational primitives land before their consumers.
+
+## Roadmap & status
+
+### Design system (`:design`)
+- [ ] **1. Material 3 color scheme + real dark theme** — brand seed colors in `BaseColors`,
+  full light/dark `ColorScheme`s (every M3 role), a genuinely dark dark-theme background.
+- [ ] **2. Material 3 typography scale** — complete type scale + a documented `FontFamily` seam.
+- [ ] **3. Shape token system** — `Shapes(extraSmall..extraLarge)`; screens reference `MaterialTheme.shapes`.
+- [ ] **4. Opt-in dynamic color (Material You)** — `dynamicColor` flag gated on API 31+, brand fallback.
+- [ ] **5. Reusable themed component library** — `PrimaryButton`/`SecondaryButton`, `AppCard`,
+  `SectionHeader`/`BodyText`; 48dp min touch target; `testTag` seams; screens refactored to use them.
+- [ ] **6. Loading / Error / Empty state components + `TestTags`** — replace the alpha-hacked
+  Settings spinner with a real conditional `LoadingState`; `ErrorState` exposes `onRetry`.
+
+### Core patterns
+- [ ] **7. `BaseResult` extension toolkit** — `map`/`mapError`/`fold`/`onSuccess`/`onError`/
+  `getOrNull`/`getOrElse`; pure, fully unit-tested.
+- [ ] **8. `DispatcherProvider`** — injected so coroutine code is testable; networking repo uses it.
+- [ ] **9. Networking resilience** — richer `NetworkError` hierarchy, `safeApiCall` boundary
+  (maps IO/serialization/HTTP exceptions), OkHttp timeouts + retry + auth-header interceptor seam.
+- [ ] **10. Generic `UiState<T>` + `renderUiState`** — canonical screen-state type; Settings refactored.
+
+### Data, persistence & observability
+- [ ] **11. DataStore preferences repository** — `AppPreferencesRepository` interface in `domain`,
+  DataStore-backed impl; unit-tested against a temp store.
+- [ ] **12. End-to-end theme switching** — `ThemeMode` + `Get/SetThemeModeUseCase` (domain) backed
+  by DataStore; `MainRootViewModel` exposes it; `TemplateTheme` consumes it; Settings control.
+- [ ] **13. Analytics + CrashReporter abstraction** — domain interfaces, Firebase-backed impls,
+  no-op default for debug/tests; a few events wired.
+
+### DX, tooling & docs
+- [ ] **14. String externalization + i18n sample** — move hardcoded UI text to resources,
+  mark translatable, add a sample `values-es`.
+- [ ] **15. Konsist guard rules + component multipreview/catalog** — new architecture rules
+  (e.g. no raw design colors in presentation); `@ThemePreviews`; a design-system `Catalog`.
+- [ ] **16. Detekt static analysis** — convention plugin + config + baseline so the build stays green.
+- [ ] **17. Docs** — `ARCHITECTURE.md`, `CONTRIBUTING.md`, module READMEs; refresh `README`/`CLAUDE.md`.
+- [ ] **18. Final adversarial review** — multi-agent review of the full diff; fix findings; green build.
+
+## How this pass was planned
+A multi-agent planning workflow proposed candidates from four lenses (UX/design, architecture/state,
+data/observability, DX/tooling), then synthesized this dependency-ordered roadmap. Each item is
+verified by its own JUnit5/Robolectric/Compose tests (no device required) and committed individually.
+
+## Verification commands
+```bash
+./gradlew :app:testFlavor1DebugUnitTest         # app unit + UI (Robolectric) + Konsist
+./gradlew :design:testDebugUnitTest             # design-system tests
+./gradlew :domain:testDebugUnitTest             # domain tests
+./gradlew :networking:testDebugUnitTest         # networking (MockWebServer) tests
+./gradlew assembleFlavor1Debug                  # APK builds
+```
+
+---
+
+# Previous pass — Template modernization (`chore/template-modernization`)
+
 Each item below was implemented and the project was rebuilt/retested after every change.
 
 ## Done
@@ -70,6 +146,7 @@ Each item below was implemented and the project was rebuilt/retested after every
   a cache problem, use `--no-configuration-cache` for that invocation.
 - `toResult` maps HTTP errors but lets IO/network exceptions propagate (pre-existing). Consider
   wrapping calls in a `runCatching`-style boundary if you want network failures as `BaseResult`.
+  → **addressed in the enhancement pass (item 9).**
 - `local.properties`’ `ciBuildNumber` is read with `java.io` at configuration time; fine today,
   but could be migrated to a `providers` API if it ever needs to invalidate the config cache.
 - The Konsist test uses `hasValModifier`, deprecated in konsist 0.19.0 — update when bumping.
