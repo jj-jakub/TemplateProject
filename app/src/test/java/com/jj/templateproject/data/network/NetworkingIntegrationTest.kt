@@ -6,6 +6,7 @@ import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.google.TemplateRepository
+import com.jj.templateproject.domain.google.exception.NetworkError
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -59,7 +60,8 @@ class NetworkingIntegrationTest {
         val result = repository().getGoogleData()
 
         assertTrue(result is BaseResult.Error)
-        assertEquals(503, (result as BaseResult.Error).error.code)
+        val error = (result as BaseResult.Error).error
+        assertEquals(503, (error as NetworkError.Http).code)
     }
 
     @Test
@@ -79,7 +81,8 @@ class NetworkingIntegrationTest {
         val result = repository().getGoogleStatus()
 
         assertTrue(result is BaseResult.Error)
-        assertEquals(404, (result as BaseResult.Error).error.code)
+        val error = (result as BaseResult.Error).error
+        assertEquals(404, (error as NetworkError.Http).code)
     }
 
     @Test

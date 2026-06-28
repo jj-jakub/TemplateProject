@@ -35,7 +35,7 @@ class GetGoogleDataUseCaseTest {
 
     @Test
     fun `invoke propagates repository errors`() = runTest {
-        val expected = BaseResult.Error<String, NetworkError>(NetworkError(500, "boom"))
+        val expected = BaseResult.Error<String, NetworkError>(NetworkError.Http(500, "boom"))
         coEvery { repository.getGoogleData() } returns expected
 
         val result = useCase()

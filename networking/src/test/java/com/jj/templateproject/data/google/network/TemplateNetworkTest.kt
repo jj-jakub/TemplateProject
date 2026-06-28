@@ -2,6 +2,7 @@ package com.jj.templateproject.data.google.network
 
 import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.google.exception.NetworkError
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -36,7 +37,8 @@ class TemplateNetworkTest {
         val result = network.getGoogleData()
 
         assertTrue(result is BaseResult.Error)
-        assertEquals(503, (result as BaseResult.Error).error.code)
+        val error = (result as BaseResult.Error).error
+        assertEquals(503, (error as NetworkError.Http).code)
     }
 
     @Test
@@ -56,7 +58,8 @@ class TemplateNetworkTest {
         val result = network.getGoogleStatus()
 
         assertTrue(result is BaseResult.Error)
-        assertEquals(418, (result as BaseResult.Error).error.code)
+        val error = (result as BaseResult.Error).error
+        assertEquals(418, (error as NetworkError.Http).code)
     }
 
     @Test
