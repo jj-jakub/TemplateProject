@@ -36,6 +36,9 @@ inline fun <T, R> Response<T>.toResult(onSuccess: (Response<T>) -> R): BaseResul
  *
  * [CancellationException] is rethrown so coroutine cancellation keeps working.
  */
+// Intentionally classifies each exception into a typed NetworkError instead of rethrowing it;
+// the broad final catch is the deliberate "Unknown" fallback.
+@Suppress("SwallowedException", "TooGenericExceptionCaught")
 suspend fun <T, R> safeApiCall(
     apiCall: suspend () -> Response<T>,
     onSuccess: (Response<T>) -> R,

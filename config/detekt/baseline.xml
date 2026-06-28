@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>LongMethod:MainNavGraph.kt$@Composable fun MainNavGraph( navController: NavHostController, )</ID>
+    <ID>MagicNumber:AndroidApplicationConventionPlugin.kt$AndroidApplicationConventionPlugin$35</ID>
+    <ID>MagicNumber:DesignUtils.kt$0.5</ID>
+    <ID>MagicNumber:KotlinAndroid.kt$23</ID>
+    <ID>MagicNumber:KotlinAndroid.kt$36</ID>
+  </CurrentIssues>
+</SmellBaseline>
