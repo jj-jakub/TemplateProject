@@ -10,6 +10,7 @@ import com.jj.templateproject.domain.google.exception.NetworkError
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -94,6 +95,29 @@ class NetworkingIntegrationTest {
         val recorded = server.takeRequest()
         assertEquals("GET", recorded.method)
         assertEquals("/", recorded.path)
+    }
+
+    @Test
+    fun `a transient connection failure is retried through OkHttp and then succeeds`() = runTest {
+        // First attempt drops the connection (IOException -> RetryInterceptor retries), second is a 2xx.
+        server.enqueue(MockResponse().apply { socketPolicy = SocketPolicy.DISCONNECT_AT_START })
+        server.enqueue(MockResponse().setResponseCode(200))
+
+        val result = repository().getGoogleData()
+
+        assertTrue(result is BaseResult.Success)
+        assertEquals("200", (result as BaseResult.Success).data)
+    }
+
+    @Test
+    fun `an HTTP error response is not retried`() = runTest {
+        server.enqueue(MockResponse().setResponseCode(503))
+
+        val result = repository().getGoogleData()
+
+        assertTrue(result is BaseResult.Error)
+        assertEquals(503, ((result as BaseResult.Error).error as NetworkError.Http).code)
+        assertEquals(1, server.requestCount) // RetryInterceptor only retries IOExceptions, not 5xx
     }
 
     @Test
