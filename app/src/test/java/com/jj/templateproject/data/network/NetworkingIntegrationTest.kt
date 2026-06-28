@@ -95,4 +95,16 @@ class NetworkingIntegrationTest {
         assertEquals("GET", recorded.method)
         assertEquals("/", recorded.path)
     }
+
+    @Test
+    fun `the header provider seam attaches headers to outgoing requests`() = runTest {
+        server.enqueue(MockResponse().setResponseCode(200))
+        val service = RetrofitFactory(headerProvider = { mapOf("Authorization" to "Bearer abc") })
+            .retrofit(server.url("/").toString())
+            .create(TemplateService::class.java)
+
+        service.getGoogleData()
+
+        assertEquals("Bearer abc", server.takeRequest().getHeader("Authorization"))
+    }
 }
