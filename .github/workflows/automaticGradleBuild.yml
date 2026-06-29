@@ -87,13 +87,15 @@ jobs:
       - name: Set up Gradle (with dependency & build caching)
         uses: gradle/actions/setup-gradle@v4
 
-      # Skipped when SONAR_TOKEN isn't configured (e.g. forks), and non-blocking when it is, so a
-      # SonarCloud-side issue surfaces as an annotation without failing the pipeline. Quality
-      # gating, if desired, is enforced on SonarCloud rather than by failing the build here.
+      # The SonarQube Gradle plugin is not compatible with Gradle's configuration cache (enabled in
+      # gradle.properties), so run this invocation with --no-configuration-cache; otherwise the
+      # task aborts with a configuration-cache report. Skipped when SONAR_TOKEN isn't configured
+      # (e.g. forks). continue-on-error keeps a SonarCloud-side hiccup from failing the pipeline —
+      # remove it to make Sonar a hard gate once you've confirmed a clean run.
       - name: Sonar analysis
         if: ${{ env.SONAR_TOKEN != '' }}
         continue-on-error: true
-        run: ./gradlew buildFlavor1Debug sonar --info
+        run: ./gradlew buildFlavor1Debug sonar --no-configuration-cache --info
 
   Unit_tests:
     runs-on: ubuntu-latest
