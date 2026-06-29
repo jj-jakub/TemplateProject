@@ -1,6 +1,7 @@
 package com.jj.templateproject.ui
 
 import android.Manifest
+import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
@@ -42,7 +43,9 @@ class AppFlowsUiTest {
 
     @get:Rule
     val rules: RuleChain = RuleChain
-        .outerRule(GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS))
+        // Granted only on API 33+, where Main/Settings actually request it; on older API levels
+        // (e.g. the API 29 CI emulator) POST_NOTIFICATIONS isn't a grantable permission.
+        .outerRule(GrantPermissionRule.grant(*notificationPermissions()))
         .around(composeTestRule)
 
     @After
@@ -181,5 +184,12 @@ class AppFlowsUiTest {
 
     private companion object {
         const val TIMEOUT_MS = 5_000L
+
+        private fun notificationPermissions(): Array<String> =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                emptyArray()
+            }
     }
 }
