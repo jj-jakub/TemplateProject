@@ -87,10 +87,12 @@ jobs:
       - name: Set up Gradle (with dependency & build caching)
         uses: gradle/actions/setup-gradle@v4
 
-      # Skipped (not failed) when SONAR_TOKEN isn't configured, so the pipeline stays green
-      # without SonarCloud credentials (e.g. forks or before the secret is set).
+      # Skipped when SONAR_TOKEN isn't configured (e.g. forks), and non-blocking when it is, so a
+      # SonarCloud-side issue surfaces as an annotation without failing the pipeline. Quality
+      # gating, if desired, is enforced on SonarCloud rather than by failing the build here.
       - name: Sonar analysis
         if: ${{ env.SONAR_TOKEN != '' }}
+        continue-on-error: true
         run: ./gradlew buildFlavor1Debug sonar --info
 
   Unit_tests:
