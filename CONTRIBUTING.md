@@ -30,12 +30,13 @@ Release minifies and reads signing creds from the environment, so day-to-day wor
 ## Commands
 
 ```bash
-./gradlew assembleFlavor1Debug          # build
-./gradlew testFlavor1DebugUnitTest      # unit tests + Konsist architecture checks
-./gradlew :app:lintFlavor1Debug         # Android lint
-./gradlew detekt                        # static analysis
-./gradlew detektBaseline                # regenerate the detekt baseline
-./gradlew build sonar                   # full build + SonarCloud (needs network/token)
+./gradlew assembleFlavor1Debug             # build
+./gradlew testFlavor1DebugUnitTest         # unit tests + Konsist architecture checks
+./gradlew :app:connectedFlavor1DebugAndroidTest  # instrumented UI tests (needs a device/emulator)
+./gradlew :app:lintFlavor1Debug            # Android lint
+./gradlew detekt                           # static analysis
+./gradlew detektBaseline                   # regenerate the detekt baseline
+./gradlew build sonar                      # full build + SonarCloud (needs network/token)
 ```
 
 Unit tests use **JUnit 5** (`useJUnitPlatform`); keep `junit-platform-launcher` on the test
@@ -149,6 +150,19 @@ The whole suite runs without an emulator (JUnit5 + Robolectric + MockK + Turbine
   - Use `TestTags` from the design module for stable node lookups.
 - **Architecture**: the Konsist tests in `app/src/test/java/konsist/KonsistTests.kt` run as part
   of `testFlavor1DebugUnitTest` — keep them green.
+
+### Instrumented UI tests (on a device/emulator)
+
+End-to-end UI flows run on a device via `./gradlew :app:connectedFlavor1DebugAndroidTest` (CI runs
+this through `connectedCheck`). They use a hermetic harness so they stay deterministic and offline:
+
+- `HermeticTestRunner` (set as `testInstrumentationRunner`) swaps in `HermeticTestApplication`,
+  which starts Koin with `testOverrideModule` — a **fake network repository** and **no-op ads** —
+  and skips Parse, so no real network/ads run.
+- `AppFlowsUiTest` renders the real `MainNavGraph` directly (not `MainActivity`, so the AdMob
+  banner's WebView can't block Compose's idle synchronization) and drives the actual navigation,
+  Main→Secondary args, Settings content and theme switching.
+- All instrumented test code lives in `app/src/androidTest/` (`testsupport/` holds the fakes).
 
 Run everything locally before pushing:
 

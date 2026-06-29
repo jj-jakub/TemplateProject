@@ -164,11 +164,12 @@ The app **builds and runs without any secrets**. Optional setup:
 ## Build, test & quality
 
 ```bash
-./gradlew assembleFlavor1Debug      # build a debug variant
-./gradlew testFlavor1DebugUnitTest  # unit tests + Konsist architecture checks
-./gradlew :app:lintFlavor1Debug     # Android Lint
-./gradlew detekt                    # static analysis (config + baseline in config/detekt)
-./gradlew build sonar               # full build + SonarCloud analysis (needs a token)
+./gradlew assembleFlavor1Debug                   # build a debug variant
+./gradlew testFlavor1DebugUnitTest               # unit tests + Konsist architecture checks
+./gradlew :app:connectedFlavor1DebugAndroidTest  # instrumented UI tests (needs a device/emulator)
+./gradlew :app:lintFlavor1Debug                  # Android Lint
+./gradlew detekt                                 # static analysis (config + baseline in config/detekt)
+./gradlew build sonar                            # full build + SonarCloud analysis (needs a token)
 ```
 
 The unit, lint and Detekt checks run without a device. The Gradle **configuration cache** is on by
