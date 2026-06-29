@@ -38,7 +38,7 @@ android {
 
         buildConfigField("String", "currentRevisionHash", "\"${gitShortHash.get()}\"")
         buildConfigField("int", "ciBuildNumber", "$ciBuildNumber")
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.jj.templateproject.HermeticTestRunner"
     }
     packaging {
         resources {
@@ -172,4 +172,6 @@ dependencies {
     androidTestImplementation(libs.androidTestRules)
     androidTestImplementation(libs.uiAutomator)
     androidTestImplementation(libs.ui.test.junit4.android)
+    // Provides the ComponentActivity used by createAndroidComposeRule in instrumented tests.
+    debugImplementation(libs.ui.test.manifest)
 }
