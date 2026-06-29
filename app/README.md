@@ -122,4 +122,9 @@ Configured in `app/build.gradle.kts` (shared Android config comes from the
   (`RetrofitFactoryTest`, `RetryInterceptorTest`, `NetworkingIntegrationTest` with MockWebServer),
   DataStore prefs, ads, analytics, config and firebase utils.
 - `src/test/java/konsist/KonsistTests.kt` — architecture/dependency-direction rules (run as unit tests).
-- `src/androidTestFlavor1` / `src/androidTestFlavor2` — flavor-specific instrumented `ExampleInstrumentedTest`.
+- `src/androidTest/` — instrumented UI tests on a device/emulator
+  (`./gradlew :app:connectedFlavor1DebugAndroidTest`). `AppFlowsUiTest` drives the real
+  `MainNavGraph` (navigation, Main→Secondary args, Settings content, theme switching) against a
+  hermetic Koin graph: `HermeticTestRunner` → `HermeticTestApplication` loads `testsupport/`
+  fakes (fake repository + no-op ads). `src/androidTestFlavor1` / `androidTestFlavor2` hold the
+  flavor-specific `ExampleInstrumentedTest`.
