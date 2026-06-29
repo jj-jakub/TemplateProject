@@ -5,6 +5,15 @@ plugins {
     alias(libs.plugins.sonarqube)
 }
 
+// Firebase is opt-in. The google-services plugin (which bakes google-services.json into the build
+// so Firebase can initialize) is applied automatically only when you've added your own
+// google-services.json to app/ — so the template still builds without one. After you add it,
+// register your variant application IDs in the Firebase console (note the .fl1/.fl2 + .debug
+// suffixes) and switch the Koin bindings in mainModule to the Firebase Analytics/Crash impls.
+if (project.file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "jj-jakub_TemplateProject")

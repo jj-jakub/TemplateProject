@@ -18,6 +18,10 @@ that keep it a clean, generic foundation over app-specific features.
    ```bash
    cp app/google-services.json.example app/google-services.json
    ```
+   When the file exists, the `google-services` plugin applies automatically (see
+   `app/build.gradle.kts`). Register all four variant application ids in the Firebase console
+   (`com.jj.templateproject.fl1(.debug)` and `.fl2(.debug)`) — the example has a client per variant —
+   then switch the Koin `AnalyticsLogger`/`CrashReporter` bindings to the Firebase implementations.
 3. Build to verify your toolchain:
    ```bash
    ./gradlew assembleFlavor1Debug

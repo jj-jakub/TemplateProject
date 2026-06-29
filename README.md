@@ -149,11 +149,16 @@ cd TemplateProject
 The app **builds and runs without any secrets**. Optional setup:
 
 1. **Firebase (optional).** The app runs fine without it (analytics/crash reporting default to
-   no-op). To enable Firebase, copy the example and add your project values — the real file is
+   no-op). To enable Firebase, copy the example and fill in your project values — the real file is
    git-ignored so keys aren't committed:
    ```bash
    cp app/google-services.json.example app/google-services.json
    ```
+   The `google-services` plugin is applied **automatically when that file exists** (no Gradle edit
+   needed). Register all four variant application ids in the Firebase console — the suffixes make
+   them `com.jj.templateproject.fl1(.debug)` and `.fl2(.debug)` — and the example already has a
+   client entry for each. Finally, switch the `AnalyticsLogger`/`CrashReporter` bindings in
+   `mainModule` to the Firebase implementations.
 2. **`local.properties`.** Android Studio creates it with `sdk.dir`. CI also reads an optional
    `ciBuildNumber`.
 3. **Make it yours.** Change the `applicationId`/`namespace` (`com.jj.templateproject`) and the

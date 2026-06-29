@@ -95,7 +95,10 @@ with the shadow `PackageManager`).
 
 ## Setup gotchas
 
-- `app/google-services.json` is **git-ignored**. Copy `app/google-services.json.example` and
-  fill in real Firebase values before expecting Firebase to work.
+- `app/google-services.json` is **git-ignored**. Copy `app/google-services.json.example` and fill
+  in real Firebase values to enable Firebase. The `google-services` plugin is applied
+  **conditionally** in `app/build.gradle.kts` — only when that file exists — so the template builds
+  without it. The config must contain a client for each variant id (`.fl1`/`.fl2` + `.debug`), and
+  the Firebase `AnalyticsLogger`/`CrashReporter` bindings in `mainModule` are the opt-in swap.
 - Release signing reads `SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD`
   and a keystore path from the environment (`app/build.gradle.kts`).
