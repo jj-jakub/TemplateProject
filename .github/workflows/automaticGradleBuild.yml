@@ -43,8 +43,11 @@ jobs:
       - name: Lint
         run: ./gradlew lint
 
-      - name: Gradle build
-        run: ./gradlew build
+      # `assemble` (not `build`) so this job builds the signed artifacts + lints, without
+      # re-running the unit tests that the Unit_tests job already runs (build = assemble + check,
+      # and check re-runs lint + test). Keeps each piece of work to a single run.
+      - name: Assemble (all variants, signed release)
+        run: ./gradlew assemble
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -52,6 +55,8 @@ jobs:
 
   Sonar_analysis:
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -82,9 +87,10 @@ jobs:
       - name: Set up Gradle (with dependency & build caching)
         uses: gradle/actions/setup-gradle@v4
 
+      # Skipped (not failed) when SONAR_TOKEN isn't configured, so the pipeline stays green
+      # without SonarCloud credentials (e.g. forks or before the secret is set).
       - name: Sonar analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: ${{ env.SONAR_TOKEN != '' }}
         run: ./gradlew buildFlavor1Debug sonar --info
 
   Unit_tests:
