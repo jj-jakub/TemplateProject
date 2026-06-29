@@ -88,6 +88,44 @@ verified by its own JUnit5/Robolectric/Compose tests (no device required) and co
 ./gradlew assembleFlavor1Debug                  # APK builds
 ```
 
+## Follow-ups / TODO (next passes)
+
+Tracked but intentionally out of scope for this pass.
+
+### CI & tooling
+- **Sonar + configuration cache (fixed).** The `sonar` step was failing with a Gradle
+  configuration-cache error — the SonarQube plugin isn't configuration-cache compatible. Fixed by
+  running that invocation with `--no-configuration-cache`. Remaining: confirm a clean SonarCloud
+  run with a valid token, then optionally drop `continue-on-error` to make Sonar a hard gate. (If
+  it still fails after this, check that *Automatic Analysis* is disabled on the SonarCloud project.)
+- **Bump Detekt** once a release targeting the Kotlin 2.x frontend is stable (its bundled analysis
+  frontend trails the project's Kotlin version).
+- **Bump Konsist** (0.17.2 → current) and drop the deprecated `hasValModifier` usage in the rules.
+- **Burn down the Detekt baseline** (5 accepted findings: one long composable + build-config magic
+  numbers) instead of suppressing them.
+- *(Optional)* run the instrumented `connectedCheck` on PRs (not just on demand); and/or split the
+  branch into staged PRs (modernization → tests → enhancements).
+
+### Security
+- **Rotate the Firebase API key.** The real `google-services.json` is untracked now, but the old key
+  is still in git history — rotate it in the Firebase console. (Carried over; still open.)
+
+### Features / patterns (proposed during planning, not yet built)
+- **`BaseViewModel` + one-off events** (`ObserveAsEvents`) + a root Snackbar host. This changes the
+  Konsist ViewModel selector from `withParentOf(ViewModel)` to `withNameEndingWith("ViewModel")` —
+  land both in the same commit so the single-private-constructor rule keeps matching.
+- **Onboarding / first-run flow** that consumes the existing `onboardingCompleted` preference.
+- **`ConnectivityObserver`** (online/offline) abstraction + Android implementation + a fake for tests.
+- A shared **`:testing`** fixtures module / Koin override harness to cut per-module test duplication.
+
+### Platform & cleanup
+- Move to **`targetSdk 36`** in a dedicated pass (predictive back, large-screen/foldable layouts).
+- Replace the remaining `// TODO` seams in `DefaultAdManager` (paid-event + backup-interstitial
+  handling) with real behavior or clearer documentation.
+- Repo hygiene: add a `LICENSE`, a PR template, and `dependabot.yml`.
+- Decide whether `CLAUDE.md` (AI-assistant guidance) should ship in a customer-facing template, or
+  be renamed/removed.
+
 ---
 
 # Previous pass — Template modernization (`chore/template-modernization`)
