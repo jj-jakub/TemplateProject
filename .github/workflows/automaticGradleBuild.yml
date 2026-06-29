@@ -37,6 +37,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Set up Gradle (with dependency & build caching)
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Lint
         run: ./gradlew lint
 
@@ -76,6 +79,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Set up Gradle (with dependency & build caching)
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Sonar analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -94,6 +100,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
+
+      - name: Set up Gradle (with dependency & build caching)
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Unit tests
         run: ./gradlew test
