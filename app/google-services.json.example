@@ -1,4 +1,11 @@
 {
+  "_comment": [
+    "Template for app/google-services.json (the real file is git-ignored). The google-services",
+    "Gradle plugin is applied automatically when this file is present (see app/build.gradle.kts).",
+    "Replace every placeholder with values from your own Firebase project. Because the flavors and",
+    "build types add id suffixes, register ALL FOUR variant package names in the Firebase console",
+    "and keep a matching client entry below: com.jj.templateproject.fl1(.debug) and .fl2(.debug)."
+  ],
   "project_info": {
     "project_number": "000000000000",
     "project_id": "your-firebase-project-id",
@@ -7,22 +14,39 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
-        "android_client_info": {
-          "package_name": "com.jj.templateproject"
-        }
+        "mobilesdk_app_id": "1:000000000000:android:000000000000000000fl1d",
+        "android_client_info": { "package_name": "com.jj.templateproject.fl1.debug" }
       },
       "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "YOUR_FIREBASE_API_KEY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
+      "api_key": [{ "current_key": "YOUR_FIREBASE_API_KEY" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:000000000000000000fl1r",
+        "android_client_info": { "package_name": "com.jj.templateproject.fl1" }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "YOUR_FIREBASE_API_KEY" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:000000000000000000fl2d",
+        "android_client_info": { "package_name": "com.jj.templateproject.fl2.debug" }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "YOUR_FIREBASE_API_KEY" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:000000000000000000fl2r",
+        "android_client_info": { "package_name": "com.jj.templateproject.fl2" }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "YOUR_FIREBASE_API_KEY" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
     }
   ],
   "configuration_version": "1"
