@@ -83,14 +83,14 @@ jobs:
         run: ./gradlew test
 
   Instrumented_tests:
-    # End-to-end UI flows on an emulator (the hermetic AppFlowsUiTest suite). Runs on macOS because
-    # that runner image exposes hardware acceleration for the emulator. The GitHub macOS runners are
-    # Apple Silicon (arm64), so the AVD uses an arm64-v8a image (an x86_64 image can't boot there).
-    # API 30 has a well-supported arm64 image and stays below API 33, so notifications need no
-    # runtime-permission dialog that could steal window focus from the Compose tree. The AVD is
-    # generated once and cached as a snapshot, so only a cold cache pays the boot cost; later runs
-    # restore it. Scoped to flavor1Debug so it runs a single variant rather than every flavor.
-    runs-on: macos-latest
+    # End-to-end UI flows on an emulator (the hermetic AppFlowsUiTest suite). The Android emulator
+    # needs a hypervisor-accelerated host: GitHub's Apple Silicon (arm64) macOS runners don't expose
+    # one to the emulator (it fails to boot — HVF unsupported / arm64-v8a crashes), so this pins the
+    # last Intel x86_64 image, macos-15-intel (available until ~Aug 2027). API 30 stays below API 33,
+    # so notifications need no runtime-permission dialog that could steal focus from the Compose
+    # tree. The AVD is generated once and cached as a snapshot, so only a cold cache pays the boot
+    # cost; later runs restore it. Scoped to flavor1Debug so it runs a single variant.
+    runs-on: macos-15-intel
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -113,14 +113,14 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-30-arm64-v8a
+          key: avd-30-x86_64
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          arch: arm64-v8a
+          arch: x86_64
           profile: pixel_4
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -131,7 +131,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          arch: arm64-v8a
+          arch: x86_64
           profile: pixel_4
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
