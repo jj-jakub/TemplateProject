@@ -106,7 +106,11 @@ Tracked but intentionally out of scope for this pass.
 - **Instrumented tests in CI (done).** Added an `Instrumented_tests` job to `automaticGradleBuild.yml`
   that runs `:app:connectedFlavor1DebugAndroidTest` on a macOS emulator with a cached AVD snapshot.
   It gates PRs and pushes to `develop`/`master`. `runUiTests.yml` remains the on-demand full-suite
-  (`connectedCheck`, both flavors).
+  (`connectedCheck`, both flavors). The job is pinned to `macos-15-intel` because GitHub's Apple
+  Silicon runners don't give the Android emulator a hypervisor (it never boots). **Revisit before
+  ~Aug 2027**, when `macos-15-intel` (the last hosted x86_64 image) retires — at that point hosted
+  emulator CI likely needs Firebase Test Lab, Gradle Managed Devices on a self-hosted ARM box, or a
+  larger ARM runner that exposes virtualization.
 - **CI run de-duplication (done).** The push/PR workflow used to fire twice per commit on a branch
   with an open PR (once for `push`, once for `pull_request`). `push` is now limited to
   `develop`/`master`; feature branches are covered through their PR, and a `concurrency` group
