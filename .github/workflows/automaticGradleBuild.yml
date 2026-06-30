@@ -84,9 +84,12 @@ jobs:
 
   Instrumented_tests:
     # End-to-end UI flows on an emulator (the hermetic AppFlowsUiTest suite). Runs on macOS because
-    # that runner image exposes hardware acceleration (HVF) for the emulator. The AVD is generated
-    # once and cached as a snapshot, so only a cold cache pays the boot cost; later runs restore the
-    # snapshot. Scoped to flavor1Debug so it runs a single variant rather than every flavor.
+    # that runner image exposes hardware acceleration for the emulator. The GitHub macOS runners are
+    # Apple Silicon (arm64), so the AVD uses an arm64-v8a image (an x86_64 image can't boot there).
+    # API 30 has a well-supported arm64 image and stays below API 33, so notifications need no
+    # runtime-permission dialog that could steal window focus from the Compose tree. The AVD is
+    # generated once and cached as a snapshot, so only a cold cache pays the boot cost; later runs
+    # restore it. Scoped to flavor1Debug so it runs a single variant rather than every flavor.
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -110,14 +113,14 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-29
+          key: avd-30-arm64-v8a
 
       - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          arch: x86_64
+          api-level: 30
+          arch: arm64-v8a
           profile: pixel_4
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -127,8 +130,8 @@ jobs:
       - name: Run instrumented UI tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          arch: x86_64
+          api-level: 30
+          arch: arm64-v8a
           profile: pixel_4
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
