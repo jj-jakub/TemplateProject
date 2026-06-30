@@ -198,9 +198,13 @@ The `release` build type reads the keystore path and the `SIGNING_STORE_PASSWORD
 
 GitHub Actions (`.github/workflows`):
 
-- **On every push / PR** — Android Lint, the full Gradle build, and the unit tests. SonarCloud runs
-  only when a `SONAR_TOKEN` is configured and never blocks the build.
-- **On demand** — instrumented UI tests on an emulator (`connectedCheck`).
+- **On every pull request** (and pushes to `develop`/`master`) — Android Lint, the full Gradle
+  build (signed artifacts per flavor), the unit tests, and the **instrumented UI suite** on a
+  cached emulator. SonarCloud runs only when a `SONAR_TOKEN` is configured and never blocks the
+  build. Feature branches are validated through their PR, so each commit runs the pipeline once
+  rather than twice — open a draft PR to get CI on a work-in-progress branch.
+- **On demand** — the full instrumented suite across both flavors (`connectedCheck`,
+  `runUiTests.yml`).
 - **On tag / dispatch** — signed release APK/AAB per flavor.
 
 ---

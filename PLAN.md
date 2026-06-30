@@ -103,8 +103,15 @@ Tracked but intentionally out of scope for this pass.
 - **Bump Konsist** (0.17.2 → current) and drop the deprecated `hasValModifier` usage in the rules.
 - **Burn down the Detekt baseline** (5 accepted findings: one long composable + build-config magic
   numbers) instead of suppressing them.
-- *(Optional)* run the instrumented `connectedCheck` on PRs (not just on demand); and/or split the
-  branch into staged PRs (modernization → tests → enhancements).
+- **Instrumented tests in CI (done).** Added an `Instrumented_tests` job to `automaticGradleBuild.yml`
+  that runs `:app:connectedFlavor1DebugAndroidTest` on a macOS emulator with a cached AVD snapshot.
+  It gates PRs and pushes to `develop`/`master`. `runUiTests.yml` remains the on-demand full-suite
+  (`connectedCheck`, both flavors).
+- **CI run de-duplication (done).** The push/PR workflow used to fire twice per commit on a branch
+  with an open PR (once for `push`, once for `pull_request`). `push` is now limited to
+  `develop`/`master`; feature branches are covered through their PR, and a `concurrency` group
+  cancels superseded runs.
+- *(Optional)* split the branch into staged PRs (modernization → tests → enhancements).
 
 ### Security
 - **Rotate the Firebase API key.** The real `google-services.json` is untracked now, but the old key
