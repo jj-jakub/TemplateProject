@@ -8,12 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
@@ -64,19 +64,19 @@ jobs:
         run: tar -czvf app/build/${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}.tar.gz app/build/${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}
           path: app/build/${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}
 
       - name: Upload release aab
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}.aab
           path: app/build/${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}/bundle/${{ env.FLAVOR1_FLAVOR_NAME }}Release/${{ env.FLAVOR1_RENAMED_AAB_NAME }}_${{ github.run_number }}.aab
 
       - name: Upload release apk
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}.apk
           path: app/build/${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}/apk/${{ env.FLAVOR1_FLAVOR_NAME }}/release/${{ env.FLAVOR1_RENAMED_APK_NAME }}_${{ github.run_number }}.apk
