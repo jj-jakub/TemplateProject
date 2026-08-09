@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The API 31+ form of backup_rules.xml, which it does not replace: older devices still read that
+  file, so the two exclusion lists have to say the same thing. See backup_rules.xml for why the
+  launch counter in particular is held back.
+
+  device-transfer is listed alongside cloud-backup for the same reason, and is the more confusing
+  case of the two: a phone-to-phone transfer is where restoring per-install state is most likely and
+  least expected, because the user is looking at what is meant to be a faithful copy of a working
+  install.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude
+            domain="sharedpref"
+            path="launch_stability.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude
+            domain="sharedpref"
+            path="launch_stability.xml" />
+    </device-transfer>
+</data-extraction-rules>

@@ -6,9 +6,21 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 
+    <!--
+      Backup is OFF, which is a decision rather than a default: with it off, no app data leaves the
+      device through Auto Backup or a phone-to-phone transfer, and `adb backup` cannot extract it
+      either. The cost is that a user replacing their phone starts from nothing.
+
+      Turning it on is a one-word change here, and the rules it needs are already written and
+      referenced below: backup_rules.xml (pre-31) and data_extraction_rules.xml (31+) hold back the
+      per-install state that must not travel. Decide it deliberately for the app being built —
+      whichever way, both halves are in place.
+    -->
     <application
         android:name=".framework.TemplateProjectApplication"
         android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"

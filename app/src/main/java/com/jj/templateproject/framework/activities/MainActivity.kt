@@ -10,10 +10,14 @@ import androidx.navigation.compose.rememberNavController
 import com.jj.templateproject.core.data.notifications.PushIntents
 import com.jj.templateproject.domain.push.PushDeepLink
 import com.jj.templateproject.domain.push.PushDestination
+import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.presentation.MainRoot
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val launchStability: LaunchStability by inject()
 
     /**
      * Where a notification tap (or a `templateproject://` link) asked to go, until the composition
@@ -36,6 +40,14 @@ class MainActivity : ComponentActivity() {
                 onPushDestinationHandled = { pushDestination.value = null },
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The app got as far as showing something, so whatever it restored did not kill it. Marking
+        // stability here rather than in onCreate is the point: a crash while composing the first
+        // screen still counts as a failed launch.
+        launchStability.markStable()
     }
 
     override fun onNewIntent(intent: Intent) {

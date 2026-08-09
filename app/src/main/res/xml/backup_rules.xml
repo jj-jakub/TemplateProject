@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What Android Auto Backup may copy to the user's cloud, for devices below API 31. See
+  data_extraction_rules.xml for the API 31+ form: older devices still read THIS file, so the two
+  exclusion lists have to say the same thing.
+
+  These rules are live the moment android:allowBackup is turned on. The rule they encode is that
+  per-install state must not travel: a file that describes an installation rather than a user is
+  wrong on a new device. A restored launch counter would drop a brand-new install straight into safe
+  mode, on the strength of crashes that happened on a different phone.
+
+  Everything else (preferences, and whatever a real app adds) belongs to the user and is exactly what
+  a device transfer should carry, so nothing here excludes it.
+-->
+<full-backup-content>
+    <exclude
+        domain="sharedpref"
+        path="launch_stability.xml" />
+</full-backup-content>
