@@ -11,6 +11,14 @@ package com.jj.templateproject.domain.time
  */
 object IsoTimestamp {
 
+    /**
+     * The bare numbers below are Hinnant's civil-from-days formula verbatim (146097 days per
+     * 400-year era, 1460/36524/146096 for the leap-year corrections, 153/5/2 for the month table).
+     * Naming them individually would not make the arithmetic clearer, it would hide that this is a
+     * published algorithm reproduced exactly; the named constants are the ones that mean something on
+     * their own.
+     */
+    @Suppress("MagicNumber")
     fun format(epochMillis: Long): String {
         val epochDay = epochMillis.floorDiv(MILLIS_PER_DAY)
         val millisOfDay = epochMillis.mod(MILLIS_PER_DAY)
