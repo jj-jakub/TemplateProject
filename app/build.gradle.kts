@@ -12,6 +12,11 @@ plugins {
 // suffixes) and switch the Koin bindings in mainModule to the Firebase Analytics/Crash impls.
 if (project.file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
+    // Uploads R8's mapping file with every release build. Without it the line numbers kept by
+    // proguard-rules.pro are only readable from the mapping archived by the release workflow, which
+    // means reading a production stack trace by hand. Guarded exactly like the plugin above: with no
+    // google-services.json there is no Firebase project to upload to, and the plugin hard-fails.
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 sonar {

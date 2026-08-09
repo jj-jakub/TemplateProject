@@ -13,6 +13,9 @@ plugins {
 buildscript {
     dependencies {
         classpath(libs.google.services)
+        // On the classpath so app/build.gradle.kts can apply it by id, but only when a
+        // google-services.json is present. Both plugins hard-fail without one.
+        classpath(libs.firebase.crashlytics.gradle)
     }
 }
 

@@ -4,6 +4,7 @@ konsist = "0.17.2"
 detekt = "1.23.7"
 kotlin = "2.2.0"
 googleServices = "4.4.3"
+firebaseCrashlyticsPlugin = "3.0.7"
 sonarqube = "7.3.1.8318"
 koin = "3.5.6"
 coroutines = "1.10.2"
@@ -46,6 +47,7 @@ android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref 
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 bolts-tasks = { module = "com.github.parse-community.Parse-SDK-Android:parse", version.ref = "parseSDK" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
+firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsPlugin" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 androidxCore = { module = "androidx.core:core", version.ref = "androidxCore" }
