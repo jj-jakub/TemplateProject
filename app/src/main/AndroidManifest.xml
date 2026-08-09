@@ -17,16 +17,30 @@
         android:usesCleartextTraffic="false">
         <activity
             android:name=".framework.activities.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- The handle an in-app message's button uses (see domain/push/PushDeepLink). Each
+                 button in such a campaign carries its own action URL, which is the only per-button
+                 channel it has, since its custom data is one set for the whole message. Browsable,
+                 so anything can send one: every link is parsed as untrusted input and anything
+                 unrecognised routes nowhere. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="templateproject" />
+            </intent-filter>
         </activity>
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobId}" />
+        <!-- Receives push campaigns (data-only messages) and builds the notification, including its
+             action buttons — see PUSH.md. Reached in every app state, process killed included. -->
         <service
             android:name=".data.firebase.DefaultFirebaseMessagingService"
             android:exported="false">
@@ -34,6 +48,15 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <!-- Fallbacks the FCM SDK uses if a message ever arrives that our service does not draw
+             itself (one carrying a notification block). The channel id matches
+             AndroidNotificationManager's, so such a message at least lands on the right channel. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="announcements" />
 
         <meta-data
             android:name="com.parse.SERVER_URL"
