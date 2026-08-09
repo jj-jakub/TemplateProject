@@ -14,10 +14,16 @@
         <exclude
             domain="sharedpref"
             path="launch_stability.xml" />
+        <exclude
+            domain="sharedpref"
+            path="review_prompt.xml" />
     </cloud-backup>
     <device-transfer>
         <exclude
             domain="sharedpref"
             path="launch_stability.xml" />
+        <exclude
+            domain="sharedpref"
+            path="review_prompt.xml" />
     </device-transfer>
 </data-extraction-rules>

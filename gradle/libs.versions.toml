@@ -35,6 +35,7 @@ composeKoin = "4.2.2"
 firebaseBom = "33.16.0"
 googleAds = "24.4.0"
 parseSDK = "4.2.1"
+playReview = "2.0.2"
 
 retrofit = "3.0.0"
 retrofitConverter = "3.0.0"
@@ -115,6 +116,7 @@ firebaseMessaging = { module = "com.google.firebase:firebase-messaging-ktx" }
 firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 firebaseConfig = { module = "com.google.firebase:firebase-config" }
 googleAds = { module = "com.google.android.gms:play-services-ads", version.ref = "googleAds" }
+playReview = { module = "com.google.android.play:review", version.ref = "playReview" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit5 = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit5" }
 junitVintageEngine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit5" }

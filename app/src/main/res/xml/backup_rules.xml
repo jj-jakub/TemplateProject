@@ -16,4 +16,7 @@
     <exclude
         domain="sharedpref"
         path="launch_stability.xml" />
+    <exclude
+        domain="sharedpref"
+        path="review_prompt.xml" />
 </full-backup-content>

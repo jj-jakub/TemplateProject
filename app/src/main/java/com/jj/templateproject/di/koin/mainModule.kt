@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.AndroidAdUnitIds
 import com.jj.templateproject.data.ad.DefaultAdManager
@@ -15,6 +16,7 @@ import com.jj.templateproject.data.config.BuildProfile
 import com.jj.templateproject.data.config.FirebaseRemoteFlags
 import com.jj.templateproject.data.network.TemplateHttpClientFactory
 import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
+import com.jj.templateproject.data.review.PlayReviewPrompter
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.ad.AdUnitIds
@@ -26,6 +28,7 @@ import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
+import com.jj.templateproject.domain.review.ReviewPrompter
 import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -85,4 +88,11 @@ val mainModule = module {
     }
     single { ActivityProvider(application = androidApplication()) }
     single<AppInfoRepository> { DefaultAppInfoRepository() }
+
+    single<ReviewPrompter> {
+        PlayReviewPrompter(
+            reviewManager = ReviewManagerFactory.create(androidContext()),
+            activityProvider = get(),
+        )
+    }
 }

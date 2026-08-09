@@ -3,6 +3,7 @@ package com.jj.templateproject.core.di
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.reliability.LaunchStability
+import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import org.koin.dsl.module
@@ -26,4 +27,5 @@ val coreModule = module {
     // Launch-scoped: the app resolves the mode once at startup, and anything that restores
     // persisted state consults it before doing so.
     single { LaunchStability(store = get()) }
+    single { ReviewController(store = get(), reviewPrompter = get()) }
 }

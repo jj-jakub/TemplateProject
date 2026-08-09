@@ -4,6 +4,7 @@ import com.jj.templateproject.core.data.device.IosDeviceInfo
 import com.jj.templateproject.core.data.lifecycle.NotificationCenterAppLifecycle
 import com.jj.templateproject.core.data.preferences.UserDefaultsAppPreferencesRepository
 import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptStore
+import com.jj.templateproject.core.data.review.UserDefaultsReviewPromptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
 import com.jj.templateproject.core.data.time.IosSystemClock
 import com.jj.templateproject.domain.device.DeviceInfo
@@ -12,6 +13,7 @@ import com.jj.templateproject.domain.notifications.NoOpNotificationManager
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
+import com.jj.templateproject.domain.review.ReviewPromptStore
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
 import org.koin.core.module.Module
@@ -40,6 +42,7 @@ actual fun platformCoreModule(): Module = module {
     single<DeviceInfo> { IosDeviceInfo() }
     single<ContentSharer> { IosContentSharer() }
     single<AppPreferencesRepository> { UserDefaultsAppPreferencesRepository() }
+    single<ReviewPromptStore> { UserDefaultsReviewPromptStore() }
     // createdAtStart for the same reason as Android's: it reads UIApplication's state and registers
     // notification observers, which belongs on the main thread during startup.
     single<AppLifecycle>(createdAtStart = true) { NotificationCenterAppLifecycle() }

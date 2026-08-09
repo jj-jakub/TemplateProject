@@ -14,6 +14,8 @@ import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
+import com.jj.templateproject.domain.review.ReviewController
+import com.jj.templateproject.domain.review.ReviewPrompter
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.di.presentationModule
@@ -66,6 +68,8 @@ class IosKoinGraphTest {
         assertNotNull(koin.get<ContentSharer>())
         assertNotNull(koin.get<AppLifecycle>())
         assertNotNull(koin.get<LaunchAttemptStore>())
+        assertNotNull(koin.get<ReviewPrompter>())
+        assertNotNull(koin.get<ReviewController>())
     }
 
     @Test

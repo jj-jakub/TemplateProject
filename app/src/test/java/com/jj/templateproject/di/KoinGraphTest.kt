@@ -27,6 +27,8 @@ import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.reliability.LaunchStability
+import com.jj.templateproject.domain.review.ReviewController
+import com.jj.templateproject.domain.review.ReviewPrompter
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.MainRootViewModel
@@ -55,8 +57,8 @@ import org.robolectric.annotation.Config
  * missing or mis-typed DI bindings that unit tests with hand-built fakes would miss.
  *
  * `:core` contributes a shared module and a per-platform one, and this asserts the Android pairing
- * specifically: it runs on the JVM, so `platformCoreModule()` here is the Android actual. The iOS
- * pairing has no equivalent test, since there is no iOS entry point to build a graph for yet.
+ * specifically: it runs on the JVM, so `platformCoreModule()` here is the Android actual. See
+ * `:presentation`'s `IosKoinGraphTest` for the iOS pairing.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
@@ -105,6 +107,8 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<CrashReporter>())
         assertNotNull(get<RemoteFlags>())
         assertNotNull(get<LaunchStability>())
+        assertNotNull(get<ReviewPrompter>())
+        assertNotNull(get<ReviewController>())
     }
 
     @Test

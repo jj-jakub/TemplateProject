@@ -5,12 +5,14 @@ import com.jj.templateproject.core.data.device.AndroidDeviceInfo
 import com.jj.templateproject.core.data.lifecycle.ProcessAppLifecycle
 import com.jj.templateproject.core.data.notifications.AndroidNotificationManager
 import com.jj.templateproject.core.data.reliability.SharedPreferencesLaunchAttemptStore
+import com.jj.templateproject.core.data.review.SharedPreferencesReviewPromptStore
 import com.jj.templateproject.core.data.sharing.AndroidContentSharer
 import com.jj.templateproject.core.data.time.SystemClock
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
+import com.jj.templateproject.domain.review.ReviewPromptStore
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
 import org.koin.android.ext.koin.androidContext
@@ -25,6 +27,7 @@ actual fun platformCoreModule(): Module = module {
     single<NotificationManager> { AndroidNotificationManager(context = androidContext()) }
     single<InitializeBack4App> { InitializeBack4App(applicationContext = androidContext()) }
     single<LaunchAttemptStore> { SharedPreferencesLaunchAttemptStore(context = androidContext()) }
+    single<ReviewPromptStore> { SharedPreferencesReviewPromptStore(context = androidContext()) }
 
     // Platform capabilities, each behind a domain interface with a test double beside it, so nothing
     // above this layer has to know which SDK answers the question.

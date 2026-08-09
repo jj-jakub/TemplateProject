@@ -16,6 +16,8 @@ import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.app.AppVersionInfo
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
+import com.jj.templateproject.domain.review.NoOpReviewPrompter
+import com.jj.templateproject.domain.review.ReviewPrompter
 import com.jj.templateproject.presentation.di.presentationModule
 import io.ktor.client.HttpClient
 import org.koin.core.context.startKoin
@@ -68,4 +70,7 @@ internal val iosAppModule = module {
     // no-op fallback on Android when reporting is off or unconfigured.
     single<AnalyticsLogger> { NoOpAnalyticsLogger() }
     single<CrashReporter> { NoOpCrashReporter() }
+    // No StoreKit review request wired up on iOS yet; NoOpReviewPrompter lets ReviewController
+    // (bound in the shared coreModule) resolve on iOS too, the same way NoOpAdManager does above.
+    single<ReviewPrompter> { NoOpReviewPrompter }
 }

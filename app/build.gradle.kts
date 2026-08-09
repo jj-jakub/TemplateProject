@@ -170,6 +170,7 @@ dependencies {
     implementation(libs.accompanistPermissions)
 
     implementation(libs.googleAds)
+    implementation(libs.playReview)
 
     implementation(libs.composeUi)
     implementation(libs.composeMaterial3)
