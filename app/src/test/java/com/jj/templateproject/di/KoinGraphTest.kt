@@ -9,7 +9,9 @@ import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.data.google.network.TemplateNetworkApi
 import com.jj.templateproject.data.google.service.TemplateService
+import com.jj.templateproject.core.data.back4app.InitializeBack4App
 import com.jj.templateproject.core.di.coreModule
+import com.jj.templateproject.core.di.platformCoreModule
 import com.jj.templateproject.di.koin.mainModule
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
@@ -23,6 +25,7 @@ import com.jj.templateproject.domain.google.TemplateRepository
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
+import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
@@ -47,6 +50,11 @@ import org.robolectric.annotation.Config
  * Integration test: starts the full Koin graph (main + networking + core modules) against a
  * Robolectric application context and asserts that the real wiring resolves. Catches missing or
  * mis-typed DI bindings that unit tests with hand-built mocks would miss.
+ *
+ * `:core` now contributes a shared module and a per-platform one, and this asserts the Android
+ * pairing specifically: it runs on the JVM, so `platformCoreModule()` here is the Android actual.
+ * The iOS pairing has no equivalent test, since there is no iOS entry point to build a graph for
+ * yet.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
@@ -58,7 +66,7 @@ class KoinGraphTest : KoinTest {
         if (GlobalContext.getOrNull() != null) stopKoin()
         startKoin {
             androidContext(ApplicationProvider.getApplicationContext())
-            modules(mainModule, networkingModule, coreModule)
+            modules(mainModule, networkingModule, coreModule, platformCoreModule())
         }
     }
 
@@ -103,6 +111,15 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<DeviceInfo>())
         assertNotNull(get<ContentSharer>())
         assertNotNull(get<AppLifecycle>())
+        assertNotNull(get<LaunchAttemptStore>())
+    }
+
+    @Test
+    fun `the Android-only Parse initializer resolves`() {
+        // Bound by the Android platformCoreModule and by no other: the iOS one omits it, since the
+        // SDK it wraps has no iOS counterpart. Asserted separately from the seams above to keep
+        // that asymmetry visible rather than buried in a list.
+        assertNotNull(get<InitializeBack4App>())
     }
 
     @Test

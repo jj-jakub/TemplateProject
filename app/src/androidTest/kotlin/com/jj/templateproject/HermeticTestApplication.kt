@@ -2,6 +2,7 @@ package com.jj.templateproject
 
 import android.app.Application
 import com.jj.templateproject.core.di.coreModule
+import com.jj.templateproject.core.di.platformCoreModule
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.di.koin.mainModule
 import com.jj.templateproject.di.networkingModule
@@ -23,7 +24,7 @@ class HermeticTestApplication : Application() {
         val koin = startKoin {
             allowOverride(true)
             androidContext(this@HermeticTestApplication)
-            modules(mainModule, networkingModule, coreModule, testOverrideModule)
+            modules(mainModule, networkingModule, coreModule, platformCoreModule(), testOverrideModule)
         }.koin
 
         koin.get<ActivityProvider>().start()

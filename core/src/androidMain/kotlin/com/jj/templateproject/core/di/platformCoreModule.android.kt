@@ -1,8 +1,6 @@
 package com.jj.templateproject.core.di
 
 import com.jj.templateproject.core.data.back4app.InitializeBack4App
-import com.jj.templateproject.domain.google.GetGoogleDataUseCase
-import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.core.data.device.AndroidDeviceInfo
 import com.jj.templateproject.core.data.lifecycle.ProcessAppLifecycle
 import com.jj.templateproject.core.data.notifications.AndroidNotificationManager
@@ -13,25 +11,20 @@ import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
-import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.domain.sharing.ContentSharer
-import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.time.Clock
-import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.Module
 import org.koin.dsl.module
 
-val coreModule = module {
-    single { GetGoogleStatusUseCase(templateRepository = get()) }
-    single { GetGoogleDataUseCase(templateRepository = get()) }
-    single { GetThemeModeUseCase(appPreferencesRepository = get()) }
-    single { SetThemeModeUseCase(appPreferencesRepository = get()) }
+/**
+ * Every implementation here takes a `Context`, which is the whole reason this module is per-platform:
+ * `androidContext()` comes from the Android-only Koin artifact and does not exist on iOS.
+ */
+actual fun platformCoreModule(): Module = module {
     single<NotificationManager> { AndroidNotificationManager(context = androidContext()) }
     single<InitializeBack4App> { InitializeBack4App(applicationContext = androidContext()) }
     single<LaunchAttemptStore> { SharedPreferencesLaunchAttemptStore(context = androidContext()) }
-    // Launch-scoped: the Application resolves the mode once at startup, and anything that restores
-    // persisted state consults it before doing so.
-    single { LaunchStability(store = get()) }
 
     // Platform capabilities, each behind a domain interface with a test double beside it, so nothing
     // above this layer has to know which SDK answers the question.

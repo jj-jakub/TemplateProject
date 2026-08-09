@@ -40,7 +40,9 @@ detekt {
             "networking/src/commonMain",
             "networking/src/androidMain",
             "networking/src/iosMain",
-            "core/src/main",
+            "core/src/commonMain",
+            "core/src/androidMain",
+            "core/src/iosMain",
             "design/src/main",
             "build-logic/convention/src/main",
         )

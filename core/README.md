@@ -1,18 +1,20 @@
 # :core
 
-Cross-cutting **platform glue** for TemplateProject: the Android implementations of platform-facing
-domain interfaces, third-party SDK initialization, and the Koin module that wires it all together.
+Cross-cutting **platform glue** for TemplateProject: the per-platform implementations of
+platform-facing domain interfaces, third-party SDK initialization, and the Koin modules that wire it
+all together.
 
-Depends on `:domain` (and nothing in the presentation layer), so these implementations can be reused
-by any app branched from the template.
+A multiplatform module (Android + iOS). Depends on `:domain` (and nothing in the presentation
+layer), so these implementations can be reused by any app branched from the template.
 
 ## What's here
 
 | Piece | Role |
 | --- | --- |
 | `AndroidNotificationManager` | Android implementation of the domain `NotificationManager` |
-| `InitializeBack4App` | One-shot Back4App/Parse SDK initialization |
-| `coreModule` | Koin module registering the use cases + platform managers |
+| `InitializeBack4App` | One-shot Back4App/Parse SDK initialization (Android only) |
+| `coreModule` | Koin module registering the use cases and everything else needing no platform |
+| `platformCoreModule()` | Koin module registering the platform capabilities, one actual per target |
 
 ## AndroidNotificationManager
 
@@ -40,26 +42,24 @@ class InitializeBack4App(private val applicationContext: Context) {
 from string resources (`R.string.back4app_app_id`, `back4app_client_key`, `back4app_server_url`),
 then sends a test `ParseObject` to confirm connectivity. Call it once from application startup.
 
-## coreModule (Koin)
+## coreModule + platformCoreModule (Koin)
 
-`coreModule` is the DI entry point for this module. It registers the cross-cutting use cases and the
-platform managers as singletons:
+The DI entry point is two modules, always used together:
 
 ```kotlin
-val coreModule = module {
-    single { GetGoogleStatusUseCase(templateRepository = get()) }
-    single { GetGoogleDataUseCase(templateRepository = get()) }
-    single { GetThemeModeUseCase(appPreferencesRepository = get()) }
-    single { SetThemeModeUseCase(appPreferencesRepository = get()) }
-    single<NotificationManager> { AndroidNotificationManager(context = androidContext()) }
-    single<InitializeBack4App> { InitializeBack4App(applicationContext = androidContext()) }
-}
+modules(coreModule, platformCoreModule())
 ```
 
-- **Use cases** — the google data/status use cases (`GetGoogleDataUseCase`, `GetGoogleStatusUseCase`)
-  and the theme use cases (`GetThemeModeUseCase`, `SetThemeModeUseCase`), each depending on a
-  repository interface from `:domain` resolved via `get()`.
-- **Platform managers** — `AndroidNotificationManager` bound to the `NotificationManager` interface,
-  and `InitializeBack4App`, both constructed with `androidContext()`.
+- **`coreModule`** (commonMain) registers everything that needs nothing from the platform: the google
+  data/status use cases (`GetGoogleDataUseCase`, `GetGoogleStatusUseCase`), the theme use cases
+  (`GetThemeModeUseCase`, `SetThemeModeUseCase`) and `LaunchStability`, each taking a `:domain`
+  interface resolved via `get()`.
+- **`platformCoreModule()`** is `expect`/`actual`, one per target, and registers the capabilities only
+  a platform can answer: `NotificationManager`, `LaunchAttemptStore`, `Clock`, `DeviceInfo`,
+  `ContentSharer` and `AppLifecycle`. Android's also binds `InitializeBack4App` and reads every
+  constructor argument from `androidContext()`; iOS's needs no context at all, omits
+  `InitializeBack4App` (the Parse SDK is Android-only), and binds the domain's
+  `NoOpNotificationManager` until a real `UNUserNotificationCenter` implementation exists.
 
-Include `coreModule` in your Koin setup so these dependencies are available app-wide.
+That split is why `commonMain` depends on `koin-core` rather than `koin-android`: `androidContext()`
+lives in the Android artifact, and only the Android actual ever calls it.

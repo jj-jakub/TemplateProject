@@ -1,26 +1,38 @@
 plugins {
-    alias(libs.plugins.templateproject.android.library)
+    alias(libs.plugins.templateproject.kmp.library)
 }
 
 android {
     namespace = "com.jj.templateproject.core"
 }
 
-dependencies {
-    implementation(project(":domain"))
-    implementation(project(":networking"))
-    implementation(libs.bolts.tasks)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":domain"))
 
-    implementation(libs.koin)
-    implementation(libs.coroutinesCore)
-    // ProcessLifecycleOwner, for the process-wide foreground state behind AppLifecycle.
-    implementation(libs.lifecycleProcess)
-
-    testImplementation(libs.junit5)
-    testImplementation(libs.robolectric)
-    // Aligns the JUnit Platform launcher with junit-jupiter so test discovery works; without it the
-    // test task fails to start.
-    testRuntimeOnly(libs.junitPlatformLauncher)
-    testRuntimeOnly(libs.junitVintageEngine)
-    testImplementation(libs.junit4)
+            // koin-core, not koin-android: the Android artifact is a JVM one and cannot be seen from
+            // commonMain. Only `platformCoreModule`'s Android actual needs `androidContext()`, and
+            // that lives in androidMain, which is exactly what let this module split in two.
+            implementation(libs.koinCore)
+            implementation(libs.coroutinesCore)
+        }
+        androidMain.dependencies {
+            implementation(libs.koin)
+            implementation(libs.bolts.tasks)
+            // ProcessLifecycleOwner, for the process-wide foreground state behind AppLifecycle.
+            implementation(libs.lifecycleProcess)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+        // Robolectric is a JVM/Android test runtime, so the device-class test it drives cannot move
+        // to commonTest however platform-neutral its subject looks.
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.junit4)
+                implementation(libs.robolectric)
+            }
+        }
+    }
 }
