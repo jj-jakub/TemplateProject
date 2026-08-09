@@ -18,6 +18,8 @@ import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.app.AppVersionInfo
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.domain.config.RemoteFlags
+import com.jj.templateproject.domain.crosspromo.GetCrossPromoConfigUseCase
+import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
@@ -116,6 +118,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<GameStateStorage>())
         assertNotNull(get<ExperimentBucketing>())
         assertNotNull(get<GetExperimentVariantUseCase>())
+        assertNotNull(get<GetCrossPromoConfigUseCase>())
     }
 
     @Test
@@ -128,6 +131,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<AppLifecycle>())
         assertNotNull(get<LaunchAttemptStore>())
         assertNotNull(get<InstallIdStore>())
+        assertNotNull(get<UrlOpener>())
     }
 
     @Test

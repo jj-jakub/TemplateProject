@@ -1,6 +1,7 @@
 package com.jj.templateproject.core.di
 
 import com.jj.templateproject.core.data.back4app.InitializeBack4App
+import com.jj.templateproject.core.data.crosspromo.AndroidUrlOpener
 import com.jj.templateproject.core.data.device.AndroidDeviceInfo
 import com.jj.templateproject.core.data.experiment.SharedPreferencesInstallIdStore
 import com.jj.templateproject.core.data.game.AndroidFileTextStore
@@ -11,6 +12,7 @@ import com.jj.templateproject.core.data.reliability.SharedPreferencesLaunchAttem
 import com.jj.templateproject.core.data.review.SharedPreferencesReviewPromptStore
 import com.jj.templateproject.core.data.sharing.AndroidContentSharer
 import com.jj.templateproject.core.data.time.SystemClock
+import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.InstallIdStore
 import com.jj.templateproject.domain.game.GameStateStorage
@@ -43,6 +45,7 @@ actual fun platformCoreModule(): Module = module {
     single<Clock> { SystemClock() }
     single<DeviceInfo> { AndroidDeviceInfo(context = androidContext()) }
     single<ContentSharer> { AndroidContentSharer(context = androidContext()) }
+    single<UrlOpener> { AndroidUrlOpener(context = androidContext()) }
     // createdAtStart because it registers a lifecycle observer, which has to happen on the main
     // thread: built during startKoin it always does, built lazily it depends on who injects it first.
     single<AppLifecycle>(createdAtStart = true) { ProcessAppLifecycle() }

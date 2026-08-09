@@ -9,6 +9,9 @@ import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.app.AppVersionInfo
+import com.jj.templateproject.domain.config.RemoteFlags
+import com.jj.templateproject.domain.crosspromo.GetCrossPromoConfigUseCase
+import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
@@ -78,6 +81,9 @@ class IosKoinGraphTest {
         assertNotNull(koin.get<InstallIdStore>())
         assertNotNull(koin.get<ExperimentBucketing>())
         assertNotNull(koin.get<GetExperimentVariantUseCase>())
+        assertNotNull(koin.get<UrlOpener>())
+        assertNotNull(koin.get<RemoteFlags>())
+        assertNotNull(koin.get<GetCrossPromoConfigUseCase>())
     }
 
     @Test

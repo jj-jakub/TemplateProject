@@ -6,4 +6,6 @@ data class MainScreenViewState(
     val apiCallData: String = "",
     val apiCallStatus: String = "",
     val installedFromValidSource: Boolean? = null,
+    /** `null` when cross-promotion is off — see `GetCrossPromoConfigUseCase`. */
+    val crossPromoLabel: String? = null,
 )

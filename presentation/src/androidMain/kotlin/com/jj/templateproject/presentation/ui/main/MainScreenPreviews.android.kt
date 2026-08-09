@@ -13,6 +13,8 @@ private fun PreviewMainScreenViewContent() {
             navigateWithFirstOptionalArg = {},
             navigateWithSecondOptionalArg = {},
             navigateWithAllOptionalArgs = {},
+            crossPromoLabel = "Try our other app",
+            onCrossPromoClicked = {},
         )
     }
 }

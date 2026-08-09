@@ -29,7 +29,11 @@ val presentationModule = module {
     single { GetIsInstalledFromValidSource(appInfoRepository = get()) }
 
     viewModel {
-        MainScreenViewModel(adManager = get())
+        MainScreenViewModel(
+            adManager = get(),
+            getCrossPromoConfigUseCase = get(),
+            urlOpener = get(),
+        )
     }
     viewModel {
         SettingsScreenViewModel(

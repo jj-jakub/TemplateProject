@@ -14,6 +14,8 @@ import com.jj.templateproject.domain.analytics.NoOpCrashReporter
 import com.jj.templateproject.domain.app.AlwaysInstalledFromValidSource
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.app.AppVersionInfo
+import com.jj.templateproject.domain.config.NoOpRemoteFlags
+import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
 import com.jj.templateproject.domain.review.NoOpReviewPrompter
@@ -31,12 +33,11 @@ import org.koin.dsl.module
  * the app layer to provide, since only it knows the base URL) live here instead, alongside the
  * same shared modules Android assembles.
  *
- * Deliberately narrower than Android's graph otherwise: no `ActivityProvider`/`RemoteFlags`
- * binding exists yet, because neither has a real iOS implementation (Firebase Remote Config stays
- * Android-only for now, and there is no iOS activity-scoped context to provide). Every other
- * Android-only binding below is a NoOp/always-true stand-in rather than an outright gap, so the
- * graph resolves the same shape it does on Android, just with weaker platform behavior until a
- * real iOS implementation replaces one.
+ * Deliberately narrower than Android's graph otherwise: no `ActivityProvider` binding exists yet,
+ * since there is no iOS activity-scoped context to provide. Every other Android-only binding below
+ * is a NoOp/always-true stand-in rather than an outright gap (including `RemoteFlags`, since
+ * Firebase Remote Config stays Android-only for now), so the graph resolves the same shape it does
+ * on Android, just with weaker platform behavior until a real iOS implementation replaces one.
  *
  * Called once from Swift, at app startup (`iOSApp.init()`), the same way `TemplateProjectApplication.onCreate()`
  * calls `KoinLauncher.startKoin` on Android.
@@ -73,4 +74,9 @@ internal val iosAppModule = module {
     // No StoreKit review request wired up on iOS yet; NoOpReviewPrompter lets ReviewController
     // (bound in the shared coreModule) resolve on iOS too, the same way NoOpAdManager does above.
     single<ReviewPrompter> { NoOpReviewPrompter }
+    // Firebase Remote Config stays Android-only for now; NoOpRemoteFlags is what lets
+    // GetCrossPromoConfigUseCase (bound in the shared coreModule) resolve on iOS too — it reads
+    // every flag as its in-code default, so cross-promo simply stays off until a real iOS
+    // implementation exists.
+    single<RemoteFlags> { NoOpRemoteFlags }
 }

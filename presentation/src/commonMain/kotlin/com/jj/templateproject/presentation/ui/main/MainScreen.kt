@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.jj.templateproject.design.components.PrimaryButton
+import com.jj.templateproject.design.components.SecondaryButton
 import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
 import com.jj.templateproject.presentation.RequestNotificationPermissionOnLaunch
@@ -47,11 +50,15 @@ fun MainScreen(
         }
     }
 
+    val state by viewModel.viewState.collectAsState()
+
     MainScreenViewContent(
         navigateWithoutOptionalArgs = viewModel::navigateWithoutOptionalArgs,
         navigateWithFirstOptionalArg = viewModel::navigateWithFirstOptionalArg,
         navigateWithSecondOptionalArg = viewModel::navigateWithSecondOptionalArg,
         navigateWithAllOptionalArgs = viewModel::navigateWithAllOptionalArgs,
+        crossPromoLabel = state.crossPromoLabel,
+        onCrossPromoClicked = viewModel::onCrossPromoClicked,
     )
 }
 
@@ -65,6 +72,8 @@ internal fun MainScreenViewContent(
     navigateWithFirstOptionalArg: () -> Unit,
     navigateWithSecondOptionalArg: () -> Unit,
     navigateWithAllOptionalArgs: () -> Unit,
+    crossPromoLabel: String?,
+    onCrossPromoClicked: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -73,52 +82,71 @@ internal fun MainScreenViewContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
     ) {
-        Column {
-            SectionHeader(
-                text = stringResource(Res.string.navigation_testing),
-                modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
-            )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth(0.85f)
+        NavigationTestingSection(
+            navigateWithoutOptionalArgs = navigateWithoutOptionalArgs,
+            navigateWithFirstOptionalArg = navigateWithFirstOptionalArg,
+            navigateWithSecondOptionalArg = navigateWithSecondOptionalArg,
+            navigateWithAllOptionalArgs = navigateWithAllOptionalArgs,
+        )
+
+        if (crossPromoLabel != null) {
+            SecondaryButton(text = crossPromoLabel, onClick = onCrossPromoClicked)
+        }
+    }
+}
+
+@Composable
+private fun NavigationTestingSection(
+    navigateWithoutOptionalArgs: () -> Unit,
+    navigateWithFirstOptionalArg: () -> Unit,
+    navigateWithSecondOptionalArg: () -> Unit,
+    navigateWithAllOptionalArgs: () -> Unit,
+) {
+    Column {
+        SectionHeader(
+            text = stringResource(Res.string.navigation_testing),
+            modifier = Modifier.padding(bottom = gridMultiple(i = 2)),
+        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth(0.85f)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    PrimaryButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(ACTION_BUTTON_HEIGHT.dp),
-                        text = stringResource(Res.string.navigate_without_optional_args),
-                        onClick = navigateWithoutOptionalArgs,
-                    )
-                    PrimaryButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(ACTION_BUTTON_HEIGHT.dp),
-                        text = stringResource(Res.string.navigate_with_first_optional_arg),
-                        onClick = navigateWithFirstOptionalArg,
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    PrimaryButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(ACTION_BUTTON_HEIGHT.dp),
-                        text = stringResource(Res.string.navigate_with_second_optional_arg),
-                        onClick = navigateWithSecondOptionalArg,
-                    )
-                    PrimaryButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(ACTION_BUTTON_HEIGHT.dp),
-                        text = stringResource(Res.string.navigate_with_all_optional_args),
-                        onClick = navigateWithAllOptionalArgs,
-                    )
-                }
+                PrimaryButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(ACTION_BUTTON_HEIGHT.dp),
+                    text = stringResource(Res.string.navigate_without_optional_args),
+                    onClick = navigateWithoutOptionalArgs,
+                )
+                PrimaryButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(ACTION_BUTTON_HEIGHT.dp),
+                    text = stringResource(Res.string.navigate_with_first_optional_arg),
+                    onClick = navigateWithFirstOptionalArg,
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                PrimaryButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(ACTION_BUTTON_HEIGHT.dp),
+                    text = stringResource(Res.string.navigate_with_second_optional_arg),
+                    onClick = navigateWithSecondOptionalArg,
+                )
+                PrimaryButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(ACTION_BUTTON_HEIGHT.dp),
+                    text = stringResource(Res.string.navigate_with_all_optional_args),
+                    onClick = navigateWithAllOptionalArgs,
+                )
             }
         }
     }

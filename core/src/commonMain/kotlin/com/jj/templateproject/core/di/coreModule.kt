@@ -1,5 +1,6 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.domain.crosspromo.GetCrossPromoConfigUseCase
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
@@ -32,4 +33,5 @@ val coreModule = module {
     single { ReviewController(store = get(), reviewPrompter = get()) }
     single { ExperimentBucketing(installIdStore = get()) }
     single { GetExperimentVariantUseCase(experimentBucketing = get(), analyticsLogger = get()) }
+    single { GetCrossPromoConfigUseCase(remoteFlags = get()) }
 }

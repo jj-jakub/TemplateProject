@@ -1,5 +1,6 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.core.data.crosspromo.IosUrlOpener
 import com.jj.templateproject.core.data.device.IosDeviceInfo
 import com.jj.templateproject.core.data.experiment.UserDefaultsInstallIdStore
 import com.jj.templateproject.core.data.game.DefaultGameStateStorage
@@ -10,6 +11,7 @@ import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptSto
 import com.jj.templateproject.core.data.review.UserDefaultsReviewPromptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
 import com.jj.templateproject.core.data.time.IosSystemClock
+import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.InstallIdStore
 import com.jj.templateproject.domain.game.GameStateStorage
@@ -46,6 +48,7 @@ actual fun platformCoreModule(): Module = module {
     single<Clock> { IosSystemClock() }
     single<DeviceInfo> { IosDeviceInfo() }
     single<ContentSharer> { IosContentSharer() }
+    single<UrlOpener> { IosUrlOpener() }
     single<AppPreferencesRepository> { UserDefaultsAppPreferencesRepository() }
     single<ReviewPromptStore> { UserDefaultsReviewPromptStore() }
     single<GameStateStorage> { DefaultGameStateStorage(fileTextStore = IosFileTextStore()) }
