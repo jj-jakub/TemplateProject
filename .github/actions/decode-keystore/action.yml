@@ -1,0 +1,56 @@
+name: Decode signing keystore
+description: >
+  Decodes the base64-encoded release keystore onto the runner and exports the SIGNING_* environment
+  variables the release build reads (app/build.gradle.kts calls System.getenv for them), so the
+  release build signs itself. Requires CI parameters (KEYSTORE_FILE_NAME) to already be loaded via
+  the load-ci-parameters action.
+
+  The keystore lands inside the workspace rather than at a hardcoded runner path, so the same build
+  script works locally: point SIGNING_STORE_FILE at your own keystore and nothing else changes.
+
+inputs:
+  encoded-keystore:
+    description: Base64-encoded keystore contents (normally secrets.SIGNING_STORE_BASE64)
+    required: true
+  store-password:
+    description: Keystore (store) password (secrets.SIGNING_STORE_PASSWORD)
+    required: true
+  key-alias:
+    description: Key alias inside the keystore (secrets.SIGNING_KEY_ALIAS)
+    required: true
+  key-password:
+    description: Password for the key alias (secrets.SIGNING_KEY_PASSWORD)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Decode keystore and export the signing environment
+      shell: bash
+      env:
+        ENCODED_KEYSTORE: ${{ inputs.encoded-keystore }}
+        STORE_PASSWORD: ${{ inputs.store-password }}
+        KEY_ALIAS: ${{ inputs.key-alias }}
+        KEY_PASSWORD: ${{ inputs.key-password }}
+      run: |
+        set -euo pipefail
+
+        # An undefined GitHub secret still expands to an empty string, and the build script treats
+        # empty signing config as "not configured" and silently falls back to an unsigned release.
+        # For a store-bound build that fallback is worse than failing, so check all four up front.
+        for secret in ENCODED_KEYSTORE STORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+          if [ -z "${!secret:-}" ]; then
+            echo "::error::A signing secret is missing, so this release would come out unsigned. Add SIGNING_STORE_BASE64, SIGNING_STORE_PASSWORD, SIGNING_KEY_ALIAS and SIGNING_KEY_PASSWORD under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+        done
+
+        keystore_path="$GITHUB_WORKSPACE/app/${KEYSTORE_FILE_NAME}"
+        echo "$ENCODED_KEYSTORE" | base64 --decode > "$keystore_path"
+
+        {
+          echo "SIGNING_STORE_FILE=$keystore_path"
+          echo "SIGNING_STORE_PASSWORD=$STORE_PASSWORD"
+          echo "SIGNING_KEY_ALIAS=$KEY_ALIAS"
+          echo "SIGNING_KEY_PASSWORD=$KEY_PASSWORD"
+        } >> "$GITHUB_ENV"

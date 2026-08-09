@@ -37,6 +37,18 @@ if (propertiesFile.exists()) {
 
 val ciBuildNumber = properties["ciBuildNumber"] ?: 0
 
+// Release signing is opt-in through the environment, so a fresh clone still builds: with no keystore
+// configured the release build simply comes out unsigned (AGP names its output
+// ...-release-unsigned.apk) instead of failing. CI decodes the keystore into the workspace and
+// exports these four (see .github/actions/decode-keystore); locally, point SIGNING_STORE_FILE at
+// your own keystore. Read through `providers` so the configuration cache tracks them as build
+// inputs rather than baking one run's environment into a reused configuration.
+val signingStoreFile = providers.environmentVariable("SIGNING_STORE_FILE").orNull?.takeIf(String::isNotBlank)
+val signingStorePassword = providers.environmentVariable("SIGNING_STORE_PASSWORD").orNull
+val signingKeyAlias = providers.environmentVariable("SIGNING_KEY_ALIAS").orNull
+val signingKeyPassword = providers.environmentVariable("SIGNING_KEY_PASSWORD").orNull
+val hasReleaseSigningConfig = signingStoreFile != null && file(signingStoreFile).exists()
+
 android {
     // compileSdk (36), minSdk (23), targetSdk (35), Java 17, JUnit5 and Compose are
     // configured by the templateproject.android.application[.compose] convention plugins.
@@ -56,14 +68,14 @@ android {
             merges += "META-INF/LICENSE-notice.md"
         }
     }
-    signingConfigs {
-        create("release") {
-            val keystoreFile =
-                file(System.getProperty("user.home") + "/work/_temp/keystore/TemplateProject.jks")
-            storeFile = file(keystoreFile.path)
-            storePassword = System.getenv("SIGNING_STORE_PASSWORD")
-            keyAlias = System.getenv("SIGNING_KEY_ALIAS")
-            keyPassword = System.getenv("SIGNING_KEY_PASSWORD")
+    if (hasReleaseSigningConfig) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(signingStoreFile!!)
+                storePassword = signingStorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+            }
         }
     }
 
@@ -95,7 +107,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseSigningConfig) {
+                signingConfig = signingConfigs.getByName("release")
+            }
 
             buildConfigField("String", "licensingBase64PublicKey", "\"\"")
             buildConfigField("String", "ServerBaseUrl", "\"https://www.google.com\"")

@@ -1,0 +1,81 @@
+name: Check versionCode
+description: >-
+  Fails the job unless app/build.gradle.kts bumps versionCode past the previous release tag. Play
+  rejects an upload whose versionCode is not higher than one already uploaded, so this catches a
+  forgotten bump before a store-bound bundle is ever built. Requires the repository to be checked out
+  with fetch-depth: 0, otherwise no tags or history are available to compare against.
+
+runs:
+  using: composite
+  steps:
+    - name: Compare versionCode against the previous release tag
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        build_file="app/build.gradle.kts"
+
+        parse_version_code() {
+          sed -nE 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+).*/\1/p' | head -1
+        }
+
+        current="$(parse_version_code < "$build_file")"
+        if [ -z "$current" ]; then
+          echo "::error file=$build_file::Could not parse a versionCode from $build_file."
+          exit 1
+        fi
+
+        # On a tag build HEAD is the tag being released, so the baseline is the tag before it.
+        current_tag=""
+        case "${GITHUB_REF:-}" in
+          refs/tags/*) current_tag="${GITHUB_REF#refs/tags/}" ;;
+        esac
+
+        if [ -n "$current_tag" ]; then
+          previous_tag="$(git describe --tags --abbrev=0 --exclude="$current_tag" HEAD 2>/dev/null || true)"
+        else
+          previous_tag="$(git describe --tags --abbrev=0 HEAD 2>/dev/null || true)"
+        fi
+
+        if [ -z "$previous_tag" ]; then
+          # A shallow checkout has no tags either, which would turn this gate into a silent no-op.
+          # Only a genuinely tag-less full history is allowed through.
+          if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+            echo "::error::No release tag found and the checkout is shallow, so this gate cannot compare anything. Check out with fetch-depth: 0."
+            exit 1
+          fi
+          echo "::notice::No earlier release tag is reachable from HEAD; nothing to compare against (versionCode $current)."
+          echo "### versionCode $current (first release, nothing to compare against)" >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+
+        previous_source="$(git show "$previous_tag:$build_file" 2>/dev/null || true)"
+        if [ -z "$previous_source" ]; then
+          echo "::notice::$build_file does not exist at $previous_tag; skipping the comparison (versionCode $current)."
+          exit 0
+        fi
+
+        previous="$(printf '%s\n' "$previous_source" | parse_version_code)"
+        if [ -z "$previous" ]; then
+          echo "::error::Could not parse a versionCode from $build_file at $previous_tag."
+          exit 1
+        fi
+
+        {
+          echo "### versionCode check"
+          echo ""
+          echo "| ref | versionCode |"
+          echo "| --- | --- |"
+          echo "| \`$previous_tag\` | $previous |"
+          echo "| ${current_tag:-HEAD} | $current |"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        if [ "$current" -le "$previous" ]; then
+          line="$(grep -nE '^[[:space:]]*versionCode[[:space:]]*=' "$build_file" | head -1 | cut -d: -f1)"
+          echo "::error file=$build_file,line=${line:-1}::versionCode $current is not greater than $previous (from tag $previous_tag). Bump versionCode in $build_file before releasing — Play rejects a bundle whose versionCode was already uploaded."
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Failed:** versionCode must be greater than $previous." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        echo "versionCode $current is ahead of $previous (tag $previous_tag)."

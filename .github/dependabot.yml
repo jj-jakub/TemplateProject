@@ -1,0 +1,51 @@
+# Keeps the pinned action SHAs and the Gradle dependencies moving.
+#
+# Every `uses:` in this repository is pinned to a commit SHA rather than a floating tag, so that a
+# compromised or retagged release cannot silently enter a build that handles the signing keystore.
+# Pinning only stays safe if something updates it, which is what the github-actions entry below does:
+# Dependabot rewrites both the SHA and the trailing version comment.
+#
+# Updates are grouped so this arrives as a couple of pull requests a week rather than a dozen, and
+# they target `develop`, this repository's default branch.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: [ "*" ]
+    commit-message:
+      prefix: ci
+
+  # Covers gradle/libs.versions.toml as well as the build scripts. Major bumps arrive as their own
+  # pull request, since AGP and Kotlin majors usually need matching changes elsewhere.
+  - package-ecosystem: gradle
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      gradle-minor-and-patch:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+    commit-message:
+      prefix: deps
+
+  # build-logic is an included build with its own dependency block, which the entry above does not
+  # reach: Dependabot scans one directory per entry.
+  - package-ecosystem: gradle
+    directory: /build-logic
+    target-branch: develop
+    schedule:
+      interval: weekly
+    groups:
+      build-logic:
+        patterns: [ "*" ]
+        update-types: [ "minor", "patch" ]
+    commit-message:
+      prefix: deps

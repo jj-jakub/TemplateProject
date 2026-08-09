@@ -1,0 +1,50 @@
+name: Load CI parameters
+description: >
+  Loads the shared build parameters (app name, Gradle task names, keystore file name, size
+  ceilings) from .github/workflows/parameters into the job environment.
+
+  Parsed with a few lines of bash rather than a third-party action on purpose: this runs in the same
+  job that decodes the signing keystore, and the fewer third parties inside that boundary the better.
+  Values are taken literally, so no quoting or shell expansion is applied to them.
+
+runs:
+  using: composite
+  steps:
+    - name: Load the parameter file into the job environment
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        parameter_file=".github/workflows/parameters/.env.normalParameters"
+        if [ ! -f "$parameter_file" ]; then
+          echo "::error::$parameter_file is missing, so no build parameters could be loaded."
+          exit 1
+        fi
+
+        loaded=0
+        # `|| [ -n "$line" ]` keeps a final line lacking a trailing newline.
+        while IFS= read -r line || [ -n "$line" ]; do
+          case "$line" in
+            ''|'#'*) continue ;;
+          esac
+          case "$line" in
+            *=*) ;;
+            *) echo "::warning::Ignoring line without an assignment: $line"; continue ;;
+          esac
+
+          name="${line%%=*}"
+          value="${line#*=}"
+          case "$name" in
+            [A-Za-z_]*) ;;
+            *) echo "::warning::Ignoring line with an unusable name: $line"; continue ;;
+          esac
+
+          printf '%s=%s\n' "$name" "$value" >> "$GITHUB_ENV"
+          loaded=$((loaded + 1))
+        done < "$parameter_file"
+
+        if [ "$loaded" -eq 0 ]; then
+          echo "::error::$parameter_file defined no parameters."
+          exit 1
+        fi
+        echo "Loaded $loaded CI parameters."

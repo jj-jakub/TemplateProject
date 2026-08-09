@@ -1,0 +1,48 @@
+name: Dependabot auto-merge
+
+# Dependabot opens a handful of pull requests a week. Patch updates are the boring majority, so this
+# turns auto-merge on for those and leaves minor and major ones for a human. Auto-merge means GitHub
+# merges the pull request once the required checks pass, so this never bypasses CI: it is exactly as
+# strict as the branch protection on develop.
+#
+# Requires "Allow auto-merge" in the repository settings and at least one required status check;
+# without a required check GitHub has nothing to wait for and would merge immediately. Branch
+# protection needs GitHub Pro on a private repository, so until that is in place this workflow
+# deliberately does nothing and says so, rather than merging an unchecked update.
+#
+# pull_request_target runs with a write-capable token, which is why the actor is checked and why
+# nothing here ever checks out the pull request's code.
+on: pull_request_target
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  Auto_merge_patch_updates:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read the update metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@21025c705c08248db411dc16f3619e6b5f9ea21a # v2.5.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          if gh pr merge --auto --squash "$PR_URL"; then
+            echo "Auto-merge enabled; GitHub will merge once the required checks pass."
+            exit 0
+          fi
+          echo "::notice::Auto-merge is unavailable, so this pull request is left for a human. It needs 'Allow auto-merge' in the repository settings and a required status check, which means branch protection."
+
+      - name: Explain why a larger update was left alone
+        if: steps.metadata.outputs.update-type != 'version-update:semver-patch'
+        run: echo "${{ steps.metadata.outputs.update-type }} is not a patch update, so it waits for a human."

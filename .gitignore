@@ -18,3 +18,14 @@ local.properties
 # Real Firebase config is environment-specific and contains project keys.
 # Copy app/google-services.json.example to app/google-services.json and fill it in.
 app/google-services.json
+
+# Release signing keys hold the app's upload/signing identity, never committed. CI decodes the
+# keystore from the SIGNING_STORE_BASE64 secret into the workspace at build time, which is why this
+# has to cover the whole tree rather than one directory.
+*.jks
+*.keystore
+
+# A Firebase service-account private key can send push to every installed user and read the whole
+# project. Keep it outside the repository entirely; this is only a backstop against a stray copy.
+*firebase-adminsdk*.json
+service-account*.json

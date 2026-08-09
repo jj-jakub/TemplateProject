@@ -1,0 +1,79 @@
+name: Resolve artifact names
+description: >-
+  Parses versionName and versionCode out of app/build.gradle.kts and composes, for one product
+  flavor, both the paths AGP writes to and the names every workflow uploads under, so a downloaded
+  file says which build it came from (<APP_NAME>_<flavor>Release_<versionName>_<versionCode>.apk).
+
+  The output paths are derived from the flavor rather than listed in the parameter file, because AGP
+  composes them from the same flavor name: listing them would be a second copy that can disagree.
+  Requires CI parameters (APP_NAME) to already be loaded via the load-ci-parameters action.
+
+  Exports APP_VERSION_NAME, APP_VERSION_CODE, the Gradle task names (GRADLE_TASK_RELEASE_APK,
+  GRADLE_TASK_RELEASE_BUNDLE, GRADLE_TASK_DEBUG_APK), the built paths (OUT_*) and the artifact names
+  (ARTIFACT_*).
+
+inputs:
+  flavor:
+    description: Product flavor to resolve (a value from the `version` flavor dimension, e.g. flavor1)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Compose artifact names from the app version
+      shell: bash
+      env:
+        FLAVOR: ${{ inputs.flavor }}
+      run: |
+        set -euo pipefail
+
+        build_file="app/build.gradle.kts"
+
+        version_name="$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' "$build_file" | head -1)"
+        version_code="$(sed -nE 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*([0-9]+).*/\1/p' "$build_file" | head -1)"
+
+        if [ -z "$version_name" ] || [ -z "$version_code" ]; then
+          echo "::error file=$build_file::Could not parse versionName/versionCode from $build_file."
+          exit 1
+        fi
+
+        if ! grep -qE "create\(\"${FLAVOR}\"\)" "$build_file"; then
+          echo "::error file=$build_file::No product flavor named '${FLAVOR}' is declared in $build_file."
+          exit 1
+        fi
+
+        # AGP capitalises the flavor when it composes task and bundle-directory names.
+        flavor_capitalised="$(printf '%s' "${FLAVOR:0:1}" | tr '[:lower:]' '[:upper:]')${FLAVOR:1}"
+        version="${version_name}_${version_code}"
+        release_prefix="${APP_NAME}_${FLAVOR}Release"
+        debug_prefix="${APP_NAME}_${FLAVOR}Debug"
+
+        {
+          echo "APP_VERSION_NAME=$version_name"
+          echo "APP_VERSION_CODE=$version_code"
+
+          echo "GRADLE_TASK_RELEASE_APK=:app:assemble${flavor_capitalised}Release"
+          echo "GRADLE_TASK_RELEASE_BUNDLE=:app:bundle${flavor_capitalised}Release"
+          echo "GRADLE_TASK_DEBUG_APK=:app:assemble${flavor_capitalised}Debug"
+
+          echo "OUT_APK_RELEASE_DIR=app/build/outputs/apk/${FLAVOR}/release/"
+          echo "OUT_APK_RELEASE_NAME=app-${FLAVOR}-release.apk"
+          # AGP names the output after whether signing was configured, so a workflow that builds
+          # without the keystore secrets picks this one instead of the line above.
+          echo "OUT_APK_RELEASE_UNSIGNED_NAME=app-${FLAVOR}-release-unsigned.apk"
+          echo "OUT_APK_DEBUG_DIR=app/build/outputs/apk/${FLAVOR}/debug/"
+          echo "OUT_APK_DEBUG_NAME=app-${FLAVOR}-debug.apk"
+          echo "OUT_AAB_DIR=app/build/outputs/bundle/${FLAVOR}Release/"
+          echo "OUT_AAB_NAME=app-${FLAVOR}-release.aab"
+          # R8's deobfuscation map. Archived with the release so a stack trace stays readable even if
+          # the Crashlytics upload of the same file ever failed.
+          echo "OUT_MAPPING_DIR=app/build/outputs/mapping/${FLAVOR}Release/"
+          echo "OUT_MAPPING_NAME=mapping.txt"
+
+          echo "ARTIFACT_RELEASE_APK=${release_prefix}_${version}.apk"
+          echo "ARTIFACT_RELEASE_AAB=${release_prefix}_${version}.aab"
+          echo "ARTIFACT_RELEASE_MAPPING=${release_prefix}_${version}_mapping.txt"
+          echo "ARTIFACT_DEBUG_APK=${debug_prefix}_${version}.apk"
+        } >> "$GITHUB_ENV"
+
+        echo "### ${APP_NAME} ${FLAVOR} $version_name ($version_code)" >> "$GITHUB_STEP_SUMMARY"

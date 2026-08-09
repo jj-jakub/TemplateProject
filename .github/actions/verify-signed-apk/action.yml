@@ -1,0 +1,86 @@
+name: Verify the release APK is signed
+description: >-
+  Runs apksigner against a built release APK and fails unless the signature verifies, so a build that
+  came out unsigned or half-signed cannot be published. When the repository variable
+  RELEASE_CERT_SHA256 is set, the signing certificate's SHA-256 fingerprint must match it as well,
+  which is what catches a build signed with the wrong keystore before the store rejects the upload
+  for a certificate mismatch.
+
+  Only the APK is checked. The AAB in the same build is produced by the same signing config in the
+  same Gradle invocation, so a correct APK signature is evidence for both.
+
+inputs:
+  apk-path:
+    description: Path to the release APK to verify
+    required: true
+  expected-certificate-sha256:
+    description: >-
+      Expected signing certificate SHA-256 fingerprint (normally vars.RELEASE_CERT_SHA256). Colons
+      and case are ignored. Leave empty to only check that the APK is signed, in which case the
+      fingerprint is printed so it can be pinned later.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Verify the APK signature
+      shell: bash
+      env:
+        APK_PATH: ${{ inputs.apk-path }}
+        EXPECTED_FINGERPRINT: ${{ inputs.expected-certificate-sha256 }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$APK_PATH" ]; then
+          echo "::error::No APK to verify at $APK_PATH."
+          exit 1
+        fi
+
+        # apksigner ships per build-tools version; take the newest the runner has installed.
+        apksigner="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -1)"
+        if [ -z "$apksigner" ]; then
+          echo "::error::apksigner was not found under \$ANDROID_HOME/build-tools."
+          exit 1
+        fi
+
+        # A release build with no signing config still produces an APK, it just fails to verify.
+        if ! output="$("$apksigner" verify --verbose --print-certs "$APK_PATH" 2>&1)"; then
+          echo "$output"
+          echo "::error::$APK_PATH is not correctly signed, so it cannot be published. Check the signing secrets."
+          exit 1
+        fi
+        echo "$output"
+
+        actual="$(printf '%s\n' "$output" \
+          | sed -nE 's/^Signer #1 certificate SHA-256 digest: *([0-9a-fA-F:]+).*/\1/p' \
+          | head -1 | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+        if [ -z "$actual" ]; then
+          echo "::error::Could not read the signing certificate fingerprint out of the apksigner output."
+          exit 1
+        fi
+
+        expected="$(printf '%s' "$EXPECTED_FINGERPRINT" | tr -d ':[:space:]' | tr '[:upper:]' '[:lower:]')"
+        if [ -z "$expected" ]; then
+          echo "::notice::Signed by certificate $actual. Set the repository variable RELEASE_CERT_SHA256 to this value to have future releases checked against it."
+          {
+            echo "### Signature verified"
+            echo ""
+            echo "Signing certificate SHA-256: \`$actual\`"
+            echo ""
+            echo "Set repository variable \`RELEASE_CERT_SHA256\` to this value to pin it."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+
+        if [ "$actual" != "$expected" ]; then
+          echo "::error::Wrong signing certificate. Expected $expected but the APK is signed by $actual. The store would reject this upload."
+          exit 1
+        fi
+
+        echo "Signature verified against the pinned certificate."
+        {
+          echo "### Signature verified"
+          echo ""
+          echo "Signing certificate SHA-256 matches the pinned \`RELEASE_CERT_SHA256\`."
+        } >> "$GITHUB_STEP_SUMMARY"

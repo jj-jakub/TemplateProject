@@ -1,0 +1,146 @@
+name: Signed release
+
+# Triggered by pushing a version tag. For each product flavor: builds the signed release APK + AAB,
+# verifies the signature, checks the artifact sizes, and attaches everything (plus R8's mapping file)
+# to the GitHub Release for the tag. Fails before building anything if versionCode was not bumped
+# past the previous release tag.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   SIGNING_STORE_BASE64    - base64 of the upload keystore:  base64 -i upload.jks | pbcopy
+#   SIGNING_STORE_PASSWORD  - the keystore (store) password
+#   SIGNING_KEY_ALIAS       - the key alias inside the keystore
+#   SIGNING_KEY_PASSWORD    - the key password for that alias
+# Optional:
+#   GOOGLE_SERVICES_JSON    - contents of app/google-services.json, written before the build.
+# Optional repository variable:
+#   RELEASE_CERT_SHA256     - the expected signing certificate fingerprint, checked after the build.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+# Never cancel a release midway: a half-run leaves a GitHub Release holding some of its artifacts.
+# Two tags pushed close together queue instead.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  Build_release_artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      # Both flavors attach files to the same GitHub Release, and two concurrent jobs would race to
+      # create it. One at a time also means a failed first flavor stops the release rather than
+      # half-publishing it.
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        flavor: [ flavor1, flavor2 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+          # Tags and history are what the versionCode gate below compares against.
+          fetch-depth: 0
+
+      - name: Check versionCode was bumped
+        uses: ./.github/actions/check-version-code
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      - name: Load CI parameters
+        uses: ./.github/actions/load-ci-parameters
+
+      - name: Resolve artifact names
+        uses: ./.github/actions/resolve-artifact-names
+        with:
+          flavor: ${{ matrix.flavor }}
+
+      - name: Decode keystore
+        uses: ./.github/actions/decode-keystore
+        with:
+          encoded-keystore: ${{ secrets.SIGNING_STORE_BASE64 }}
+          store-password: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          key-alias: ${{ secrets.SIGNING_KEY_ALIAS }}
+          key-password: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+      - name: Add google-services.json (optional Firebase override)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+            echo "google-services.json written from the secret."
+          else
+            echo "No GOOGLE_SERVICES_JSON secret; using the repository's own google-services.json if it has one."
+          fi
+
+      - name: Build signed release apk and aab
+        run: ./gradlew ${{ env.GRADLE_TASK_RELEASE_APK }} ${{ env.GRADLE_TASK_RELEASE_BUNDLE }} --stacktrace
+
+      - name: Rename built artifacts
+        run: |
+          set -euo pipefail
+          mv "${{ env.OUT_APK_RELEASE_DIR }}${{ env.OUT_APK_RELEASE_NAME }}" "${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}"
+          mv "${{ env.OUT_AAB_DIR }}${{ env.OUT_AAB_NAME }}" "${{ env.OUT_AAB_DIR }}${{ env.ARTIFACT_RELEASE_AAB }}"
+          mv "${{ env.OUT_MAPPING_DIR }}${{ env.OUT_MAPPING_NAME }}" "${{ env.OUT_MAPPING_DIR }}${{ env.ARTIFACT_RELEASE_MAPPING }}"
+
+      # The signing secrets being present does not prove the build used the right key, and a
+      # certificate mismatch is only discovered at upload time otherwise.
+      - name: Verify the release apk is signed
+        uses: ./.github/actions/verify-signed-apk
+        with:
+          apk-path: ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+          expected-certificate-sha256: ${{ vars.RELEASE_CERT_SHA256 }}
+
+      - name: Check release apk size
+        uses: ./.github/actions/check-artifact-size
+        with:
+          file-path: ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+          max-megabytes: ${{ env.MAX_RELEASE_APK_MB }}
+
+      - name: Check release aab size
+        uses: ./.github/actions/check-artifact-size
+        with:
+          file-path: ${{ env.OUT_AAB_DIR }}${{ env.ARTIFACT_RELEASE_AAB }}
+          max-megabytes: ${{ env.MAX_RELEASE_AAB_MB }}
+
+      # This is the step that creates the release, so it is the one that generates its notes.
+      - name: Export release artifacts
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          files: |
+            ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+            ${{ env.OUT_AAB_DIR }}${{ env.ARTIFACT_RELEASE_AAB }}
+            ${{ env.OUT_MAPPING_DIR }}${{ env.ARTIFACT_RELEASE_MAPPING }}
+          generate_release_notes: true
+
+      - name: Upload release apk
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_RELEASE_APK }}
+          path: ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+          if-no-files-found: error
+
+      - name: Upload release aab
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_RELEASE_AAB }}
+          path: ${{ env.OUT_AAB_DIR }}${{ env.ARTIFACT_RELEASE_AAB }}
+          if-no-files-found: error
+
+      # R8's mapping also goes to Crashlytics during the build when Firebase is configured. This copy
+      # is the fallback for reading a stack trace if that upload failed, or for a report that arrives
+      # from outside Crashlytics.
+      - name: Upload mapping file
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_RELEASE_MAPPING }}
+          path: ${{ env.OUT_MAPPING_DIR }}${{ env.ARTIFACT_RELEASE_MAPPING }}
+          if-no-files-found: error

@@ -1,0 +1,90 @@
+name: Manual unsigned build
+
+# Manually triggered (Actions -> Manual unsigned build -> Run workflow): builds the chosen flavor's
+# release APK and debug APK and uploads both as workflow artifacts. No signing secrets are used, so
+# neither artifact is store-bound: the release APK comes out unsigned (AGP names its own output
+# ...-release-unsigned.apk) and the debug APK carries only the auto-generated debug key. Use this to
+# check that a release-shrunk build compiles and to hand out a debug build off any branch; push a tag
+# and let release.yml produce anything destined for a store.
+#
+# Optional repository secret (Settings -> Secrets and variables -> Actions):
+#   GOOGLE_SERVICES_JSON    - contents of app/google-services.json, written before the build.
+on:
+  workflow_dispatch:
+    inputs:
+      flavor:
+        description: Product flavor to build
+        required: true
+        default: flavor1
+        type: choice
+        options: [ flavor1, flavor2 ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-unsigned-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Build_unsigned_artifacts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      - name: Load CI parameters
+        uses: ./.github/actions/load-ci-parameters
+
+      - name: Resolve artifact names
+        uses: ./.github/actions/resolve-artifact-names
+        with:
+          flavor: ${{ inputs.flavor }}
+
+      - name: Add google-services.json (optional Firebase override)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+            echo "google-services.json written from the secret."
+          else
+            echo "No GOOGLE_SERVICES_JSON secret; using the repository's own google-services.json if it has one."
+          fi
+
+      # No keystore is decoded here, so the release output is unsigned and the debug APK carries only
+      # the auto-generated debug key.
+      - name: Build release and debug apks
+        run: ./gradlew ${{ env.GRADLE_TASK_RELEASE_APK }} ${{ env.GRADLE_TASK_DEBUG_APK }} --stacktrace
+
+      - name: Rename built artifacts
+        run: |
+          set -euo pipefail
+          mv "${{ env.OUT_APK_RELEASE_DIR }}${{ env.OUT_APK_RELEASE_UNSIGNED_NAME }}" "${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}"
+          mv "${{ env.OUT_APK_DEBUG_DIR }}${{ env.OUT_APK_DEBUG_NAME }}" "${{ env.OUT_APK_DEBUG_DIR }}${{ env.ARTIFACT_DEBUG_APK }}"
+
+      - name: Check release apk size
+        uses: ./.github/actions/check-artifact-size
+        with:
+          file-path: ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+          max-megabytes: ${{ env.MAX_RELEASE_APK_MB }}
+
+      - name: Upload unsigned release apk
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_RELEASE_APK }}
+          path: ${{ env.OUT_APK_RELEASE_DIR }}${{ env.ARTIFACT_RELEASE_APK }}
+          if-no-files-found: error
+
+      - name: Upload debug apk
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ env.ARTIFACT_DEBUG_APK }}
+          path: ${{ env.OUT_APK_DEBUG_DIR }}${{ env.ARTIFACT_DEBUG_APK }}
+          if-no-files-found: error

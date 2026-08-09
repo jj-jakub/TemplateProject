@@ -1,0 +1,56 @@
+name: Check artifact size
+description: >-
+  Reports a built artifact's size in the job summary and fails if it exceeds a ceiling. Release
+  artifacts grow quietly, an asset at a time, and size costs installs; the ceiling is there to catch
+  a runaway (a bundled asset that should not ship, a shrinker that stopped shrinking) rather than to
+  police ordinary growth.
+
+inputs:
+  file-path:
+    description: Path to the artifact to measure
+    required: true
+  max-megabytes:
+    description: Ceiling in MB. The step fails above it. Empty or 0 reports the size without failing.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Measure the artifact
+      shell: bash
+      env:
+        FILE_PATH: ${{ inputs.file-path }}
+        MAX_MEGABYTES: ${{ inputs.max-megabytes }}
+      run: |
+        set -euo pipefail
+
+        if [ ! -f "$FILE_PATH" ]; then
+          echo "::error::No artifact to measure at $FILE_PATH."
+          exit 1
+        fi
+
+        bytes="$(wc -c < "$FILE_PATH" | tr -d '[:space:]')"
+        # Two decimals without bc, which is not guaranteed to be on the runner.
+        megabytes="$(awk -v b="$bytes" 'BEGIN { printf "%.2f", b / 1048576 }')"
+        name="$(basename "$FILE_PATH")"
+
+        echo "$name is ${megabytes} MB ($bytes bytes)."
+        {
+          echo "### $name"
+          echo ""
+          echo "Size: **${megabytes} MB**${MAX_MEGABYTES:+ (ceiling ${MAX_MEGABYTES} MB)}"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        case "${MAX_MEGABYTES:-0}" in
+          ''|0) exit 0 ;;
+        esac
+
+        # Integer comparison in bytes, so a ceiling is exact rather than subject to rounding.
+        ceiling_bytes="$(awk -v m="$MAX_MEGABYTES" 'BEGIN { printf "%d", m * 1048576 }')"
+        if [ "$bytes" -gt "$ceiling_bytes" ]; then
+          echo "::error::$name is ${megabytes} MB, over the ${MAX_MEGABYTES} MB ceiling. Find what grew, or raise MAX_* in .github/workflows/parameters if the growth is intended."
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Failed:** over the ${MAX_MEGABYTES} MB ceiling." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi

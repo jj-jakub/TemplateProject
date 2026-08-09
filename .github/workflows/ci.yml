@@ -1,0 +1,148 @@
+name: Build and unit tests
+
+# The gate every change passes: build, test, lint and static analysis on every pull request (and on
+# pushes to the long-lived branches). Feature branches are validated through their pull request, so
+# direct `push` CI is limited to develop/master and a branch with an open PR no longer fires the
+# pipeline twice on every commit. To get CI on a work-in-progress branch, open a draft PR.
+on:
+  pull_request:
+  push:
+    branches: [ develop, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# When a newer commit lands on the same branch or PR, cancel the in-progress run instead of letting
+# superseded builds keep burning runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  Build_and_test:
+    runs-on: ubuntu-latest
+    # Without this a hung Gradle daemon runs to the 6 hour default before the job is killed.
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      - name: Load CI parameters
+        uses: ./.github/actions/load-ci-parameters
+
+      - name: Resolve artifact names
+        uses: ./.github/actions/resolve-artifact-names
+        with:
+          flavor: ${{ env.DEFAULT_FLAVOR }}
+
+      # Assembling the debug APK is the compile check; the unit tests include the Konsist
+      # architecture rules, which is what keeps the module graph honest.
+      - name: Build debug and run unit tests
+        run: ./gradlew ${{ env.GRADLE_TASK_DEBUG_APK }} ${{ env.GRADLE_TASK_UNIT_TEST }} --stacktrace
+
+      - name: Lint
+        if: env.GRADLE_TASK_LINT != ''
+        run: ./gradlew ${{ env.GRADLE_TASK_LINT }} --stacktrace
+
+      # Detekt is a root task deliberately kept out of `check` so the unit-test loop stays fast,
+      # which also means it only ever runs here if it is invoked by name.
+      - name: Static analysis
+        if: env.GRADLE_TASK_STATIC_ANALYSIS != ''
+        run: ./gradlew ${{ env.GRADLE_TASK_STATIC_ANALYSIS }} --stacktrace
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/
+            domain/build/reports/
+            networking/build/reports/
+            core/build/reports/
+            design/build/reports/
+          if-no-files-found: ignore
+
+  Instrumented_tests:
+    # End-to-end UI flows on an emulator (the hermetic AppFlowsUiTest suite). The Android emulator
+    # needs a hypervisor-accelerated host: GitHub's Apple Silicon (arm64) macOS runners don't expose
+    # one to the emulator (it fails to boot — HVF unsupported / arm64-v8a crashes), so this pins the
+    # last Intel x86_64 image, macos-15-intel (available until ~Aug 2027). API 30 stays below API 33,
+    # so notifications need no runtime-permission dialog that could steal focus from the Compose
+    # tree. The AVD is generated once and cached as a snapshot, so only a cold cache pays the boot
+    # cost; later runs restore it.
+    runs-on: macos-15-intel
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      - name: Load CI parameters
+        uses: ./.github/actions/load-ci-parameters
+
+      - name: AVD cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-30-x86_64
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 30
+          arch: x86_64
+          profile: pixel_4
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Run instrumented UI tests
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 30
+          arch: x86_64
+          profile: pixel_4
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: ./gradlew ${{ env.GRADLE_TASK_INSTRUMENTED_TEST }} --stacktrace
+
+  Sonar_analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      # The SonarQube Gradle plugin is not compatible with Gradle's configuration cache (enabled in
+      # gradle.properties), so run this invocation with --no-configuration-cache; otherwise the
+      # task aborts with a configuration-cache report. Skipped when SONAR_TOKEN isn't configured
+      # (e.g. forks). continue-on-error keeps a SonarCloud-side hiccup from failing the pipeline —
+      # remove it to make Sonar a hard gate once you've confirmed a clean run.
+      - name: Sonar analysis
+        if: ${{ env.SONAR_TOKEN != '' }}
+        continue-on-error: true
+        run: ./gradlew buildFlavor1Debug sonar --no-configuration-cache --info
