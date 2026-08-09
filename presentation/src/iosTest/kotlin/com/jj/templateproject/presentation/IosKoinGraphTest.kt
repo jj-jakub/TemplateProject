@@ -10,6 +10,10 @@ import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
 import com.jj.templateproject.domain.app.AppVersionInfo
 import com.jj.templateproject.domain.device.DeviceInfo
+import com.jj.templateproject.domain.experiment.ExperimentBucketing
+import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
+import com.jj.templateproject.domain.experiment.InstallIdStore
+import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
@@ -70,6 +74,10 @@ class IosKoinGraphTest {
         assertNotNull(koin.get<LaunchAttemptStore>())
         assertNotNull(koin.get<ReviewPrompter>())
         assertNotNull(koin.get<ReviewController>())
+        assertNotNull(koin.get<GameStateStorage>())
+        assertNotNull(koin.get<InstallIdStore>())
+        assertNotNull(koin.get<ExperimentBucketing>())
+        assertNotNull(koin.get<GetExperimentVariantUseCase>())
     }
 
     @Test

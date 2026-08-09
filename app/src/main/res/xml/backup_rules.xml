@@ -19,4 +19,7 @@
     <exclude
         domain="sharedpref"
         path="review_prompt.xml" />
+    <exclude
+        domain="sharedpref"
+        path="experiment_bucketing.xml" />
 </full-backup-content>

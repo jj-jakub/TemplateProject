@@ -19,6 +19,10 @@ import com.jj.templateproject.domain.app.AppVersionInfo
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.device.DeviceInfo
+import com.jj.templateproject.domain.experiment.ExperimentBucketing
+import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
+import com.jj.templateproject.domain.experiment.InstallIdStore
+import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.TemplateRepository
@@ -109,6 +113,9 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<LaunchStability>())
         assertNotNull(get<ReviewPrompter>())
         assertNotNull(get<ReviewController>())
+        assertNotNull(get<GameStateStorage>())
+        assertNotNull(get<ExperimentBucketing>())
+        assertNotNull(get<GetExperimentVariantUseCase>())
     }
 
     @Test
@@ -120,6 +127,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<ContentSharer>())
         assertNotNull(get<AppLifecycle>())
         assertNotNull(get<LaunchAttemptStore>())
+        assertNotNull(get<InstallIdStore>())
     }
 
     @Test

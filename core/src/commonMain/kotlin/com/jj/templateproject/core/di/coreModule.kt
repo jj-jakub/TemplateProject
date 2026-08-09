@@ -1,5 +1,7 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.domain.experiment.ExperimentBucketing
+import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.reliability.LaunchStability
@@ -28,4 +30,6 @@ val coreModule = module {
     // persisted state consults it before doing so.
     single { LaunchStability(store = get()) }
     single { ReviewController(store = get(), reviewPrompter = get()) }
+    single { ExperimentBucketing(installIdStore = get()) }
+    single { GetExperimentVariantUseCase(experimentBucketing = get(), analyticsLogger = get()) }
 }
