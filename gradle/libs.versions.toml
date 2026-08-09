@@ -100,6 +100,7 @@ ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", v
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
@@ -110,3 +111,4 @@ templateproject-android-application = { id = "templateproject.android.applicatio
 templateproject-android-application-compose = { id = "templateproject.android.application.compose", version = "unspecified" }
 templateproject-android-library = { id = "templateproject.android.library", version = "unspecified" }
 templateproject-android-library-compose = { id = "templateproject.android.library.compose", version = "unspecified" }
+templateproject-kmp-library = { id = "templateproject.kmp.library", version = "unspecified" }

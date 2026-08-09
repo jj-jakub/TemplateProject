@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidApplication).apply(false)
     alias(libs.plugins.androidLibrary).apply(false)
     alias(libs.plugins.kotlinAndroid).apply(false)
+    alias(libs.plugins.kotlinMultiplatform).apply(false)
     alias(libs.plugins.composeCompiler).apply(false)
     alias(libs.plugins.detekt)
 
@@ -27,10 +28,15 @@ detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     baseline = file("$rootDir/config/detekt/baseline.xml")
     parallel = true
+    // Multiplatform modules keep their code in commonMain/androidMain/iosMain rather than main, so
+    // each converted module contributes its source sets by name. A path that does not exist is
+    // simply skipped, which is what lets this list cover modules mid-conversion.
     source.setFrom(
         files(
             "app/src/main",
-            "domain/src/main",
+            "domain/src/commonMain",
+            "domain/src/androidMain",
+            "domain/src/iosMain",
             "networking/src/main",
             "core/src/main",
             "design/src/main",
