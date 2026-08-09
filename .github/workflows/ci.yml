@@ -67,7 +67,43 @@ jobs:
             networking/build/reports/
             core/build/reports/
             design/build/reports/
+            presentation/build/reports/
           if-no-files-found: ignore
+
+  iOS_framework_build:
+    # Verifies the Kotlin/Swift boundary actually links (embedAndSignAppleFrameworkForXcode), not
+    # just that presentation's iosSimulatorArm64 target compiles — a real Info.plist/build-settings
+    # mistake in iosApp/project.yml, or a Swift-side compile error, would slip through a Gradle-only
+    # check. No app install/launch here (that would need a booted simulator and buys little extra
+    # signal for a PR gate); IosKoinGraphTest is what verifies the Koin graph actually resolves.
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          submodules: recursive
+
+      - name: Set up Android build environment
+        uses: ./.github/actions/setup-android-build
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate the Xcode project
+        run: xcodegen generate
+        working-directory: iosApp
+
+      # A named simulator, not the generic "platform=iOS Simulator" destination: the generic form
+      # defaults to a multi-arch build including x86_64, which this project has no Kotlin/Native
+      # target for ("Unknown iOS simulator arch: 'x86_64'"). iPhone 16 ships on every macos-15
+      # runner's preinstalled Xcode.
+      - name: Build the iOS app for the simulator
+        run: |
+          xcodebuild -project iosApp.xcodeproj -scheme iosApp \
+            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -configuration Debug build
+        working-directory: iosApp
 
   Instrumented_tests:
     # End-to-end UI flows on an emulator (the hermetic AppFlowsUiTest suite). The Android emulator

@@ -1,10 +1,12 @@
 # Contributing to TemplateProject
 
-`TemplateProject` is a multi-module **starter template** targeting Android and iOS
-(`:domain`/`:networking`/`:core`/`:design` are Kotlin Multiplatform + Compose Multiplatform;
-`:app` is the Android shell, with an iOS presentation layer still to come). Compose Multiplatform +
-Material 3, Koin DI, Ktor + kotlinx-serialization. New apps are branched from it, so prefer changes
-that keep it a clean, generic foundation over app-specific features.
+`TemplateProject` is a multi-module **starter template** targeting Android and iOS.
+`:domain`/`:networking`/`:core`/`:design`/`:presentation` are all Kotlin Multiplatform (+ Compose
+Multiplatform for `:design`/`:presentation`); `:app` (Android) and `iosApp` (Swift, xcodegen-generated)
+are thin platform shells around `:presentation`, providing only the DI bindings and entry point each
+platform needs. Compose Multiplatform + Material 3, Koin DI, Ktor + kotlinx-serialization. New apps
+are branched from it, so prefer changes that keep it a clean, generic foundation over app-specific
+features.
 
 ## Prerequisites
 
@@ -38,13 +40,19 @@ Release minifies and reads signing creds from the environment, so day-to-day wor
 ```bash
 ./gradlew assembleFlavor1Debug             # build
 ./gradlew testFlavor1DebugUnitTest         # app unit tests + Konsist architecture checks
-./gradlew :domain:test :core:test          # the pure and platform-layer tests
+./gradlew :domain:allTests :networking:allTests :core:allTests :design:allTests :presentation:allTests
+                                            # every multiplatform module's tests, Android AND iOS
 ./gradlew :app:assembleFlavor1Release      # the only check that R8 accepts the keep rules
 ./gradlew :app:connectedFlavor1DebugAndroidTest  # instrumented UI tests (needs a device/emulator)
 ./gradlew :app:lintFlavor1Debug            # Android lint
 ./gradlew detekt                           # static analysis
 ./gradlew detektBaseline                   # regenerate the detekt baseline
 ./gradlew build sonar                      # full build + SonarCloud (needs network/token)
+
+# iOS, from a Mac (see ARCHITECTURE.md's "The iOS app" section):
+cd iosApp && xcodegen generate
+xcodebuild -project iosApp.xcodeproj -scheme iosApp \
+  -destination "platform=iOS Simulator,name=<device>" build
 ```
 
 Unit tests use **JUnit 5** (`useJUnitPlatform`); keep `junit-platform-launcher` on the test
@@ -70,14 +78,15 @@ These are enforced by tooling — breaking them fails the build:
   - **Every `ViewModel` must have a single constructor whose parameters are all `private`.**
   - **Presentation must not import raw design color vals** — read colors from
     `MaterialTheme.colorScheme` so dark/dynamic theming works.
-- **kotlinx-serialization** for JSON (no Gson). Retrofit `suspend` functions are used directly
-  (no call adapter).
+- **kotlinx-serialization** for JSON (no Gson). Networking runs on Ktor
+  (`TemplateHttpClientFactory`), not Retrofit — every retry/timeout/logging concern is a client
+  plugin, not a per-platform interceptor.
 - **Edge-to-edge UI**: `MainActivity` calls `enableEdgeToEdge()`; `TemplateTheme` adjusts
-  status-bar contrast via `WindowCompat`; screens handle their own insets. Don't reintroduce
-  `accompanist-systemuicontroller`.
+  status-bar contrast via a `platformColorScheme`/`AdjustSystemBarAppearance` `expect`/`actual`
+  (Android sets it via `WindowCompat`; iOS no-ops). Don't reintroduce `accompanist-systemuicontroller`.
 - **Type-safe navigation**: routes are `Route` sealed types
-  (`app/src/main/java/com/jj/templateproject/framework/navigation/model/Route.kt`), wired in
-  `MainNavGraph.kt`.
+  (`presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/navigation/model/Route.kt`),
+  wired in `MainNavGraph.kt`, both shared by Android and iOS.
 - **Threading**: inject `DispatcherProvider` and switch with
   `withContext(dispatcherProvider.io)` — don't hardcode `Dispatchers`.
 - **i18n**: all user-facing strings go in `app/src/main/res/values/strings.xml` (a sample
@@ -110,23 +119,27 @@ End-to-end, following the layering. Example: a "profile" feature.
      `safeApiCall` from `networking/.../data/utils/NetworkUtils.kt`. Networking runs on Ktor
      (`TemplateHttpClientFactory`), not Retrofit; read that file's doc comments for why each
      plugin (retry, timeout, logging) is configured where it is.
-   - Persistence instead goes through `AppPreferencesRepository`-style DataStore impls in `:app`.
+   - Persistence instead goes through `AppPreferencesRepository`, whose two implementations live
+     one per platform: `DataStoreAppPreferencesRepository` in `:app` (Android), `UserDefaultsAppPreferencesRepository`
+     in `:core` (iOS — needs no per-app config, so it doesn't need an app-layer module to build it).
 
-3. **Presentation — ViewModel exposing `UiState`** (`:app`):
-   - `app/src/main/java/com/jj/templateproject/presentation/ui/profile/ProfileScreenViewModel.kt`.
+3. **Presentation — ViewModel exposing `UiState`** (`:presentation`, shared by both platforms):
+   - `presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/ui/profile/ProfileScreenViewModel.kt`.
    - Single constructor, all params `private` (Konsist). Expose a `StateFlow<UiState<T>>`; bridge
      domain results with `BaseResult.toUiState()`
-     (`app/src/main/java/com/jj/templateproject/presentation/ui/state/UiState.kt`).
+     (`presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/ui/state/UiState.kt`).
 
-4. **Compose screen using design components + `UiStateContent`** (`:app`):
-   - `app/src/main/java/com/jj/templateproject/presentation/ui/profile/ProfileScreen.kt`.
+4. **Compose screen using design components + `UiStateContent`** (`:presentation`, shared):
+   - `presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/ui/profile/ProfileScreen.kt`.
    - Render with `UiStateContent(state, onRetry = …) { data -> … }`
      (`.../presentation/ui/state/UiStateContent.kt`) so Loading/Error/Empty slots come from the
      design system.
    - Build UI from `design/src/commonMain/kotlin/com/jj/templateproject/design/components/` (`PrimaryButton`,
      `AppCard`, `SectionHeader`, `BodyText`, `ErrorState(onRetry)`, …). Colors come from
      `MaterialTheme.colorScheme` only. See `SettingsScreen.kt` for a complete working-Retry
-     example.
+     example. This screen renders unmodified on iOS — no platform branching needed unless it uses
+     one of `:presentation`'s two `expect`/`actual` seams (`ComposeAdView`,
+     `RequestNotificationPermissionOnLaunch`).
 
 5. **Koin wiring** — register in the right module:
    - Platform-agnostic use cases: `core/src/commonMain/kotlin/com/jj/templateproject/core/di/coreModule.kt`.
@@ -136,23 +149,30 @@ End-to-end, following the layering. Example: a "profile" feature.
      Android-only with no iOS story yet (the way `InitializeBack4App` is), simply do not bind it
      in the iOS actual rather than inventing a stand-in.
    - Repo impls / networking: `networking/src/commonMain/kotlin/com/jj/templateproject/di/networkingModule.kt`.
-   - ViewModels / app glue (still Android-only pending Phase F): `app/src/main/java/com/jj/templateproject/di/koin/mainModule.kt`
-     (modules are assembled in `KoinLauncher.kt`).
+   - The ViewModel itself: `presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/di/presentationModule.kt`
+     (`viewModel { ProfileScreenViewModel(...) }`, Koin's multiplatform Compose ViewModel DSL).
+   - A real dependency `presentationModule` needs but can't build itself (e.g. `AdUnitIds`,
+     `AppVersionInfo`, `HttpClient`): bind it once per platform-owning module — `:app`'s
+     `mainModule` (Android) and `IosKoin`'s `iosAppModule` (iOS, in `presentation/src/iosMain`).
+     `KoinLauncher.kt` (Android) / `IosKoin.bootstrapKoin()` (iOS) assemble the final module list.
 
 6. **Route** — add a `Route` entry in
-   `app/src/main/java/com/jj/templateproject/framework/navigation/model/Route.kt` and a
-   `composable<Route.Profile> { … }` destination in `MainNavGraph.kt`.
+   `presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/navigation/model/Route.kt`
+   and a `composable<Route.Profile> { … }` destination in `MainNavGraph.kt` — both shared, so this
+   is the only navigation change either platform needs.
 
-7. **Strings** — add labels to `app/src/main/res/values/strings.xml` (and translations).
+7. **Strings** — add labels to `presentation/src/commonMain/composeResources/values/strings.xml`
+   (and translations, e.g. `values-es/strings.xml`) — Compose Multiplatform resources, not Android
+   `res/values`, since this module renders on iOS too.
 
-8. **Tests** — cover the use case, repo impl (MockWebServer), ViewModel (Turbine), and screen
+8. **Tests** — cover the use case, repo impl (`MockEngine`), ViewModel (Turbine), and screen
    (see below).
 
 ## Writing device-free tests
 
 The whole suite runs without an emulator. Which tools are available depends on where the test
-lives, because `:domain`/`:networking`/`:core`/`:design` are multiplatform modules and `:app` is
-still Android-only:
+lives, because `:domain`/`:networking`/`:core`/`:design`/`:presentation` are multiplatform modules
+and `:app` is Android-only by design (the Android shell, not shared code):
 
 - **`commonTest`** (in any multiplatform module): `kotlin.test` only. No MockK, no Robolectric —
   neither is available on a non-JVM target. Fake a dependency by hand-writing a small class that
@@ -173,7 +193,8 @@ still Android-only:
   engine, real loopback socket) is reserved for the one `androidUnitTest` integration test
   (`NetworkingIntegrationTest.kt`) that exists specifically to catch an engine-wiring mistake
   `MockEngine` cannot see — reach for `MockEngine` first when adding a new endpoint's tests.
-- **ViewModel**: assert `UiState` emissions with Turbine (still `:app`-only for now).
+- **ViewModel**: assert `UiState` emissions with Turbine, from `:presentation`'s `commonTest` — it's
+  a genuinely multiplatform library, so ViewModel tests run on both Android and `iosSimulatorArm64`.
 - **Compose UI**: use `createAndroidComposeRule` against `ComponentActivity` (Robolectric shadow
   PackageManager). Extend the provided base classes:
   - design components: `design/src/androidUnitTest/kotlin/com/jj/templateproject/design/ComponentUiTest.kt`
@@ -206,9 +227,10 @@ Run everything locally before pushing:
 
 - Keep the template **generic** — avoid app-specific features that future branches would have to
   rip out.
-- Make sure `testFlavor1DebugUnitTest` (incl. Konsist), `:domain:test`, `:core:test`,
-  `:app:lintFlavor1Debug`, and `detekt` all pass. If you intentionally accept new detekt findings,
-  regenerate the baseline with `./gradlew detektBaseline` and commit it.
+- Make sure `testFlavor1DebugUnitTest` (incl. Konsist), every touched multiplatform module's
+  `allTests` (Android **and** iOS), `:app:lintFlavor1Debug`, and `detekt` all pass. If you
+  intentionally accept new detekt findings, regenerate the baseline with `./gradlew detektBaseline`
+  and commit it.
 - If you touched R8 keep rules or anything on the release path, run a real
   `:app:assembleFlavor1Release`: keep rules only fail when the shrinker actually runs.
 - A regression test must be **seen failing** without its fix. Revert the fix, watch it go red, put it

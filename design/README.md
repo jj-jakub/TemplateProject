@@ -2,6 +2,15 @@
 
 The shared design system for the template: a Material 3 color/type/shape foundation, a small component library, and the `TemplateTheme` wrapper that ties them together. Screens consume everything through `MaterialTheme.*` tokens — a Konsist rule forbids importing raw color vals into presentation — so re-branding happens here, in one module.
 
+A Compose Multiplatform module (Android + iOS): `TemplateTheme` and every component live in
+`commonMain` and render identically on both platforms. The one platform-divergent piece is
+`PlatformTheme.kt` — an `expect`/`actual` pair for `platformColorScheme` (Android's actual adds
+Material You dynamic color on API 31+; iOS's actual always returns the brand palette, since dynamic
+color has no iOS equivalent) and `AdjustSystemBarAppearance` (Android's actual sets status/nav-bar
+icon contrast; iOS's actual is a no-op, since UIKit has no equivalent system-bar-tinting API).
+`@ThemePreviews`/`ComponentCatalog` stay Android-only (`androidMain`), since `@Preview` is a
+tooling-only annotation with no Compose Multiplatform equivalent.
+
 ## Color system
 
 Color flows through three layers, each derived from the one above:

@@ -6,7 +6,89 @@ after each change (`./gradlew testFlavor1DebugUnitTest` + the relevant module te
 
 ---
 
-# Pro enhancement pass (`feature/template-pro-enhancements`)
+# Kotlin Multiplatform conversion pass (`develop`)
+
+Goal: turn the Android-only template into a genuine **Kotlin Multiplatform + Compose Multiplatform**
+template targeting Android **and iOS**, roughly matching the shape of the author's other KMP
+projects. Eight phases, each its own commit, each fully verified (compiles, tests pass, detekt
+clean) before moving on.
+
+## Roadmap & status
+
+- [x] **A. Toolchain** — bumped to the KMP-capable trio: Kotlin 2.2.0 → 2.3.20, AGP 8.10.1 → 8.13.2,
+  Gradle 8.14.3 → 8.14.5, plus detekt/Konsist bumps.
+- [x] **B. `:domain` → KMP** — `src/main` → `commonMain`, `src/test` → `commonTest`. New
+  `build-logic` convention plugin (`templateproject.kmp.library`). `DispatcherProvider` became
+  `expect class DefaultDispatcherProvider()` (Android: `Dispatchers.IO`; iOS: `Dispatchers.Default`
+  — `Dispatchers.IO` is `internal` on Kotlin/Native).
+- [x] **C. `:networking` → Ktor** — replaced Retrofit + OkHttp with Ktor 3 (OkHttp engine on
+  Android, Darwin engine on iOS). `TemplateHttpClientFactory` ports every interceptor to a Ktor
+  client plugin (`HttpRequestRetry`/`HttpTimeout`/`ContentNegotiation`/`Logging`). New
+  `expect fun classifyTransportFailure` — each platform's own transport-exception types, since no
+  single multiplatform type safely means "unreachable" without swallowing unrelated failures.
+- [x] **D. `:core` → KMP** — `coreModule` (shared) + `expect fun platformCoreModule()` split; real
+  iOS actuals for `DeviceInfo`, `AppLifecycle`, `LaunchAttemptStore`, `ContentSharer`, `Clock`.
+  `NotificationManager` is the domain `NoOp` on iOS; `InitializeBack4App` isn't bound there at all
+  (the Parse SDK is Android-only).
+- [x] **E. `:design` → Compose Multiplatform** — new `templateproject.kmp.library.compose`
+  convention plugin. `PlatformTheme.kt`: `expect`/`actual` `platformColorScheme` (Android adds
+  Material You; iOS always uses the brand palette) and `AdjustSystemBarAppearance` (Android sets
+  status/nav-bar contrast; iOS no-ops). `@ThemePreviews`/`ComponentCatalog` stayed Android-only
+  (tooling-only annotations, no CMP equivalent).
+- [x] **F. `:presentation` — new shared KMP + CMP module** — the biggest phase: every screen,
+  ViewModel, and the navigation graph moved out of `:app` into this new module. Koin bumped
+  3.5.6 → 4.2.2 for `koin-compose-viewmodel` (the multiplatform Compose ViewModel DSL). New JetBrains
+  multiplatform ports: `navigation-compose`, `lifecycle-viewmodel*` (frozen at 2.10.0 — 2.11.0's
+  Android variant declares an AGP 9.1.0+ requirement this project doesn't meet yet). Compose
+  Multiplatform resources replace `res/values` for this module's strings.
+- [x] **G. `iosApp` — the real iOS app** — `:presentation` exports a static Kotlin/Native framework
+  (`baseName = "Presentation"`). `iosApp/project.yml` (xcodegen, not a committed `.xcodeproj`),
+  `iOSApp.swift` (calls `IosKoinKt.bootstrapKoin()` once at startup — named `bootstrapKoin`, not
+  `initKoin`, since Kotlin/Native's Objective-C export renames any function starting with `init`),
+  `ContentView.swift` (wraps `MainViewControllerKt.MainViewController()`). Getting the app to
+  actually **launch** (not just build) surfaced several bindings the iOS Koin graph never had —
+  `AppPreferencesRepository`, `HttpClient`/`DispatcherProvider`, `AppInfoRepository`,
+  `AnalyticsLogger`/`CrashReporter` — each fixed with either a real iOS implementation
+  (`UserDefaultsAppPreferencesRepository`, backed by `NSUserDefaults`) or a shared `:domain` default
+  promoted out of `:app` (`NoOpAnalyticsLogger`/`NoOpCrashReporter`, `AlwaysInstalledFromValidSource`).
+  New `IosKoinGraphTest` (`:presentation`'s `iosTest`) — the iOS counterpart of `:app`'s
+  `KoinGraphTest` — closes the gap that let this ship silently in the first place: a Gradle compile
+  or even an `xcodebuild` link success proves the Kotlin/Swift boundary compiles, not that the Koin
+  graph behind it resolves. Verified end to end: the app installs, launches, and stays alive
+  rendering the real shared Compose UI (navigation, bottom bar, Settings) on the iOS Simulator.
+- [x] **H. CI + docs** — a new `iOS_framework_build` CI job (`xcodegen generate` + a real
+  `xcodebuild` on a macOS runner — catches an `iosApp/project.yml` or Swift-side mistake a
+  Gradle-only check would miss). Full doc pass: `README.md`, `ARCHITECTURE.md`, `CLAUDE.md`,
+  `CONTRIBUTING.md`, `PUSH.md`, `docs/diagrams/module-graph.mmd`, and every per-module `README`
+  (including a new `presentation/README.md`) rewritten for the six-module + `iosApp` graph — these
+  had accumulated real staleness through phases C–F, deliberately deferred to this final phase since
+  the module graph kept moving underneath them.
+
+## Verification
+
+Every phase: `./gradlew :<module>:allTests` (Android **and** `iosSimulatorArm64`),
+`testFlavor1DebugUnitTest`, `detekt`, and (for `:app`-touching phases) a real
+`:app:assembleFlavor1Release`. Phase G additionally verified `xcodebuild` for the simulator (not
+just `compileKotlinIosSimulatorArm64`/`linkDebugFrameworkIosSimulatorArm64`), and an actual
+install + launch on the iOS Simulator via `xcrun simctl`.
+
+## Follow-ups / out of scope
+
+- **No real ad SDK on iOS.** `ComposeAdView`'s iOS actual renders nothing; `AdManager` is bound to
+  `NoOpAdManager`. Wiring up the Google Mobile Ads SDK's iOS framework needs a Kotlin/Native
+  cinterop or a Swift-side bridge (the `AdBannerBridge` pattern in the author's other KMP apps).
+- **No Firebase on iOS.** `AnalyticsLogger`/`CrashReporter` are bound to the shared `NoOp` pair.
+  Firebase's iOS SDKs have no direct Kotlin/Native cinterop either — the same Swift-side-bridge
+  shape as ads.
+- **`material-icons-core`'s Compose Multiplatform release line isn't verified version-paired**
+  with this project's CMP version, so `MainNavGraph`'s bottom nav bar stayed text-only rather than
+  risk an unverified pairing. Worth revisiting once a paired release is confirmed.
+- **No push notifications on iOS** — `PUSH.md`'s payload/routing layer is pure and already
+  reachable from `:presentation`, but there's no `UNUserNotificationCenter`/APNs wiring yet.
+
+---
+
+# Previous pass — Pro enhancement pass (`feature/template-pro-enhancements`)
 
 Goal: turn the template into a **top-class deliverable** — a developer who branches it inherits
 a real design system, reusable state/result/dispatcher primitives, a resilient networking layer,

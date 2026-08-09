@@ -13,8 +13,17 @@ layer), so these implementations can be reused by any app branched from the temp
 | --- | --- |
 | `AndroidNotificationManager` | Android implementation of the domain `NotificationManager` |
 | `InitializeBack4App` | One-shot Back4App/Parse SDK initialization (Android only) |
+| `UserDefaultsAppPreferencesRepository` | iOS implementation of the domain `AppPreferencesRepository`, backed by `NSUserDefaults` |
 | `coreModule` | Koin module registering the use cases and everything else needing no platform |
 | `platformCoreModule()` | Koin module registering the platform capabilities, one actual per target |
+
+`AppPreferencesRepository`'s two implementations don't live in the same place: Android's
+(`DataStoreAppPreferencesRepository`) is in `:app`, since it needs a `Context` to build its
+`DataStore<Preferences>`. iOS's lives here in `:core` instead, because `NSUserDefaults.standardUserDefaults`
+needs no per-app configuration to construct — there's nothing app-specific for an app-layer module
+to inject. `NSUserDefaults` has no observation API of its own (unlike DataStore's `Flow`), so each
+preference is mirrored into a `MutableStateFlow` seeded from the store at construction and updated
+on every write.
 
 ## AndroidNotificationManager
 

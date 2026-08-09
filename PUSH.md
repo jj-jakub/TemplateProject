@@ -37,8 +37,8 @@ ignored: Android renders at most three.
 
 `play:` targets are validated as package names before they are used, since the value ends up inside a
 URL. Add a destination in `domain/.../push/PushDestination.kt` and name its screen in
-`app/.../framework/navigation/PushRoutes.kt`; the mapping is exhaustive, so a new destination will
-not compile until a screen is chosen for it.
+`presentation/src/commonMain/kotlin/com/jj/templateproject/presentation/navigation/PushRoutes.kt`;
+the mapping is exhaustive, so a new destination will not compile until a screen is chosen for it.
 
 ## Sending
 
@@ -133,4 +133,4 @@ adb shell dumpsys notification --noredact | grep -a "mId='announcements'"   # ex
 | Pending intents | `core/.../data/notifications/PushIntents.kt` |
 | Message receipt | `app/.../data/firebase/DefaultFirebaseMessagingService.kt` |
 | Topic + token | `app/.../data/firebase/PushRegistrar.kt` |
-| Navigation on tap | `app/.../framework/navigation/PushRoutes.kt`, `MainActivity`, `MainRoot` |
+| Navigation on tap | `presentation/.../navigation/PushRoutes.kt`, `MainRoot` (`:presentation`); `MainActivity` (`:app`) resolves the tap into a `PushDestination` |

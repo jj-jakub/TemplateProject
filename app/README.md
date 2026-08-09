@@ -1,96 +1,70 @@
-# `:app` — presentation & composition root
+# `:app` — Android composition root
 
-The application module: Compose screens + ViewModels (MVVM), type-safe navigation, the Koin
-composition root, and the Android-specific `:data` implementations. It depends on `:domain`,
-`:design`, `:networking`, and `:core`.
+The Android application module. It is deliberately thin: every screen, ViewModel, and navigation
+graph lives in `:presentation` (a shared Kotlin Multiplatform + Compose Multiplatform module — see
+`presentation/README.md`) so it renders unmodified on iOS too. `:app`'s own job is everything only
+an Android app target can provide: the Android framework entry points (`Application`, `Activity`),
+the Android-specific `:data` implementations (Retrofit's replacement `HttpClient`, DataStore,
+Firebase, AdMob, Back4App), and the DI wiring that assembles all of it together. It depends on
+`:presentation`, `:domain`, `:networking`, `:core`, and `:design`.
+
+For the iOS equivalent of everything below (`IosKoin.kt`, `MainViewController()`), see
+`presentation/README.md`'s iOS section and `iosApp/project.yml`.
 
 ## Layout
 
 ```
-framework/      TemplateProjectApplication, MainActivity, navigation (Route, MainNavGraph)
-presentation/   MainRoot + screens (main, secondary, settings) and their ViewModels, ui/state
+framework/      TemplateProjectApplication, MainActivity
 di/koin/        mainModule, KoinLauncher
 data/           Android-bound impls: network, preferences, analytics, ad, app, config, firebase
 ```
 
-## Screens & ViewModels (MVVM)
-
-Each screen is a `@Composable` driven by a Koin-provided ViewModel (`koinViewModel()`), following a
-consistent contract:
-
-- **State out** — the ViewModel exposes an immutable `*ViewState` via a `StateFlow`
-  (`MutableStateFlow` private, `asStateFlow()` public). The screen reads it with
-  `collectAsState()`.
-- **One-off navigation events** — emitted through a `MutableSharedFlow<…Navigation>`
-  (`asSharedFlow()`), collected once in a `LaunchedEffect` and turned into `navController.navigate(...)`.
-  This keeps navigation out of the rendered state so it isn't replayed on recomposition.
-
-Screens:
-
-- `MainScreen` / `MainScreenViewModel` — demonstrates the nav-event pattern (four
-  `navigateWith…OptionalArgs()` actions emit `MainScreenNavigation.SecondaryScreen`), requests
-  `POST_NOTIFICATIONS` on Android 13+ via `accompanist-permissions`, and pings `AdManager`.
-- `SecondaryScreen` / `SecondaryScreenViewModel` — reads its typed args from `SavedStateHandle`.
-- `SettingsScreen` / `SettingsScreenViewModel` — Google status/data, app version & install source,
-  and a System/Light/Dark theme selector. Uses `UiStateContent` with a working **Retry**.
-
-### `MainRoot` & `MainRootViewModel`
-
-`MainRoot` is the top-level composable. `MainRootViewModel` exposes a `themeMode: StateFlow<ThemeMode>`
-(via `GetThemeModeUseCase().stateIn(...)`) and the banner ad unit id; `MainRoot` maps `ThemeMode`
-(`SYSTEM`→`isSystemInDarkTheme()`, `LIGHT`/`DARK`) to a boolean and passes it to `TemplateTheme`,
-then renders `ComposeAdView` + `MainNavGraph`.
-
-### `UiState`
-
-`presentation.ui.state.UiState<T>` is a sealed `Loading/Success/Error/Empty` with helpers
-(`isLoading`, `dataOrNull`, `map`) and a `BaseResult.toUiState()` bridge. `UiStateContent(state, onRetry, success { })`
-renders the matching `:design` state slot (`LoadingState`, `ErrorState`, `EmptyState`).
-
-## Navigation (type-safe Compose)
-
-- `framework/navigation/model/Route.kt` — a `sealed interface Route` of `@Serializable` destinations
-  (`MainScreen`, `SecondaryScreen(text, textSecondary?, textTertiary?)`, `SettingsScreen`), plus
-  `matchesCurrentEntry` / `findSelectedIndex` helpers for bottom-bar selection.
-- `framework/navigation/MainNavGraph.kt` — a `Scaffold` with a Material 3 `NavigationBar`
-  (Home / Secondary / Settings) over a `NavHost` whose `composable<Route.*>` entries resolve each
-  ViewModel via `koinViewModel()`. Bottom-bar taps `navigate` with `popUpTo(startDestination)`,
-  `launchSingleTop`, and `restoreState`.
-- Screen-local navigation intents live in `…/model/*Navigation.kt` (e.g. `MainScreenNavigation`),
-  which wrap a concrete `Route`.
-
 ## DI wiring
 
-`framework.TemplateProjectApplication.onCreate()` runs `KoinLauncher().startKoin(this)`, then starts
-the `ActivityProvider`, initializes ads (`AdManager.initAds()`), and `InitializeBack4App()`.
+`framework.TemplateProjectApplication.onCreate()` runs `KoinLauncher().startKoin(this)`, checks
+`LaunchStability.beginLaunch()` (falls back to safe mode after repeated crashed launches — see
+`CLAUDE.md`'s reliability notes), then starts the `ActivityProvider`, initializes ads
+(`AdManager.initAds()`), `InitializeBack4App()`, creates the push notification channel, and
+registers for FCM (`PushRegistrar`).
 
-`KoinLauncher` registers three modules: `mainModule` (this module) + `networkingModule` (`:networking`)
-+ `coreModule` (`:core`).
+`KoinLauncher` assembles five modules: `mainModule` (this module) + `networkingModule`
+(`:networking`) + `coreModule` + `platformCoreModule()` (`:core`) + `presentationModule`
+(`:presentation`).
 
 `di/koin/mainModule.kt` is where the **Android `:data` implementations are bound to `:domain`
-interfaces**:
+interfaces** — everything only `:app` can provide, chiefly because it is the one module with a real
+`BuildConfig` and a real `Context`/`Application`:
 
-- **Networking** — `RetrofitFactory` (OkHttp timeouts, `RetryInterceptor`, a `headerProvider` auth
-  seam, logging in debug) builds the `Retrofit` from `AppConfiguration(baseUrl = BuildConfig.ServerBaseUrl)`.
+- **Networking** — `TemplateHttpClientFactory.create(baseUrl = get<AppConfiguration>().baseUrl, logBody = BuildProfile.isDebugBuild)`
+  builds the `HttpClient` (`:networking`'s Ktor factory — see `networking/README.md`) from
+  `AppConfiguration(baseUrl = BuildConfig.ServerBaseUrl)`. `DispatcherProvider` is also bound here
+  (`DefaultDispatcherProvider()`), since `:networking` only ever consumes it via `get()`.
 - **Preferences** — `AppPreferencesRepository` → `DataStoreAppPreferencesRepository` over a
-  `DataStore<Preferences>` (`app_preferences`).
-- **Observability** — `AnalyticsLogger`/`CrashReporter` bound to `NoOpAnalyticsLogger`/`NoOpCrashReporter`
-  by default so the template runs with no `google-services.json`. Switching to Firebase is a documented
-  one-line swap (see the comment in `mainModule`) to the `FirebaseAnalyticsLogger` / `FirebaseCrashReporter`
-  impls.
+  `DataStore<Preferences>` (`app_preferences`). iOS's counterpart
+  (`UserDefaultsAppPreferencesRepository`) lives in `:core` instead — see `core/README.md`.
+- **Observability** — `AnalyticsLogger`/`CrashReporter` bound via `AnalyticsFactory`, which falls
+  back to `:domain`'s `NoOpAnalyticsLogger`/`NoOpCrashReporter` (the same pair iOS binds) unless the
+  build is one a real user could be running **and** a `google-services.json` is present. `RemoteFlags`
+  (Firebase Remote Config, an override-only layer) is Android-only for now.
 - **Ads** — `AdManager` → `DefaultAdManager` (uses `ActivityProvider`, `GetInterstitialAdUnitId`);
-  `GetMainAdUnitId` / `GetInterstitialAdUnitId` read the AdMob unit ids from `BuildConfig`.
-- **App info / config** — `AppInfoRepository` → `DefaultAppInfoRepository`, `GetIsInstalledFromValidSource`,
-  `VersionTextProvider`, `DispatcherProvider` → `DefaultDispatcherProvider`.
-- **ViewModels** — `MainRootViewModel`, `MainScreenViewModel`, `SecondaryScreenViewModel`,
-  `SettingsScreenViewModel` (use cases come from `coreModule`).
+  `AdUnitIds` → `AndroidAdUnitIds` reading the AdMob unit ids from `BuildConfig`.
+- **App info / config** — `AppInfoRepository` → `DefaultAppInfoRepository` (per build type, `src/debug`
+  and `src/release`, both unconditionally `true` today — see `domain/README.md`'s note on
+  `AlwaysInstalledFromValidSource`), `AppVersionInfo` → `AndroidAppVersionInfo` (reads `BuildConfig`).
 
 ## `MainActivity` (edge-to-edge)
 
-`MainActivity : ComponentActivity` calls `enableEdgeToEdge()` and `setContent { MainRoot(rememberNavController(), koinViewModel()) }`.
-Inset handling lives in `MainRoot` (top + horizontal `safeDrawing`; the `NavigationBar` consumes the
-bottom inset) and in `TemplateTheme` (status-bar icon contrast) — don't reintroduce
-`accompanist-systemuicontroller`.
+`MainActivity : ComponentActivity`, `singleTop` (a notification tap or deep link that arrives while
+the app is already open comes through `onNewIntent`, not a fresh `onCreate`). Calls
+`enableEdgeToEdge()` and `setContent { MainRoot(rememberNavController(), koinViewModel(), pushDestination, onPushDestinationHandled) }`
+— `MainRoot` itself lives in `:presentation`. Resolves a notification tap or `templateproject://`
+deep link into a `PushDestination` (`PushIntents.destinationOf` / `PushDeepLink.parse`, both
+untrusted input — an unrecognised value parses to `null` and nothing happens) and holds it as state
+until `MainRoot`'s push-handling effect consumes it. `onResume()` calls `LaunchStability.markStable()`
+— deliberately not in `onCreate()`, so a crash while composing the first screen still counts as a
+failed launch. Inset handling lives in `MainRoot` (top + horizontal `safeDrawing`; the
+`NavigationBar` consumes the bottom inset) and in `TemplateTheme` (status-bar icon contrast) — don't
+reintroduce `accompanist-systemuicontroller`.
 
 ## Build flavors & types
 
@@ -117,11 +91,11 @@ Configured in `app/build.gradle.kts` (shared Android config comes from the
 - `src/test/java/com/jj/templateproject/…` — JUnit5 unit tests with MockK, Turbine, coroutines-test,
   Koin-test, plus Robolectric Compose UI tests (`createAndroidComposeRule` via
   `util/ComposeComponentTest`, `BaseInstrumentedKoinTest`, `KoinTestRule`, `MainDispatcherExtension`).
-  Covers ViewModels, screens (`*UiTest`), navigation (`MainNavGraphKtTest`, `NavigationBarTest`,
-  `RouteTest`), `UiState`/`UiStateContent`, the DI graph (`di/KoinGraphTest`), networking
-  (`RetrofitFactoryTest`, `RetryInterceptorTest`, `NetworkingIntegrationTest` with MockWebServer),
-  DataStore prefs, ads, analytics, config and firebase utils.
-- `src/test/java/konsist/KonsistTests.kt` — architecture/dependency-direction rules (run as unit tests).
+  Covers the DI graph (`di/KoinGraphTest` — the Android counterpart of `:presentation`'s
+  `IosKoinGraphTest`), the Android-only data impls (DataStore prefs, analytics, ads, config,
+  firebase utils), navigation smoke tests, and app-level screen integration.
+- `src/test/java/konsist/KonsistTests.kt` — architecture/dependency-direction rules (run as unit
+  tests; scans the whole multi-module project, not just `:app`, via `Konsist.scopeFromProject()`).
 - `src/androidTest/` — instrumented UI tests on a device/emulator
   (`./gradlew :app:connectedFlavor1DebugAndroidTest`). `AppFlowsUiTest` drives the real
   `MainNavGraph` (navigation, Main→Secondary args, Settings content, theme switching) against a
