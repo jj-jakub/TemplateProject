@@ -21,4 +21,8 @@
     <string name="secondary_first">First: %1$s</string>
     <string name="secondary_secondary">Secondary: %1$s</string>
     <string name="secondary_tertiary">Tertiary: %1$s</string>
+    <string name="saved_progress_section">Saved progress (demo)</string>
+    <string name="saved_progress_none">No saved progress yet</string>
+    <string name="saved_progress_value">Score: %1$d</string>
+    <string name="save_progress_action">Save progress</string>
 </resources>

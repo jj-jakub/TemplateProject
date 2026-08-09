@@ -16,8 +16,10 @@ private fun PreviewSettingsScreenViewContent() {
             apiState = UiState.Success(ApiData(status = "Ok", data = "200")),
             installedFromValidSource = null,
             themeMode = ThemeMode.SYSTEM,
+            savedGameState = null,
             onRetry = {},
             onSelectTheme = {},
+            onSaveProgress = {},
         )
     }
 }

@@ -2,25 +2,33 @@ package com.jj.templateproject.presentation.ui.settings
 
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
+import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.exception.NetworkError
+import com.jj.templateproject.domain.review.NoOpReviewPrompter
+import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
+import com.jj.templateproject.domain.time.FixedClock
 import com.jj.templateproject.presentation.FakeAppPreferencesRepository
 import com.jj.templateproject.presentation.FakeAppVersionInfo
+import com.jj.templateproject.presentation.FakeGameStateStorage
+import com.jj.templateproject.presentation.FakeReviewPromptStore
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.state.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -41,6 +49,9 @@ class SettingsScreenViewModelTest {
     private val templateRepository = FakeTemplateRepository()
     private val appInfoRepository = FakeAppInfoRepository()
     private val appPreferencesRepository = FakeAppPreferencesRepository()
+    private val gameStateStorage = FakeGameStateStorage()
+    private val reviewController = ReviewController(FakeReviewPromptStore(), NoOpReviewPrompter)
+    private val clock = FixedClock(now = 1_000L)
 
     private fun createViewModel(
         versionText: String = "v",
@@ -60,6 +71,9 @@ class SettingsScreenViewModelTest {
             getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
+            gameStateStorage = gameStateStorage,
+            reviewController = reviewController,
+            clock = clock,
         )
     }
 
@@ -138,10 +152,79 @@ class SettingsScreenViewModelTest {
             getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
+            gameStateStorage = gameStateStorage,
+            reviewController = reviewController,
+            clock = clock,
         )
 
         viewModel.setThemeMode(ThemeMode.LIGHT)
 
         assertEquals(ThemeMode.LIGHT, viewModel.viewState.value.themeMode)
+    }
+
+    @Test
+    fun `no saved progress at first is exposed as null rather than a placeholder score`() {
+        val state = createViewModel().viewState.value
+
+        assertNull(state.savedGameState)
+    }
+
+    @Test
+    fun `a save is exposed in state with a score of 1 and the current time`() {
+        val viewModel = createViewModel()
+
+        viewModel.saveDemoProgress()
+
+        val saved = viewModel.viewState.value.savedGameState
+        assertEquals(SavedGameState(score = 1, progress = 0.1f, savedAtEpochMillis = 1_000L), saved)
+    }
+
+    @Test
+    fun `each save increments the score from the previous save`() {
+        val viewModel = createViewModel()
+
+        viewModel.saveDemoProgress()
+        viewModel.saveDemoProgress()
+        viewModel.saveDemoProgress()
+
+        assertEquals(3, viewModel.viewState.value.savedGameState?.score)
+    }
+
+    @Test
+    fun `a save persists through GameStateStorage rather than only in view state`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.saveDemoProgress()
+
+        assertEquals(1, gameStateStorage.load("demo")?.score)
+    }
+
+    @Test
+    fun `a previously saved slot is loaded into state on creation`() = runTest {
+        gameStateStorage.save("demo", SavedGameState(score = 7, progress = 0.7f, savedAtEpochMillis = 5L))
+
+        val state = createViewModel().viewState.value
+
+        assertEquals(7, state.savedGameState?.score)
+    }
+
+    @Test
+    fun `a save counts as a satisfying moment toward the review prompt`() {
+        val store = FakeReviewPromptStore()
+        val viewModel = SettingsScreenViewModel(
+            versionTextProvider = VersionTextProvider(FakeAppVersionInfo()),
+            getGoogleStatusUseCase = GetGoogleStatusUseCase(templateRepository),
+            getGoogleDataUseCase = GetGoogleDataUseCase(templateRepository),
+            getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
+            getThemeModeUseCase = GetThemeModeUseCase(appPreferencesRepository),
+            setThemeModeUseCase = SetThemeModeUseCase(appPreferencesRepository),
+            gameStateStorage = FakeGameStateStorage(),
+            reviewController = ReviewController(store, NoOpReviewPrompter),
+            clock = clock,
+        )
+
+        viewModel.saveDemoProgress()
+
+        assertEquals(1, store.readSatisfyingMomentCount())
     }
 }

@@ -2,6 +2,8 @@ package com.jj.templateproject.core.di
 
 import com.jj.templateproject.core.data.back4app.InitializeBack4App
 import com.jj.templateproject.core.data.device.AndroidDeviceInfo
+import com.jj.templateproject.core.data.game.AndroidFileTextStore
+import com.jj.templateproject.core.data.game.DefaultGameStateStorage
 import com.jj.templateproject.core.data.lifecycle.ProcessAppLifecycle
 import com.jj.templateproject.core.data.notifications.AndroidNotificationManager
 import com.jj.templateproject.core.data.reliability.SharedPreferencesLaunchAttemptStore
@@ -9,6 +11,7 @@ import com.jj.templateproject.core.data.review.SharedPreferencesReviewPromptStor
 import com.jj.templateproject.core.data.sharing.AndroidContentSharer
 import com.jj.templateproject.core.data.time.SystemClock
 import com.jj.templateproject.domain.device.DeviceInfo
+import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
@@ -28,6 +31,9 @@ actual fun platformCoreModule(): Module = module {
     single<InitializeBack4App> { InitializeBack4App(applicationContext = androidContext()) }
     single<LaunchAttemptStore> { SharedPreferencesLaunchAttemptStore(context = androidContext()) }
     single<ReviewPromptStore> { SharedPreferencesReviewPromptStore(context = androidContext()) }
+    single<GameStateStorage> {
+        DefaultGameStateStorage(fileTextStore = AndroidFileTextStore(context = androidContext()))
+    }
 
     // Platform capabilities, each behind a domain interface with a test double beside it, so nothing
     // above this layer has to know which SDK answers the question.

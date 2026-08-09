@@ -1,5 +1,6 @@
 package com.jj.templateproject.presentation.ui.settings.model
 
+import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.ui.state.UiState
 
@@ -8,6 +9,8 @@ data class SettingsScreenViewState(
     val apiState: UiState<ApiData> = UiState.Loading,
     val installedFromValidSource: Boolean? = null,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** `null` means "nothing saved to the demo slot yet", not "still loading". */
+    val savedGameState: SavedGameState? = null,
 )
 
 /** The data fetched from the API, shown once [SettingsScreenViewState.apiState] is a success. */

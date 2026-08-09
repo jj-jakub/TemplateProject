@@ -39,6 +39,9 @@ val presentationModule = module {
             getIsInstalledFromValidSource = get(),
             getThemeModeUseCase = get(),
             setThemeModeUseCase = get(),
+            gameStateStorage = get(),
+            reviewController = get(),
+            clock = get(),
         )
     }
     viewModel {

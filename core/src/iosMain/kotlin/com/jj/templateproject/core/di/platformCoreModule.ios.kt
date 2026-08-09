@@ -1,6 +1,8 @@
 package com.jj.templateproject.core.di
 
 import com.jj.templateproject.core.data.device.IosDeviceInfo
+import com.jj.templateproject.core.data.game.DefaultGameStateStorage
+import com.jj.templateproject.core.data.game.IosFileTextStore
 import com.jj.templateproject.core.data.lifecycle.NotificationCenterAppLifecycle
 import com.jj.templateproject.core.data.preferences.UserDefaultsAppPreferencesRepository
 import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptStore
@@ -8,6 +10,7 @@ import com.jj.templateproject.core.data.review.UserDefaultsReviewPromptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
 import com.jj.templateproject.core.data.time.IosSystemClock
 import com.jj.templateproject.domain.device.DeviceInfo
+import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NoOpNotificationManager
 import com.jj.templateproject.domain.notifications.NotificationManager
@@ -43,6 +46,7 @@ actual fun platformCoreModule(): Module = module {
     single<ContentSharer> { IosContentSharer() }
     single<AppPreferencesRepository> { UserDefaultsAppPreferencesRepository() }
     single<ReviewPromptStore> { UserDefaultsReviewPromptStore() }
+    single<GameStateStorage> { DefaultGameStateStorage(fileTextStore = IosFileTextStore()) }
     // createdAtStart for the same reason as Android's: it reads UIApplication's state and registers
     // notification observers, which belongs on the main thread during startup.
     single<AppLifecycle>(createdAtStart = true) { NotificationCenterAppLifecycle() }

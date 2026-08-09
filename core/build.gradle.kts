@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.templateproject.kmp.library)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -16,6 +17,9 @@ kotlin {
             // that lives in androidMain, which is exactly what let this module split in two.
             implementation(libs.koinCore)
             implementation(libs.coroutinesCore)
+            // DefaultGameStateStorage encodes/decodes SavedGameState to JSON before handing text to
+            // FileTextStore.
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             implementation(libs.koin)
@@ -25,6 +29,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.coroutinesTest)
         }
         // Robolectric is a JVM/Android test runtime, so the device-class test it drives cannot move
         // to commonTest however platform-neutral its subject looks.

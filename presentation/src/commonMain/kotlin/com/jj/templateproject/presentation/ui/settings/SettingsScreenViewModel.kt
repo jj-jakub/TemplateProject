@@ -4,11 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
+import com.jj.templateproject.domain.game.GameStateStorage
+import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
+import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
+import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
 import com.jj.templateproject.presentation.ui.state.UiState
@@ -29,6 +33,9 @@ class SettingsScreenViewModel(
     private val getIsInstalledFromValidSource: GetIsInstalledFromValidSource,
     getThemeModeUseCase: GetThemeModeUseCase,
     private val setThemeModeUseCase: SetThemeModeUseCase,
+    private val gameStateStorage: GameStateStorage,
+    private val reviewController: ReviewController,
+    private val clock: Clock,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -41,6 +48,7 @@ class SettingsScreenViewModel(
     init {
         fetchApiData()
         fetchInstallationValidity()
+        loadSavedGameState()
         getThemeModeUseCase()
             .onEach { mode -> _viewState.update { it.copy(themeMode = mode) } }
             .launchIn(viewModelScope)
@@ -53,6 +61,31 @@ class SettingsScreenViewModel(
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { setThemeModeUseCase(mode) }
+    }
+
+    /**
+     * A working example of [GameStateStorage] and [ReviewController] together: a save is exactly
+     * the kind of moment [ReviewController] exists to count toward the review ask, so recording one
+     * here is not a separate step a real screen would add later — it is the natural place for it.
+     */
+    fun saveDemoProgress() {
+        viewModelScope.launch {
+            val nextScore = (_viewState.value.savedGameState?.score ?: 0) + 1
+            val state = SavedGameState(
+                score = nextScore,
+                progress = (nextScore % PROGRESS_CYCLE) / PROGRESS_CYCLE.toFloat(),
+                savedAtEpochMillis = clock.nowMillis(),
+            )
+            gameStateStorage.save(DEMO_SLOT, state)
+            _viewState.update { it.copy(savedGameState = state) }
+            reviewController.recordSatisfyingMoment()
+        }
+    }
+
+    private fun loadSavedGameState() {
+        viewModelScope.launch {
+            _viewState.update { it.copy(savedGameState = gameStateStorage.load(DEMO_SLOT)) }
+        }
     }
 
     private fun fetchApiData() {
@@ -77,5 +110,13 @@ class SettingsScreenViewModel(
         viewModelScope.launch {
             _viewState.update { it.copy(installedFromValidSource = getIsInstalledFromValidSource()) }
         }
+    }
+
+    private companion object {
+        /** A single fixed slot for this demo; a real game would offer more than one save file. */
+        const val DEMO_SLOT = "demo"
+
+        /** Cycles the demo progress bar back to empty every 10 saves, purely for a visible example. */
+        const val PROGRESS_CYCLE = 10
     }
 }

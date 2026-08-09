@@ -21,6 +21,7 @@ import com.jj.templateproject.design.components.PrimaryButton
 import com.jj.templateproject.design.components.SecondaryButton
 import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
+import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.RequestNotificationPermissionOnLaunch
 import com.jj.templateproject.presentation.generated.resources.Res
@@ -28,6 +29,10 @@ import com.jj.templateproject.presentation.generated.resources.api_call_data
 import com.jj.templateproject.presentation.generated.resources.api_call_status
 import com.jj.templateproject.presentation.generated.resources.installed_from_valid_source_value
 import com.jj.templateproject.presentation.generated.resources.loading
+import com.jj.templateproject.presentation.generated.resources.save_progress_action
+import com.jj.templateproject.presentation.generated.resources.saved_progress_none
+import com.jj.templateproject.presentation.generated.resources.saved_progress_section
+import com.jj.templateproject.presentation.generated.resources.saved_progress_value
 import com.jj.templateproject.presentation.generated.resources.theme_dark
 import com.jj.templateproject.presentation.generated.resources.theme_light
 import com.jj.templateproject.presentation.generated.resources.theme_section
@@ -51,8 +56,10 @@ fun SettingsScreen(
         apiState = state.apiState,
         installedFromValidSource = state.installedFromValidSource,
         themeMode = state.themeMode,
+        savedGameState = state.savedGameState,
         onRetry = viewModel::retry,
         onSelectTheme = viewModel::setThemeMode,
+        onSaveProgress = viewModel::saveDemoProgress,
     )
 }
 
@@ -63,8 +70,10 @@ internal fun SettingsScreenViewContent(
     apiState: UiState<ApiData>,
     installedFromValidSource: Boolean?,
     themeMode: ThemeMode,
+    savedGameState: SavedGameState?,
     onRetry: () -> Unit,
     onSelectTheme: (ThemeMode) -> Unit,
+    onSaveProgress: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -99,7 +108,30 @@ internal fun SettingsScreenViewContent(
             )
 
             ThemeSelector(selectedMode = themeMode, onSelect = onSelectTheme)
+
+            SavedProgressSection(savedGameState = savedGameState, onSaveProgress = onSaveProgress)
         }
+    }
+}
+
+@Composable
+private fun SavedProgressSection(
+    savedGameState: SavedGameState?,
+    onSaveProgress: () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 8.dp),
+    ) {
+        SectionHeader(text = stringResource(Res.string.saved_progress_section))
+        val progressText = if (savedGameState != null) {
+            stringResource(Res.string.saved_progress_value, savedGameState.score)
+        } else {
+            stringResource(Res.string.saved_progress_none)
+        }
+        SettingsTextField(text = progressText)
+        PrimaryButton(text = stringResource(Res.string.save_progress_action), onClick = onSaveProgress)
     }
 }
 
