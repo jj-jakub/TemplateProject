@@ -172,6 +172,10 @@ dependencies {
 
     implementation(libs.composeUi)
     implementation(libs.composeMaterial3)
+    // The bottom navigation bar's Icons.Default.Home/MailOutline/Settings. material3 carried
+    // material-icons-core as an api dependency until 1.4.0 and no longer does, so the icon set is
+    // now asked for by name instead of inherited.
+    implementation(libs.materialIconsCore)
     implementation(libs.composeNavigation)
     implementation(libs.composePreview)
     implementation(libs.composeActivity)

@@ -116,7 +116,7 @@ End-to-end, following the layering. Example: a "profile" feature.
    - Render with `UiStateContent(state, onRetry = …) { data -> … }`
      (`.../presentation/ui/state/UiStateContent.kt`) so Loading/Error/Empty slots come from the
      design system.
-   - Build UI from `design/src/main/java/com/jj/templateproject/design/components/` (`PrimaryButton`,
+   - Build UI from `design/src/commonMain/kotlin/com/jj/templateproject/design/components/` (`PrimaryButton`,
      `AppCard`, `SectionHeader`, `BodyText`, `ErrorState(onRetry)`, …). Colors come from
      `MaterialTheme.colorScheme` only. See `SettingsScreen.kt` for a complete working-Retry
      example.
@@ -150,7 +150,7 @@ The whole suite runs without an emulator (JUnit5 + Robolectric + MockK + Turbine
 - **ViewModel**: assert `UiState` emissions with Turbine.
 - **Compose UI**: use `createAndroidComposeRule` against `ComponentActivity` (Robolectric shadow
   PackageManager). Extend the provided base classes:
-  - design components: `design/src/test/java/com/jj/templateproject/design/ComponentUiTest.kt`
+  - design components: `design/src/androidUnitTest/kotlin/com/jj/templateproject/design/ComponentUiTest.kt`
   - app screens: `app/src/test/java/com/jj/templateproject/util/ComposeComponentTest.kt`
   - Koin-backed instrumented tests: `app/src/test/java/com/jj/templateproject/BaseInstrumentedKoinTest.kt`
   - Use `TestTags` from the design module for stable node lookups.

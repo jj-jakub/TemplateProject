@@ -13,8 +13,22 @@ androidxCore = "1.13.1"
 datastore = "1.1.1"
 navigationKtx = "2.9.3"
 accompanistPermissions = "0.34.0"
-composeUi = "1.8.3"
-composeMaterial3 = "1.3.2"
+# These three are what Compose Multiplatform 1.11.1 pins the androidx.compose artifacts to, and
+# they are declared here rather than left to conflict resolution so the catalog states the version
+# the build actually uses. Compose Multiplatform publishes `strictly` constraints on the whole
+# androidx.compose graph, so anything lower written here would be silently overridden anyway.
+composeUi = "1.11.2"
+composeMaterial3 = "1.4.0"
+# JetBrains Compose Multiplatform, the artifact set a shared UI module compiles against. Its lines
+# are cut against a specific Kotlin version (1.11.x against Kotlin 2.3.20 above), so the two move
+# together. It does not replace composeUi/composeMaterial3: those stay for the Android-only modules
+# and the JVM test artifacts, and on the Android target Compose Multiplatform resolves to the very
+# same androidx.compose artifacts anyway.
+composeMultiplatform = "1.11.1"
+# Frozen at 1.7.8, which is where androidx stopped publishing it. material3 1.4.0 dropped
+# material-icons-core from its api dependencies, so an app that uses Icons.Default.* now asks for
+# the icon set by name instead of inheriting it. Deliberately unversioned against composeUi.
+materialIconsCore = "1.7.8"
 composeNavigation = "2.9.3"
 composeActivity = "1.10.1"
 composeKoin = "3.5.6"
@@ -40,7 +54,7 @@ androidTestRules = "1.7.0"
 uiAutomator = "2.3.0"
 koinTest = "3.5.6"
 androidxNavTesting = "2.9.3"
-uiTestJunit4Android = "1.8.3"
+uiTestJunit4Android = "1.11.2"
 robolectric = "4.12.2"
 turbine = "1.2.0"
 
@@ -71,6 +85,7 @@ navigationKtx = { module = "androidx.navigation:navigation-ui-ktx", version.ref 
 accompanistPermissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 composeUi = { module = "androidx.compose.ui:ui", version.ref = "composeUi" }
 composeMaterial3 = { module = "androidx.compose.material3:material3", version.ref = "composeMaterial3" }
+materialIconsCore = { module = "androidx.compose.material:material-icons-core", version.ref = "materialIconsCore" }
 composeNavigation = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigation" }
 composePreview = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUi" }
 composeActivity = { module = "androidx.activity:activity-compose", version.ref = "composeActivity" }
@@ -118,7 +133,11 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+# The Compose *compiler* plugin, shipped with Kotlin itself, so it is the same plugin for an
+# Android-only Compose module and a multiplatform one. Only the artifact-providing plugin below
+# differs between the two styles.
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
@@ -129,3 +148,4 @@ templateproject-android-application-compose = { id = "templateproject.android.ap
 templateproject-android-library = { id = "templateproject.android.library", version = "unspecified" }
 templateproject-android-library-compose = { id = "templateproject.android.library.compose", version = "unspecified" }
 templateproject-kmp-library = { id = "templateproject.kmp.library", version = "unspecified" }
+templateproject-kmp-library-compose = { id = "templateproject.kmp.library.compose", version = "unspecified" }

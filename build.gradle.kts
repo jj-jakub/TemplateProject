@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid).apply(false)
     alias(libs.plugins.kotlinMultiplatform).apply(false)
     alias(libs.plugins.composeCompiler).apply(false)
+    alias(libs.plugins.composeMultiplatform).apply(false)
     alias(libs.plugins.detekt)
 
     val kotlinVersion = libs.versions.kotlin.get()
@@ -43,7 +44,9 @@ detekt {
             "core/src/commonMain",
             "core/src/androidMain",
             "core/src/iosMain",
-            "design/src/main",
+            "design/src/commonMain",
+            "design/src/androidMain",
+            "design/src/iosMain",
             "build-logic/convention/src/main",
         )
     )
