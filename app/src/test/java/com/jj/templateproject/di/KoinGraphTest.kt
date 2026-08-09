@@ -8,6 +8,8 @@ import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.google.network.TemplateNetworkApi
 import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.di.koin.mainModule
+import com.jj.templateproject.domain.achievement.AchievementStore
+import com.jj.templateproject.domain.achievement.AchievementUnlocker
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.ad.AdUnitIds
 import com.jj.templateproject.domain.ad.GetInterstitialAdUnitId
@@ -24,6 +26,7 @@ import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
 import com.jj.templateproject.domain.experiment.InstallIdStore
+import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
@@ -119,6 +122,8 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<ExperimentBucketing>())
         assertNotNull(get<GetExperimentVariantUseCase>())
         assertNotNull(get<GetCrossPromoConfigUseCase>())
+        assertNotNull(get<AchievementUnlocker>())
+        assertNotNull(get<DemoProgressTracker>())
     }
 
     @Test
@@ -132,6 +137,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<LaunchAttemptStore>())
         assertNotNull(get<InstallIdStore>())
         assertNotNull(get<UrlOpener>())
+        assertNotNull(get<AchievementStore>())
     }
 
     @Test

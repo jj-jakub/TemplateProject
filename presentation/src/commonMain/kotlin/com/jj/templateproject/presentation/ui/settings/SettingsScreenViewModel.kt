@@ -4,15 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jj.templateproject.domain.BaseResult
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
-import com.jj.templateproject.domain.game.GameStateStorage
-import com.jj.templateproject.domain.game.SavedGameState
+import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
-import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
-import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
 import com.jj.templateproject.presentation.ui.state.UiState
@@ -33,9 +30,7 @@ class SettingsScreenViewModel(
     private val getIsInstalledFromValidSource: GetIsInstalledFromValidSource,
     getThemeModeUseCase: GetThemeModeUseCase,
     private val setThemeModeUseCase: SetThemeModeUseCase,
-    private val gameStateStorage: GameStateStorage,
-    private val reviewController: ReviewController,
-    private val clock: Clock,
+    private val demoProgressTracker: DemoProgressTracker,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -52,6 +47,9 @@ class SettingsScreenViewModel(
         getThemeModeUseCase()
             .onEach { mode -> _viewState.update { it.copy(themeMode = mode) } }
             .launchIn(viewModelScope)
+        demoProgressTracker.justUnlocked
+            .onEach { refreshUnlockedAchievements() }
+            .launchIn(viewModelScope)
     }
 
     /** Re-runs the API fetch; wired to the error state's Retry action. */
@@ -64,28 +62,29 @@ class SettingsScreenViewModel(
     }
 
     /**
-     * A working example of [GameStateStorage] and [ReviewController] together: a save is exactly
-     * the kind of moment [ReviewController] exists to count toward the review ask, so recording one
-     * here is not a separate step a real screen would add later — it is the natural place for it.
+     * A working example of [DemoProgressTracker]'s three effects together — persisting the score,
+     * banking a review-prompt moment, and unlocking any achievement it earns — the natural place
+     * for all three, since a save is what makes each of them fire.
      */
     fun saveDemoProgress() {
         viewModelScope.launch {
-            val nextScore = (_viewState.value.savedGameState?.score ?: 0) + 1
-            val state = SavedGameState(
-                score = nextScore,
-                progress = (nextScore % PROGRESS_CYCLE) / PROGRESS_CYCLE.toFloat(),
-                savedAtEpochMillis = clock.nowMillis(),
+            val state = demoProgressTracker.recordProgress(
+                slot = DEMO_SLOT,
+                previousScore = _viewState.value.savedGameState?.score,
             )
-            gameStateStorage.save(DEMO_SLOT, state)
             _viewState.update { it.copy(savedGameState = state) }
-            reviewController.recordSatisfyingMoment()
         }
     }
 
     private fun loadSavedGameState() {
         viewModelScope.launch {
-            _viewState.update { it.copy(savedGameState = gameStateStorage.load(DEMO_SLOT)) }
+            _viewState.update { it.copy(savedGameState = demoProgressTracker.loadSavedState(DEMO_SLOT)) }
         }
+        refreshUnlockedAchievements()
+    }
+
+    private fun refreshUnlockedAchievements() {
+        _viewState.update { it.copy(unlockedAchievements = demoProgressTracker.unlockedAchievements()) }
     }
 
     private fun fetchApiData() {
@@ -115,8 +114,5 @@ class SettingsScreenViewModel(
     private companion object {
         /** A single fixed slot for this demo; a real game would offer more than one save file. */
         const val DEMO_SLOT = "demo"
-
-        /** Cycles the demo progress bar back to empty every 10 saves, purely for a visible example. */
-        const val PROGRESS_CYCLE = 10
     }
 }

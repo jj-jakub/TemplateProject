@@ -21,10 +21,16 @@ import com.jj.templateproject.design.components.PrimaryButton
 import com.jj.templateproject.design.components.SecondaryButton
 import com.jj.templateproject.design.components.SectionHeader
 import com.jj.templateproject.design.gridMultiple
+import com.jj.templateproject.domain.achievement.Achievement
 import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.presentation.RequestNotificationPermissionOnLaunch
 import com.jj.templateproject.presentation.generated.resources.Res
+import com.jj.templateproject.presentation.generated.resources.achievement_first_save
+import com.jj.templateproject.presentation.generated.resources.achievement_five_saves
+import com.jj.templateproject.presentation.generated.resources.achievement_status_locked
+import com.jj.templateproject.presentation.generated.resources.achievement_status_unlocked
+import com.jj.templateproject.presentation.generated.resources.achievements_section
 import com.jj.templateproject.presentation.generated.resources.api_call_data
 import com.jj.templateproject.presentation.generated.resources.api_call_status
 import com.jj.templateproject.presentation.generated.resources.installed_from_valid_source_value
@@ -57,6 +63,7 @@ fun SettingsScreen(
         installedFromValidSource = state.installedFromValidSource,
         themeMode = state.themeMode,
         savedGameState = state.savedGameState,
+        unlockedAchievements = state.unlockedAchievements,
         onRetry = viewModel::retry,
         onSelectTheme = viewModel::setThemeMode,
         onSaveProgress = viewModel::saveDemoProgress,
@@ -71,6 +78,7 @@ internal fun SettingsScreenViewContent(
     installedFromValidSource: Boolean?,
     themeMode: ThemeMode,
     savedGameState: SavedGameState?,
+    unlockedAchievements: Set<Achievement>,
     onRetry: () -> Unit,
     onSelectTheme: (ThemeMode) -> Unit,
     onSaveProgress: () -> Unit,
@@ -110,8 +118,35 @@ internal fun SettingsScreenViewContent(
             ThemeSelector(selectedMode = themeMode, onSelect = onSelectTheme)
 
             SavedProgressSection(savedGameState = savedGameState, onSaveProgress = onSaveProgress)
+
+            AchievementsSection(unlockedAchievements = unlockedAchievements)
         }
     }
+}
+
+@Composable
+private fun AchievementsSection(unlockedAchievements: Set<Achievement>) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 8.dp),
+    ) {
+        SectionHeader(text = stringResource(Res.string.achievements_section))
+        Achievement.entries.forEach { achievement ->
+            val name = stringResource(achievement.labelRes())
+            val text = if (achievement in unlockedAchievements) {
+                stringResource(Res.string.achievement_status_unlocked, name)
+            } else {
+                stringResource(Res.string.achievement_status_locked, name)
+            }
+            SettingsTextField(text = text)
+        }
+    }
+}
+
+private fun Achievement.labelRes(): StringResource = when (this) {
+    Achievement.FIRST_SAVE -> Res.string.achievement_first_save
+    Achievement.FIVE_SAVES -> Res.string.achievement_five_saves
 }
 
 @Composable

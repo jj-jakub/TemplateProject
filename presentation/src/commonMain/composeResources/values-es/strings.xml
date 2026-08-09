@@ -30,4 +30,9 @@
     <string name="saved_progress_none">Aún no hay progreso guardado</string>
     <string name="saved_progress_value">Puntuación: %1$d</string>
     <string name="save_progress_action">Guardar progreso</string>
+    <string name="achievements_section">Logros</string>
+    <string name="achievement_first_save">Primer guardado</string>
+    <string name="achievement_five_saves">Cinco guardados</string>
+    <string name="achievement_status_unlocked">✓ %1$s</string>
+    <string name="achievement_status_locked">%1$s (bloqueado)</string>
 </resources>

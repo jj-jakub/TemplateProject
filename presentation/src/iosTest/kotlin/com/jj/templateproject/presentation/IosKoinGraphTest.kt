@@ -3,6 +3,8 @@ package com.jj.templateproject.presentation
 import com.jj.templateproject.core.di.coreModule
 import com.jj.templateproject.core.di.platformCoreModule
 import com.jj.templateproject.di.networkingModule
+import com.jj.templateproject.domain.achievement.AchievementStore
+import com.jj.templateproject.domain.achievement.AchievementUnlocker
 import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.ad.AdUnitIds
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
@@ -16,6 +18,7 @@ import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
 import com.jj.templateproject.domain.experiment.InstallIdStore
+import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.game.GameStateStorage
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
@@ -84,6 +87,9 @@ class IosKoinGraphTest {
         assertNotNull(koin.get<UrlOpener>())
         assertNotNull(koin.get<RemoteFlags>())
         assertNotNull(koin.get<GetCrossPromoConfigUseCase>())
+        assertNotNull(koin.get<AchievementStore>())
+        assertNotNull(koin.get<AchievementUnlocker>())
+        assertNotNull(koin.get<DemoProgressTracker>())
     }
 
     @Test

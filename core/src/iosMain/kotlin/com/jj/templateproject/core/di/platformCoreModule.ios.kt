@@ -1,5 +1,6 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.core.data.achievement.UserDefaultsAchievementStore
 import com.jj.templateproject.core.data.crosspromo.IosUrlOpener
 import com.jj.templateproject.core.data.device.IosDeviceInfo
 import com.jj.templateproject.core.data.experiment.UserDefaultsInstallIdStore
@@ -11,6 +12,7 @@ import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptSto
 import com.jj.templateproject.core.data.review.UserDefaultsReviewPromptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
 import com.jj.templateproject.core.data.time.IosSystemClock
+import com.jj.templateproject.domain.achievement.AchievementStore
 import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.InstallIdStore
@@ -53,6 +55,7 @@ actual fun platformCoreModule(): Module = module {
     single<ReviewPromptStore> { UserDefaultsReviewPromptStore() }
     single<GameStateStorage> { DefaultGameStateStorage(fileTextStore = IosFileTextStore()) }
     single<InstallIdStore> { UserDefaultsInstallIdStore() }
+    single<AchievementStore> { UserDefaultsAchievementStore() }
     // createdAtStart for the same reason as Android's: it reads UIApplication's state and registers
     // notification observers, which belongs on the main thread during startup.
     single<AppLifecycle>(createdAtStart = true) { NotificationCenterAppLifecycle() }

@@ -9,9 +9,11 @@ build:
 complexity:
   LongParameterList:
     # ViewModels / composables legitimately take several injected dependencies / slots. Raised from
-    # 8 to accommodate SettingsScreenViewModel's 9-parameter constructor, once GameStateStorage/
-    # ReviewController/Clock joined its existing use-case dependencies on the game/game-review branch.
-    functionThreshold: 9
+    # the detekt default of 6 on the game/game-review branch, where a "kitchen sink" demo screen
+    # (theme + API status + save progress + achievements, one flattened stateless composable per
+    # this codebase's own testability convention) and its ViewModel outgrew it. Not tied to any one
+    # class's exact current count — that would just mean re-tuning this on every unrelated growth.
+    functionThreshold: 10
     constructorThreshold: 10
   TooManyFunctions:
     active: false

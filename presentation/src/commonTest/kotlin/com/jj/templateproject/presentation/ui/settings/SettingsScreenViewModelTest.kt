@@ -1,7 +1,10 @@
 package com.jj.templateproject.presentation.ui.settings
 
 import com.jj.templateproject.domain.BaseResult
+import com.jj.templateproject.domain.achievement.Achievement
+import com.jj.templateproject.domain.achievement.AchievementUnlocker
 import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
+import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.game.SavedGameState
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
@@ -12,6 +15,7 @@ import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
 import com.jj.templateproject.domain.time.FixedClock
+import com.jj.templateproject.presentation.FakeAchievementStore
 import com.jj.templateproject.presentation.FakeAppPreferencesRepository
 import com.jj.templateproject.presentation.FakeAppVersionInfo
 import com.jj.templateproject.presentation.FakeGameStateStorage
@@ -50,12 +54,20 @@ class SettingsScreenViewModelTest {
     private val appInfoRepository = FakeAppInfoRepository()
     private val appPreferencesRepository = FakeAppPreferencesRepository()
     private val gameStateStorage = FakeGameStateStorage()
-    private val reviewController = ReviewController(FakeReviewPromptStore(), NoOpReviewPrompter)
+    private val reviewPromptStore = FakeReviewPromptStore()
+    private val achievementStore = FakeAchievementStore()
     private val clock = FixedClock(now = 1_000L)
+    private val demoProgressTracker = DemoProgressTracker(
+        gameStateStorage = gameStateStorage,
+        reviewController = ReviewController(reviewPromptStore, NoOpReviewPrompter),
+        achievementUnlocker = AchievementUnlocker(achievementStore),
+        clock = clock,
+    )
 
     private fun createViewModel(
         versionText: String = "v",
         themeMode: ThemeMode = ThemeMode.SYSTEM,
+        tracker: DemoProgressTracker = demoProgressTracker,
     ): SettingsScreenViewModel {
         // Reuse the shared fake for the common (SYSTEM) case; a non-default starting mode needs its
         // own instance, since FakeAppPreferencesRepository's theme mode is set at construction.
@@ -71,9 +83,7 @@ class SettingsScreenViewModelTest {
             getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
-            gameStateStorage = gameStateStorage,
-            reviewController = reviewController,
-            clock = clock,
+            demoProgressTracker = tracker,
         )
     }
 
@@ -152,9 +162,7 @@ class SettingsScreenViewModelTest {
             getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
-            gameStateStorage = gameStateStorage,
-            reviewController = reviewController,
-            clock = clock,
+            demoProgressTracker = demoProgressTracker,
         )
 
         viewModel.setThemeMode(ThemeMode.LIGHT)
@@ -211,20 +219,41 @@ class SettingsScreenViewModelTest {
     @Test
     fun `a save counts as a satisfying moment toward the review prompt`() {
         val store = FakeReviewPromptStore()
-        val viewModel = SettingsScreenViewModel(
-            versionTextProvider = VersionTextProvider(FakeAppVersionInfo()),
-            getGoogleStatusUseCase = GetGoogleStatusUseCase(templateRepository),
-            getGoogleDataUseCase = GetGoogleDataUseCase(templateRepository),
-            getIsInstalledFromValidSource = GetIsInstalledFromValidSource(appInfoRepository),
-            getThemeModeUseCase = GetThemeModeUseCase(appPreferencesRepository),
-            setThemeModeUseCase = SetThemeModeUseCase(appPreferencesRepository),
+        val tracker = DemoProgressTracker(
             gameStateStorage = FakeGameStateStorage(),
             reviewController = ReviewController(store, NoOpReviewPrompter),
+            achievementUnlocker = AchievementUnlocker(FakeAchievementStore()),
             clock = clock,
         )
+        val viewModel = createViewModel(tracker = tracker)
 
         viewModel.saveDemoProgress()
 
         assertEquals(1, store.readSatisfyingMomentCount())
+    }
+
+    @Test
+    fun `no achievements are unlocked before any save`() {
+        val state = createViewModel().viewState.value
+
+        assertEquals(emptySet(), state.unlockedAchievements)
+    }
+
+    @Test
+    fun `the first save unlocks FIRST_SAVE in state`() {
+        val viewModel = createViewModel()
+
+        viewModel.saveDemoProgress()
+
+        assertEquals(setOf(Achievement.FIRST_SAVE), viewModel.viewState.value.unlockedAchievements)
+    }
+
+    @Test
+    fun `unlocked achievements from a previous session are loaded into state on creation`() {
+        achievementStore.markUnlocked(Achievement.FIRST_SAVE.id)
+
+        val state = createViewModel().viewState.value
+
+        assertEquals(setOf(Achievement.FIRST_SAVE), state.unlockedAchievements)
     }
 }

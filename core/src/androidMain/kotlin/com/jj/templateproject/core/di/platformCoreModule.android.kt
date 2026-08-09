@@ -1,5 +1,6 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.core.data.achievement.SharedPreferencesAchievementStore
 import com.jj.templateproject.core.data.back4app.InitializeBack4App
 import com.jj.templateproject.core.data.crosspromo.AndroidUrlOpener
 import com.jj.templateproject.core.data.device.AndroidDeviceInfo
@@ -12,6 +13,7 @@ import com.jj.templateproject.core.data.reliability.SharedPreferencesLaunchAttem
 import com.jj.templateproject.core.data.review.SharedPreferencesReviewPromptStore
 import com.jj.templateproject.core.data.sharing.AndroidContentSharer
 import com.jj.templateproject.core.data.time.SystemClock
+import com.jj.templateproject.domain.achievement.AchievementStore
 import com.jj.templateproject.domain.crosspromo.UrlOpener
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.experiment.InstallIdStore
@@ -39,6 +41,7 @@ actual fun platformCoreModule(): Module = module {
         DefaultGameStateStorage(fileTextStore = AndroidFileTextStore(context = androidContext()))
     }
     single<InstallIdStore> { SharedPreferencesInstallIdStore(context = androidContext()) }
+    single<AchievementStore> { SharedPreferencesAchievementStore(context = androidContext()) }
 
     // Platform capabilities, each behind a domain interface with a test double beside it, so nothing
     // above this layer has to know which SDK answers the question.

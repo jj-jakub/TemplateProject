@@ -1,8 +1,10 @@
 package com.jj.templateproject.core.di
 
+import com.jj.templateproject.domain.achievement.AchievementUnlocker
 import com.jj.templateproject.domain.crosspromo.GetCrossPromoConfigUseCase
 import com.jj.templateproject.domain.experiment.ExperimentBucketing
 import com.jj.templateproject.domain.experiment.GetExperimentVariantUseCase
+import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.reliability.LaunchStability
@@ -34,4 +36,13 @@ val coreModule = module {
     single { ExperimentBucketing(installIdStore = get()) }
     single { GetExperimentVariantUseCase(experimentBucketing = get(), analyticsLogger = get()) }
     single { GetCrossPromoConfigUseCase(remoteFlags = get()) }
+    single { AchievementUnlocker(store = get()) }
+    single {
+        DemoProgressTracker(
+            gameStateStorage = get(),
+            reviewController = get(),
+            achievementUnlocker = get(),
+            clock = get(),
+        )
+    }
 }
