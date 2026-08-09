@@ -29,3 +29,11 @@ app/google-services.json
 # project. Keep it outside the repository entirely; this is only a backstop against a stray copy.
 *firebase-adminsdk*.json
 service-account*.json
+
+# Working notes for whoever is shipping (console steps, release checklist, idea backlog). Untracked
+# deliberately: it is a scratchpad, not documentation, and it changes every session. Start one by
+# copying ACTIONS.template.md.
+ACTIONS.md
+
+# Smoke-test output (screenshots, logcat captures, reports). Evidence of one run on one device.
+smoke_logcat.txt

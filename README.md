@@ -188,24 +188,34 @@ Two product flavors (`flavor1`, `flavor2`) × two build types (`debug`, `release
 
 ### Release signing
 
-The `release` build type reads the keystore path and the `SIGNING_STORE_PASSWORD` /
-`SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD` credentials from environment variables (see
-`app/build.gradle.kts`), so signing secrets stay out of the repo.
+Opt-in through the environment, so a fresh clone builds without any keystore: with none configured the
+release output simply comes out unsigned. Set `SIGNING_STORE_FILE` (a path) plus
+`SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD`. CI decodes the keystore from
+the `SIGNING_STORE_BASE64` secret and exports the same four, so nothing about signing is machine
+specific and no secret is ever committed.
 
 ---
 
 ## Continuous integration
 
-GitHub Actions (`.github/workflows`):
+GitHub Actions (`.github/workflows`), built on the composite actions in `.github/actions` so no step is
+written twice. Every `uses:` is pinned to a commit SHA, and `dependabot.yml` keeps the pins moving:
+patch updates auto-merge behind the required checks, larger ones wait for a human.
 
-- **On every pull request** (and pushes to `develop`/`master`) — Android Lint, the full Gradle
-  build (signed artifacts per flavor), the unit tests, and the **instrumented UI suite** on a
-  cached emulator. SonarCloud runs only when a `SONAR_TOKEN` is configured and never blocks the
-  build. Feature branches are validated through their PR, so each commit runs the pipeline once
-  rather than twice — open a draft PR to get CI on a work-in-progress branch.
-- **On demand** — the full instrumented suite across both flavors (`connectedCheck`,
-  `runUiTests.yml`).
-- **On tag / dispatch** — signed release APK/AAB per flavor.
+- **`ci.yml`, on every pull request** (and pushes to `develop`/`master`) — debug build, unit tests
+  including the Konsist architecture rules, Android Lint, detekt, plus the **instrumented UI suite** on
+  a cached emulator. SonarCloud runs only when a `SONAR_TOKEN` is configured and never blocks. Feature
+  branches are validated through their PR, so each commit runs the pipeline once rather than twice;
+  open a draft PR to get CI on a work-in-progress branch.
+- **`release.yml`, on a `v*` tag** — for each flavor in turn: refuse to build unless `versionCode` moved
+  past the previous release tag, build the signed APK + AAB, verify the signature (matching it against
+  the `RELEASE_CERT_SHA256` repository variable when that is set), check both artifacts against a size
+  ceiling, then attach them and R8's mapping file to the GitHub Release, named after the version.
+- **`manualUnsignedBuild.yml`, on demand** — a release-shrunk (unsigned) APK and a debug APK for the
+  chosen flavor, with no signing secrets involved.
+
+Shared build parameters live in `.github/workflows/parameters/.env.normalParameters`; a parameter left
+empty makes its step skip rather than fail.
 
 ---
 
@@ -214,5 +224,9 @@ GitHub Actions (`.github/workflows`):
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — modules, enforced rules, patterns, and the request lifecycle.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, conventions, the "add a feature" recipe, and how to
   write device-free tests.
+- [`PUSH.md`](PUSH.md) — the FCM payload, destinations, deep links, and how to send a campaign.
+- [`SmokeTestRunInput.md`](SmokeTestRunInput.md) — the agent-driven release smoke test.
+- [`ACTIONS.template.md`](ACTIONS.template.md) — copy to `ACTIONS.md` (gitignored) for the console work
+  only a human can do.
 - Per-module READMEs: [`app`](app/README.md) · [`domain`](domain/README.md) ·
   [`networking`](networking/README.md) · [`core`](core/README.md) · [`design`](design/README.md).

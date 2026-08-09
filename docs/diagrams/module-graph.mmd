@@ -1,0 +1,20 @@
+%% The module graph, and the direction dependencies are allowed to point.
+%% Enforced by the Konsist architecture tests in app/src/test/java/konsist/KonsistTests.kt:
+%% domain depends on nothing, data depends on domain, presentation depends on domain and data.
+graph TD
+    app[":app<br/>presentation, navigation, DI wiring"]
+    design[":design<br/>theme, tokens, components"]
+    core[":core<br/>platform implementations"]
+    networking[":networking<br/>Retrofit services, repositories"]
+    domain[":domain<br/>use cases, interfaces, pure logic"]
+
+    app --> design
+    app --> core
+    app --> networking
+    app --> domain
+    core --> domain
+    core --> networking
+    networking --> domain
+
+    classDef pure fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    class domain pure

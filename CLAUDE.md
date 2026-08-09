@@ -44,8 +44,31 @@ each module has its own `README`.
   and applied through `MainRootViewModel.themeMode` → `MainRoot` → `TemplateTheme`. `TemplateTheme`
   defaults to dynamic color on API 31+ (`dynamicColor = false` to brand-lock).
 - **Preferences:** add prefs to `AppPreferencesRepository` (domain interface) + its DataStore impl.
-- **Observability:** log via the `AnalyticsLogger` / `CrashReporter` domain interfaces — bound to
-  NoOp by default; the Firebase impls are a one-line Koin swap (see `mainModule`).
+- **Observability:** log via the `AnalyticsLogger` / `CrashReporter` domain interfaces.
+  `AnalyticsFactory` decides between Firebase and NoOp; don't bind them by hand. Numbers go through
+  the `logEvent(name, params, metrics)` overload — a metric sent as a string can be counted but never
+  summed or averaged.
+- **Who reports:** `BuildProfile.isReportingBuild` is the one place that answers "could a real user be
+  running this". Held on two layers: the factory picks NoOp reporters, and `src/debug/AndroidManifest.xml`
+  turns the SDKs' own collection off. New reporting keys off this, never off `BuildConfig.DEBUG` alone.
+- **Platform seams:** a platform capability is an interface in `:domain`, an implementation in `:core`,
+  and **a double beside the interface** (`FixedClock`, `FixedDeviceInfo`, `FakeAppLifecycle`,
+  `NoOpContentSharer`, `NoOpNotificationManager`, `NoOpRemoteFlags`). That rule is why these need no
+  device and no mocking framework in tests. Follow it for anything new; `KoinGraphTest` asserts each
+  binding resolves, which is the only place a missing one shows up.
+- **Time:** inject `Clock`. `nowMillis()` for a value that means something outside this process,
+  `elapsedMillis()` for **every** duration — a stopwatch built on wall-clock time reports a jump,
+  negative ones included, the moment the clock is corrected mid-measure.
+- **Device class:** `DeviceInfo.isTablet` reads `smallestScreenWidthDp`, so it is stable for the
+  hardware. Ask the window instead when the answer should follow the space actually available.
+- **Remote config:** `RemoteFlags`, and only for values re-evaluated on every decision or for kill
+  switches over a gate that already exists in exactly one place. Defaults are the in-code constants at
+  the call site, never a second copy in a console.
+- **Push:** `domain/push` parses and routes (pure, unit-tested), `core/data/notifications` builds the
+  notification. Campaigns are **data-only**; read `PUSH.md` before touching the payload or the channel.
+- **Startup:** `LaunchStability` banks an attempt before anything reads persisted state and reports
+  `LaunchMode.SAFE` after two failed launches. Anything that rehydrates state at startup should
+  consult it and skip once. Nothing on the launch path may fail loudly.
 
 ## Build configuration (important)
 
@@ -65,7 +88,9 @@ each module has its own `README`.
 
 ```bash
 ./gradlew assembleFlavor1Debug          # build (flavors: flavor1/flavor2)
-./gradlew testFlavor1DebugUnitTest      # unit tests + Konsist architecture checks
+./gradlew testFlavor1DebugUnitTest      # app unit tests + Konsist architecture checks
+./gradlew :domain:test :core:test       # the pure and platform-layer tests
+./gradlew :app:assembleFlavor1Release   # the only check that R8 accepts the keep rules
 ./gradlew :app:lintFlavor1Debug         # lint
 ./gradlew detekt                        # static analysis (config + baseline in config/detekt)
 ./gradlew detektBaseline                # regenerate the detekt baseline after accepted changes
@@ -93,12 +118,40 @@ with the shadow `PackageManager`).
   `accompanist-systemuicontroller`).
 - Navigation is type-safe Compose nav with `Route` sealed types.
 
+## Working conventions
+
+- **Verify what you changed, per change.** `./gradlew testFlavor1DebugUnitTest :core:test :domain:test`
+  plus `:app:lintFlavor1Debug` and `detekt`. Anything touching R8 rules or the release path also needs
+  a real `:app:assembleFlavor1Release`, since keep rules only fail when the shrinker actually runs.
+- **One focused commit per change**, with the *why* in the message. Unrelated changes go in separate
+  commits even when they were made in the same sitting.
+- **A regression test must be shown to fail without its fix.** Revert the fix, watch the test go red,
+  put it back. A test written after the fix that was never seen failing proves nothing about the bug.
+- **Verify status against the source, not against a plan document.** `PLAN.md` records intent and goes
+  stale; the code and the git history are what actually happened.
+- **New behaviour ships with its test in the same commit.** Pure logic belongs in `:domain` where it
+  can be tested without a device, which is most of the reason the layering exists.
+
+## Release process
+
+- `ACTIONS.md` (gitignored, copy `ACTIONS.template.md`) holds the console work only a human can do,
+  ordered by what blocks a release. Everything in the code is finished; that file is what is left.
+- `SmokeTestRunInput.md` drives an agent through a device walk before a release: every screen
+  captured, deep links exercised, push and the analytics gate checked, and a written verdict.
+- A release is a `v*` tag. CI refuses to build one whose `versionCode` did not move.
+
 ## Setup gotchas
 
 - `app/google-services.json` is **git-ignored**. Copy `app/google-services.json.example` and fill
-  in real Firebase values to enable Firebase. The `google-services` plugin is applied
-  **conditionally** in `app/build.gradle.kts` — only when that file exists — so the template builds
-  without it. The config must contain a client for each variant id (`.fl1`/`.fl2` + `.debug`), and
-  the Firebase `AnalyticsLogger`/`CrashReporter` bindings in `mainModule` are the opt-in swap.
-- Release signing reads `SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD`
-  and a keystore path from the environment (`app/build.gradle.kts`).
+  in real Firebase values to enable Firebase. The `google-services` **and Crashlytics** plugins are
+  applied **conditionally** in `app/build.gradle.kts` — only when that file exists — because both
+  hard-fail without one, so the template builds without either. The config must contain a client for
+  each variant id (`.fl1`/`.fl2` + `.debug`). Nothing else has to be switched on: `AnalyticsFactory`
+  and `FirebaseRemoteFlags.create` pick the real implementations as soon as Firebase initializes on a
+  build that reports.
+- Release signing is opt-in through the environment: `SIGNING_STORE_FILE` (a path) plus
+  `SIGNING_STORE_PASSWORD` / `SIGNING_KEY_ALIAS` / `SIGNING_KEY_PASSWORD`. With none set the release
+  build comes out **unsigned** rather than failing, which is what lets a fresh clone build one.
+- `android:allowBackup` is **off**, deliberately, with both rule files (`backup_rules.xml` for
+  pre-31, `data_extraction_rules.xml` for 31+) already written and referenced. Turning backup on is a
+  one-word change; the rules that keep per-install state from travelling are already correct.

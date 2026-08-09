@@ -35,7 +35,9 @@ Release minifies and reads signing creds from the environment, so day-to-day wor
 
 ```bash
 ./gradlew assembleFlavor1Debug             # build
-./gradlew testFlavor1DebugUnitTest         # unit tests + Konsist architecture checks
+./gradlew testFlavor1DebugUnitTest         # app unit tests + Konsist architecture checks
+./gradlew :domain:test :core:test          # the pure and platform-layer tests
+./gradlew :app:assembleFlavor1Release      # the only check that R8 accepts the keep rules
 ./gradlew :app:connectedFlavor1DebugAndroidTest  # instrumented UI tests (needs a device/emulator)
 ./gradlew :app:lintFlavor1Debug            # Android lint
 ./gradlew detekt                           # static analysis
@@ -178,9 +180,13 @@ Run everything locally before pushing:
 
 - Keep the template **generic** — avoid app-specific features that future branches would have to
   rip out.
-- Make sure `testFlavor1DebugUnitTest` (incl. Konsist), `:app:lintFlavor1Debug`, and `detekt` all
-  pass. If you intentionally accept new detekt findings, regenerate the baseline with
-  `./gradlew detektBaseline` and commit it.
+- Make sure `testFlavor1DebugUnitTest` (incl. Konsist), `:domain:test`, `:core:test`,
+  `:app:lintFlavor1Debug`, and `detekt` all pass. If you intentionally accept new detekt findings,
+  regenerate the baseline with `./gradlew detektBaseline` and commit it.
+- If you touched R8 keep rules or anything on the release path, run a real
+  `:app:assembleFlavor1Release`: keep rules only fail when the shrinker actually runs.
+- A regression test must be **seen failing** without its fix. Revert the fix, watch it go red, put it
+  back. A test written after the fix and never seen failing proves nothing about the bug.
 - One focused change per PR; explain the *why* and call out any new conventions or Koin/Route
   wiring.
 - Don't commit `app/google-services.json` (git-ignored) or signing material.
