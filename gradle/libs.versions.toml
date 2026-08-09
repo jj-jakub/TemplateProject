@@ -70,6 +70,7 @@ firebaseBom = { module = "com.google.firebase:firebase-bom", version.ref = "fire
 firebaseAnalytics = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebaseMessaging = { module = "com.google.firebase:firebase-messaging-ktx" }
 firebaseCrashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebaseConfig = { module = "com.google.firebase:firebase-config" }
 googleAds = { module = "com.google.android.gms:play-services-ads", version.ref = "googleAds" }
 junit4 = { module = "junit:junit", version.ref = "junit4" }
 junit5 = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit5" }

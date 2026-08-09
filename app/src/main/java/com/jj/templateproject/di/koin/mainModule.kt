@@ -12,6 +12,7 @@ import com.jj.templateproject.data.analytics.AnalyticsFactory
 import com.jj.templateproject.data.app.DefaultAppInfoRepository
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
+import com.jj.templateproject.data.config.FirebaseRemoteFlags
 import com.jj.templateproject.data.config.VersionTextProvider
 import com.jj.templateproject.data.network.RetrofitFactory
 import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
@@ -20,6 +21,7 @@ import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
@@ -60,6 +62,10 @@ val mainModule = module {
     // reports into the same dashboards as a shipped build. See AnalyticsFactory / BuildProfile.
     single<AnalyticsLogger> { AnalyticsFactory.analyticsLogger(androidContext()) }
     single<CrashReporter> { AnalyticsFactory.crashReporter(androidContext()) }
+
+    // Values that can be changed without shipping a build. Defaults stay the in-code constants at
+    // each call site, so with no Firebase project this behaves exactly as it did before.
+    single<RemoteFlags> { FirebaseRemoteFlags.create(androidContext()) }
 
     viewModel {
         MainScreenViewModel(

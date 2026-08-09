@@ -165,6 +165,7 @@ dependencies {
     implementation(libs.firebaseAnalytics)
     implementation(libs.firebaseMessaging)
     implementation(libs.firebaseCrashlytics)
+    implementation(libs.firebaseConfig)
     implementation(libs.accompanistPermissions)
 
     implementation(libs.googleAds)
