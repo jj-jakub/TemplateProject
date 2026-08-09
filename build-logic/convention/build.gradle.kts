@@ -49,5 +49,9 @@ gradlePlugin {
             id = "templateproject.kmp.library"
             implementationClass = "KmpLibraryConventionPlugin"
         }
+        register("kmpLibraryCompose") {
+            id = "templateproject.kmp.library.compose"
+            implementationClass = "KmpLibraryComposeConventionPlugin"
+        }
     }
 }
