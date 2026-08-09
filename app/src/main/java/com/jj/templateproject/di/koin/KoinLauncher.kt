@@ -4,6 +4,7 @@ import android.content.Context
 import com.jj.templateproject.core.di.coreModule
 import com.jj.templateproject.core.di.platformCoreModule
 import com.jj.templateproject.di.networkingModule
+import com.jj.templateproject.presentation.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -12,12 +13,14 @@ class KoinLauncher {
     /**
      * `:core` contributes two modules rather than one: [coreModule] holds the bindings every
      * platform shares, and [platformCoreModule] the ones only this platform can answer. They are
-     * always used together.
+     * always used together. [presentationModule] is `:presentation`'s own module (its ViewModels
+     * and the use cases built directly on top of them); [mainModule] is everything only `:app`
+     * itself can provide (a real `AdUnitIds`/`AppVersionInfo`, the ad SDK, DataStore, Firebase).
      */
     fun startKoin(applicationContext: Context) {
         startKoin {
             androidContext(applicationContext)
-            modules(mainModule, networkingModule, coreModule, platformCoreModule())
+            modules(mainModule, networkingModule, coreModule, platformCoreModule(), presentationModule)
         }
     }
 }

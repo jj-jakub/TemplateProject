@@ -45,6 +45,17 @@ kotlinxIo = "0.9.1"
 
 kotlinxSerialization = "1.9.0"
 
+# JetBrains' multiplatform ports of navigation-compose and the lifecycle-viewmodel family, for the
+# one module (:presentation) that needs them on iOS too. Published under androidx.* package names
+# for source compatibility with the AndroidX originals, but under different Maven coordinates
+# (org.jetbrains.androidx.*), so an Android-only module keeps using the plain AndroidX artifacts
+# above (navigationKtx et al.) — the two are not interchangeable at the dependency level even
+# though the code reads identically.
+jbNavigationCompose = "2.9.2"
+# Frozen below 2.11.0: that line's Android variant (lifecycle-viewmodel-compose-android) declares
+# an AGP 9.1.0+ requirement in its Gradle module metadata, and this project runs AGP 8.13.2.
+jbLifecycle = "2.10.0"
+
 junit4 = "4.13.2"
 junit5 = "5.13.3"
 junitPlatformLauncher = "1.13.3"
@@ -90,6 +101,14 @@ composeNavigation = { module = "androidx.navigation:navigation-compose", version
 composePreview = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUi" }
 composeActivity = { module = "androidx.activity:activity-compose", version.ref = "composeActivity" }
 koinCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "composeKoin" }
+# The multiplatform Compose ViewModel-injection DSL (koinViewModel() usable from commonMain),
+# distinct from koin-androidx-compose above the same way koinCore is distinct from koin-android.
+koinComposeViewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "composeKoin" }
+jb-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "jbNavigationCompose" }
+jb-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "jbLifecycle" }
+jb-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "jbLifecycle" }
+jb-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "jbLifecycle" }
+jb-lifecycle-savedstate = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate", version.ref = "jbLifecycle" }
 firebaseBom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebaseAnalytics = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebaseMessaging = { module = "com.google.firebase:firebase-messaging-ktx" }

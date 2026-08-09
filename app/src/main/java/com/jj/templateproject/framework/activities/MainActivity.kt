@@ -13,7 +13,7 @@ import com.jj.templateproject.domain.push.PushDestination
 import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.presentation.MainRoot
 import org.koin.android.ext.android.inject
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 class MainActivity : ComponentActivity() {
 

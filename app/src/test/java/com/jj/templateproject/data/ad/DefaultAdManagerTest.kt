@@ -2,6 +2,7 @@ package com.jj.templateproject.data.ad
 
 import android.content.Context
 import com.jj.templateproject.di.ActivityProvider
+import com.jj.templateproject.domain.ad.GetInterstitialAdUnitId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

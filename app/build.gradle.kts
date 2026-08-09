@@ -150,6 +150,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":design"))
     implementation(project(":networking"))
+    implementation(project(":presentation"))
 
     implementation(libs.kotlinStdlib)
     implementation(libs.koin)

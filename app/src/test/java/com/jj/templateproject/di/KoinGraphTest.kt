@@ -1,22 +1,22 @@
 package com.jj.templateproject.di
 
 import androidx.test.core.app.ApplicationProvider
-import io.ktor.client.HttpClient
-import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
-import com.jj.templateproject.data.ad.GetMainAdUnitId
-import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
-import com.jj.templateproject.data.config.AppConfiguration
-import com.jj.templateproject.data.config.VersionTextProvider
-import com.jj.templateproject.data.google.network.TemplateNetworkApi
-import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.core.data.back4app.InitializeBack4App
 import com.jj.templateproject.core.di.coreModule
 import com.jj.templateproject.core.di.platformCoreModule
+import com.jj.templateproject.data.config.AppConfiguration
+import com.jj.templateproject.data.google.network.TemplateNetworkApi
+import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.di.koin.mainModule
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.ad.AdUnitIds
+import com.jj.templateproject.domain.ad.GetInterstitialAdUnitId
+import com.jj.templateproject.domain.ad.GetMainAdUnitId
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.app.AppVersionInfo
+import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
@@ -30,8 +30,11 @@ import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.MainRootViewModel
+import com.jj.templateproject.presentation.di.presentationModule
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
+import com.jj.templateproject.presentation.ui.settings.VersionTextProvider
+import io.ktor.client.HttpClient
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -47,14 +50,13 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Integration test: starts the full Koin graph (main + networking + core modules) against a
- * Robolectric application context and asserts that the real wiring resolves. Catches missing or
- * mis-typed DI bindings that unit tests with hand-built mocks would miss.
+ * Integration test: starts the full Koin graph (main + networking + core + presentation modules)
+ * against a Robolectric application context and asserts that the real wiring resolves. Catches
+ * missing or mis-typed DI bindings that unit tests with hand-built fakes would miss.
  *
- * `:core` now contributes a shared module and a per-platform one, and this asserts the Android
- * pairing specifically: it runs on the JVM, so `platformCoreModule()` here is the Android actual.
- * The iOS pairing has no equivalent test, since there is no iOS entry point to build a graph for
- * yet.
+ * `:core` contributes a shared module and a per-platform one, and this asserts the Android pairing
+ * specifically: it runs on the JVM, so `platformCoreModule()` here is the Android actual. The iOS
+ * pairing has no equivalent test, since there is no iOS entry point to build a graph for yet.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
@@ -66,7 +68,7 @@ class KoinGraphTest : KoinTest {
         if (GlobalContext.getOrNull() != null) stopKoin()
         startKoin {
             androidContext(ApplicationProvider.getApplicationContext())
-            modules(mainModule, networkingModule, coreModule, platformCoreModule())
+            modules(mainModule, networkingModule, coreModule, platformCoreModule(), presentationModule)
         }
     }
 
@@ -89,6 +91,8 @@ class KoinGraphTest : KoinTest {
     @Test
     fun `app singletons resolve`() {
         assertNotNull(get<AdManager>())
+        assertNotNull(get<AdUnitIds>())
+        assertNotNull(get<AppVersionInfo>())
         assertNotNull(get<ActivityProvider>())
         assertNotNull(get<GetMainAdUnitId>())
         assertNotNull(get<GetInterstitialAdUnitId>())

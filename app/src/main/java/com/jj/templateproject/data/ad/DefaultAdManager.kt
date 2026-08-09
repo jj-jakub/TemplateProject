@@ -8,6 +8,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.ad.GetInterstitialAdUnitId
 
 private const val ACTIONS_FOR_AD = 5
 

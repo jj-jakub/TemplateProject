@@ -5,37 +5,39 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.jj.templateproject.BuildConfig
+import com.jj.templateproject.data.ad.AndroidAdUnitIds
 import com.jj.templateproject.data.ad.DefaultAdManager
-import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
-import com.jj.templateproject.data.ad.GetMainAdUnitId
 import com.jj.templateproject.data.analytics.AnalyticsFactory
 import com.jj.templateproject.data.app.DefaultAppInfoRepository
-import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
+import com.jj.templateproject.data.config.AndroidAppVersionInfo
 import com.jj.templateproject.data.config.AppConfiguration
-import com.jj.templateproject.data.config.FirebaseRemoteFlags
 import com.jj.templateproject.data.config.BuildProfile
-import com.jj.templateproject.data.config.VersionTextProvider
+import com.jj.templateproject.data.config.FirebaseRemoteFlags
 import com.jj.templateproject.data.network.TemplateHttpClientFactory
 import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
+import com.jj.templateproject.domain.ad.AdUnitIds
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.app.AppVersionInfo
 import com.jj.templateproject.domain.config.RemoteFlags
 import com.jj.templateproject.domain.coroutines.DefaultDispatcherProvider
 import com.jj.templateproject.domain.coroutines.DispatcherProvider
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
-import com.jj.templateproject.presentation.MainRootViewModel
-import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
-import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
-import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
 import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
+/**
+ * Everything only `:app` can provide, chiefly because it is the one module with a real
+ * `BuildConfig` and a real `Context`/`Application`: [AdUnitIds], [AppVersionInfo], the ad SDK, the
+ * DataStore-backed preference store, Firebase. Every ViewModel and every platform-agnostic use
+ * case built on top of these lives in `:presentation`'s own `presentationModule` instead — see
+ * `KoinLauncher` for how the two are assembled together.
+ */
 val mainModule = module {
 
     single {
@@ -52,7 +54,6 @@ val mainModule = module {
             logBody = BuildProfile.isDebugBuild,
         )
     }
-    single { VersionTextProvider() }
     single<DispatcherProvider> { DefaultDispatcherProvider() }
 
     single<DataStore<Preferences>> {
@@ -72,31 +73,9 @@ val mainModule = module {
     // each call site, so with no Firebase project this behaves exactly as it did before.
     single<RemoteFlags> { FirebaseRemoteFlags.create(androidContext()) }
 
-    viewModel {
-        MainScreenViewModel(
-            adManager = get(),
-        )
-    }
-    viewModel {
-        SettingsScreenViewModel(
-            versionTextProvider = get(),
-            getGoogleStatusUseCase = get(),
-            getGoogleDataUseCase = get(),
-            getIsInstalledFromValidSource = get(),
-            getThemeModeUseCase = get(),
-            setThemeModeUseCase = get(),
-        )
-    }
-    viewModel {
-        MainRootViewModel(
-            getMainAdUnitId = get(),
-            getThemeModeUseCase = get(),
-            analyticsLogger = get(),
-        )
-    }
-    viewModel {
-        SecondaryScreenViewModel(savedStateHandle = get())
-    }
+    single<AdUnitIds> { AndroidAdUnitIds() }
+    single<AppVersionInfo> { AndroidAppVersionInfo() }
+
     single<AdManager> {
         DefaultAdManager(
             context = androidContext(),
@@ -105,8 +84,5 @@ val mainModule = module {
         )
     }
     single { ActivityProvider(application = androidApplication()) }
-    single { GetMainAdUnitId() }
-    single { GetInterstitialAdUnitId() }
     single<AppInfoRepository> { DefaultAppInfoRepository() }
-    single { GetIsInstalledFromValidSource(appInfoRepository = get()) }
 }

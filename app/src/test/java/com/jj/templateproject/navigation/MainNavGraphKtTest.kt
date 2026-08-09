@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import com.jj.templateproject.BaseInstrumentedKoinTest
-import com.jj.templateproject.framework.navigation.MainNavGraph
+import com.jj.templateproject.presentation.navigation.MainNavGraph
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.main.model.MainScreenViewState
 import io.mockk.every

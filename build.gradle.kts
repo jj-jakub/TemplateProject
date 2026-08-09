@@ -47,6 +47,9 @@ detekt {
             "design/src/commonMain",
             "design/src/androidMain",
             "design/src/iosMain",
+            "presentation/src/commonMain",
+            "presentation/src/androidMain",
+            "presentation/src/iosMain",
             "build-logic/convention/src/main",
         )
     )
