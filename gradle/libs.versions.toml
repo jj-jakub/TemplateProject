@@ -30,7 +30,7 @@ kotlinxSerialization = "1.9.0"
 
 junit4 = "4.13.2"
 junit5 = "5.13.3"
-junitPlatformLauncher = "1.13.3"
+junitPlatformLauncher = "6.1.2"
 mockk = "1.14.4"
 mockkAndroid = "1.13.11"
 androidTestRules = "1.7.0"
