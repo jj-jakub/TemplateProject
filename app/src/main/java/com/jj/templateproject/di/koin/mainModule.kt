@@ -13,8 +13,9 @@ import com.jj.templateproject.data.app.DefaultAppInfoRepository
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.config.FirebaseRemoteFlags
+import com.jj.templateproject.data.config.BuildProfile
 import com.jj.templateproject.data.config.VersionTextProvider
-import com.jj.templateproject.data.network.RetrofitFactory
+import com.jj.templateproject.data.network.TemplateHttpClientFactory
 import com.jj.templateproject.data.preferences.DataStoreAppPreferencesRepository
 import com.jj.templateproject.di.ActivityProvider
 import com.jj.templateproject.domain.ad.AdManager
@@ -29,6 +30,7 @@ import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.secondary.SecondaryScreenViewModel
 import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
+import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -41,10 +43,13 @@ val mainModule = module {
             baseUrl = BuildConfig.ServerBaseUrl,
         )
     }
-    single { RetrofitFactory() }
-    single {
-        get<RetrofitFactory>().retrofit(
+    // Never log request/response bodies outside a debug build — they may carry user data or
+    // tokens. Retry/timeout/logging/base-URL plugins all live in the shared factory now (see
+    // TemplateHttpClientFactory); nothing app-specific is configured here beyond that flag.
+    single<HttpClient> {
+        TemplateHttpClientFactory.create(
             baseUrl = get<AppConfiguration>().baseUrl,
+            logBody = BuildProfile.isDebugBuild,
         )
     }
     single { VersionTextProvider() }

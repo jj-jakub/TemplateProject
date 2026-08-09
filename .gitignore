@@ -37,3 +37,8 @@ ACTIONS.md
 
 # Smoke-test output (screenshots, logcat captures, reports). Evidence of one run on one device.
 smoke_logcat.txt
+
+# A crashed JVM (the Gradle daemon included) writes these to the working directory root, not to
+# build/. hs_err_pid10106.log/replay_pid10106.log slipped into a commit once already.
+hs_err_pid*.log
+replay_pid*.log

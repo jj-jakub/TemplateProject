@@ -1,12 +1,13 @@
 package com.jj.templateproject.di
 
 import androidx.test.core.app.ApplicationProvider
+import io.ktor.client.HttpClient
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
 import com.jj.templateproject.data.config.VersionTextProvider
-import com.jj.templateproject.data.google.network.TemplateNetwork
+import com.jj.templateproject.data.google.network.TemplateNetworkApi
 import com.jj.templateproject.data.google.service.TemplateService
 import com.jj.templateproject.core.di.coreModule
 import com.jj.templateproject.di.koin.mainModule
@@ -41,7 +42,6 @@ import org.koin.test.KoinTest
 import org.koin.test.get
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import retrofit2.Retrofit
 
 /**
  * Integration test: starts the full Koin graph (main + networking + core modules) against a
@@ -70,9 +70,9 @@ class KoinGraphTest : KoinTest {
     @Test
     fun `networking and domain singletons resolve`() {
         assertNotNull(get<AppConfiguration>())
-        assertNotNull(get<Retrofit>())
+        assertNotNull(get<HttpClient>())
         assertNotNull(get<TemplateService>())
-        assertNotNull(get<TemplateNetwork>())
+        assertNotNull(get<TemplateNetworkApi>())
         assertNotNull(get<TemplateRepository>())
         assertNotNull(get<GetGoogleDataUseCase>())
         assertNotNull(get<GetGoogleStatusUseCase>())
