@@ -14,11 +14,17 @@ import com.jj.templateproject.domain.ad.AdManager
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
 import com.jj.templateproject.domain.app.AppInfoRepository
+import com.jj.templateproject.domain.config.RemoteFlags
+import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.TemplateRepository
+import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.preferences.AppPreferencesRepository
+import com.jj.templateproject.domain.reliability.LaunchStability
+import com.jj.templateproject.domain.sharing.ContentSharer
+import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
 import com.jj.templateproject.presentation.ui.settings.SettingsScreenViewModel
@@ -85,6 +91,18 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<AppPreferencesRepository>())
         assertNotNull(get<AnalyticsLogger>())
         assertNotNull(get<CrashReporter>())
+        assertNotNull(get<RemoteFlags>())
+        assertNotNull(get<LaunchStability>())
+    }
+
+    @Test
+    fun `platform seams resolve`() {
+        // Each of these is an interface in :domain with an Android implementation in :core, so a
+        // binding that goes missing is only ever caught here.
+        assertNotNull(get<Clock>())
+        assertNotNull(get<DeviceInfo>())
+        assertNotNull(get<ContentSharer>())
+        assertNotNull(get<AppLifecycle>())
     }
 
     @Test
