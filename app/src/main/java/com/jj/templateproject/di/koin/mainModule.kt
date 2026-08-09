@@ -8,8 +8,7 @@ import com.jj.templateproject.BuildConfig
 import com.jj.templateproject.data.ad.DefaultAdManager
 import com.jj.templateproject.data.ad.GetInterstitialAdUnitId
 import com.jj.templateproject.data.ad.GetMainAdUnitId
-import com.jj.templateproject.data.analytics.NoOpAnalyticsLogger
-import com.jj.templateproject.data.analytics.NoOpCrashReporter
+import com.jj.templateproject.data.analytics.AnalyticsFactory
 import com.jj.templateproject.data.app.DefaultAppInfoRepository
 import com.jj.templateproject.data.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.data.config.AppConfiguration
@@ -56,12 +55,11 @@ val mainModule = module {
     }
     single<AppPreferencesRepository> { DataStoreAppPreferencesRepository(dataStore = get()) }
 
-    // No-op by default so the template runs without a google-services.json. To enable Firebase,
-    // configure Firebase (google-services.json + the google-services plugin) and swap these for:
-    //   single<AnalyticsLogger> { FirebaseAnalyticsLogger(FirebaseAnalytics.getInstance(androidContext())) }
-    //   single<CrashReporter> { FirebaseCrashReporter(FirebaseCrashlytics.getInstance()) }
-    single<AnalyticsLogger> { NoOpAnalyticsLogger() }
-    single<CrashReporter> { NoOpCrashReporter() }
+    // Firebase-backed once a google-services.json is present AND this is a build a real user could
+    // be running; the no-op pair otherwise, so a fresh clone runs and a development session never
+    // reports into the same dashboards as a shipped build. See AnalyticsFactory / BuildProfile.
+    single<AnalyticsLogger> { AnalyticsFactory.analyticsLogger(androidContext()) }
+    single<CrashReporter> { AnalyticsFactory.crashReporter(androidContext()) }
 
     viewModel {
         MainScreenViewModel(

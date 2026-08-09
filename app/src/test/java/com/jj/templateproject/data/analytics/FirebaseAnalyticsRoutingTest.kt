@@ -1,9 +1,12 @@
 package com.jj.templateproject.data.analytics
 
+import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -24,6 +27,21 @@ class FirebaseAnalyticsRoutingTest {
         FirebaseAnalyticsLogger(firebaseAnalytics).logEvent("sign_up", mapOf("method" to "email"))
 
         verify { firebaseAnalytics.logEvent(eq("sign_up"), any()) }
+    }
+
+    @Test
+    fun `analytics logger sends metrics as numbers, not as strings`() {
+        // A metric that arrives as text can be counted but never summed or averaged, which is the
+        // whole reason the numeric overload exists.
+        val firebaseAnalytics = mockk<FirebaseAnalytics>(relaxed = true)
+        val bundle = slot<Bundle>()
+
+        FirebaseAnalyticsLogger(firebaseAnalytics)
+            .logEvent("session_end", mapOf("screen" to "main"), mapOf("duration_ms" to 4200L))
+
+        verify { firebaseAnalytics.logEvent(eq("session_end"), capture(bundle)) }
+        assertEquals("main", bundle.captured.getString("screen"))
+        assertEquals(4200L, bundle.captured.getLong("duration_ms"))
     }
 
     @Test
