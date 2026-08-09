@@ -42,3 +42,6 @@ smoke_logcat.txt
 # build/. hs_err_pid10106.log/replay_pid10106.log slipped into a commit once already.
 hs_err_pid*.log
 replay_pid*.log
+
+# Xcode project is generated from iosApp/project.yml via `xcodegen generate`, not checked in.
+iosApp/*.xcodeproj/

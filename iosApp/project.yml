@@ -1,0 +1,46 @@
+name: iosApp
+options:
+  bundleIdPrefix: com.jj.templateproject
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    # Shared scheme, checked in via xcshareddata rather than left to Xcode's per-user autocreation —
+    # a bare `xcodebuild -target` build (no scheme) can skip the preBuildScripts step that embeds the
+    # Presentation framework.
+    scheme: {}
+    sources:
+      - path: iosApp
+    info:
+      path: iosApp/Info.plist
+      properties:
+        CFBundleDisplayName: TemplateProject
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        # Required by Compose Multiplatform for iOS (high-refresh-rate rendering) — its PlistSanityCheck
+        # aborts the app at launch without it.
+        CADisableMinimumFrameDurationOnPhone: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jj.templateproject
+        FRAMEWORK_SEARCH_PATHS:
+          - $(inherited)
+          - $(SRCROOT)/../presentation/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS:
+          - $(inherited)
+          - -framework
+          - Presentation
+        ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+    preBuildScripts:
+      - name: Build Presentation framework
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :presentation:embedAndSignAppleFrameworkForXcode

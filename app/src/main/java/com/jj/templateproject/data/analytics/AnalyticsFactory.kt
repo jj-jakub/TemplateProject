@@ -7,6 +7,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.jj.templateproject.data.config.BuildProfile
 import com.jj.templateproject.domain.analytics.AnalyticsLogger
 import com.jj.templateproject.domain.analytics.CrashReporter
+import com.jj.templateproject.domain.analytics.NoOpAnalyticsLogger
+import com.jj.templateproject.domain.analytics.NoOpCrashReporter
 
 /**
  * Picks the reporters this build should use, so the choice is made once instead of being a line in

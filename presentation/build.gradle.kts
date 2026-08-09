@@ -8,6 +8,18 @@ android {
 }
 
 kotlin {
+    // The framework the iosApp Xcode project embeds (see iosApp/project.yml's
+    // embedAndSignAppleFrameworkForXcode step). Not `export()`-ing :domain/:networking/:core/
+    // :design here: Swift only ever calls the one entry point this module itself declares
+    // (MainViewController(), in iosMain), never a type from those modules directly, so there is
+    // nothing further that needs to be part of the Swift-visible API surface.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Presentation"
+            isStatic = true
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(project(":domain"))

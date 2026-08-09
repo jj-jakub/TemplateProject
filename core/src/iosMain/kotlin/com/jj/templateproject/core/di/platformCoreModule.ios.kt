@@ -2,6 +2,7 @@ package com.jj.templateproject.core.di
 
 import com.jj.templateproject.core.data.device.IosDeviceInfo
 import com.jj.templateproject.core.data.lifecycle.NotificationCenterAppLifecycle
+import com.jj.templateproject.core.data.preferences.UserDefaultsAppPreferencesRepository
 import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
 import com.jj.templateproject.core.data.time.IosSystemClock
@@ -9,6 +10,7 @@ import com.jj.templateproject.domain.device.DeviceInfo
 import com.jj.templateproject.domain.lifecycle.AppLifecycle
 import com.jj.templateproject.domain.notifications.NoOpNotificationManager
 import com.jj.templateproject.domain.notifications.NotificationManager
+import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.sharing.ContentSharer
 import com.jj.templateproject.domain.time.Clock
@@ -37,6 +39,7 @@ actual fun platformCoreModule(): Module = module {
     single<Clock> { IosSystemClock() }
     single<DeviceInfo> { IosDeviceInfo() }
     single<ContentSharer> { IosContentSharer() }
+    single<AppPreferencesRepository> { UserDefaultsAppPreferencesRepository() }
     // createdAtStart for the same reason as Android's: it reads UIApplication's state and registers
     // notification observers, which belongs on the main thread during startup.
     single<AppLifecycle>(createdAtStart = true) { NotificationCenterAppLifecycle() }

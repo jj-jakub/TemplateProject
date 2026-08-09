@@ -2,6 +2,8 @@ package com.jj.templateproject.data.analytics
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import com.jj.templateproject.domain.analytics.NoOpAnalyticsLogger
+import com.jj.templateproject.domain.analytics.NoOpCrashReporter
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
