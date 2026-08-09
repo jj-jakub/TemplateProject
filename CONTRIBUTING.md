@@ -1,7 +1,9 @@
 # Contributing to TemplateProject
 
-`TemplateProject` is a multi-module Android **starter template** (Jetpack Compose + Material 3,
-Koin DI, Retrofit 3 + kotlinx-serialization). New apps are branched from it, so prefer changes
+`TemplateProject` is a multi-module **starter template** targeting Android and iOS
+(`:domain`/`:networking`/`:core`/`:design` are Kotlin Multiplatform + Compose Multiplatform;
+`:app` is the Android shell, with an iOS presentation layer still to come). Compose Multiplatform +
+Material 3, Koin DI, Ktor + kotlinx-serialization. New apps are branched from it, so prefer changes
 that keep it a clean, generic foundation over app-specific features.
 
 ## Prerequisites
@@ -97,12 +99,17 @@ End-to-end, following the layering. Example: a "profile" feature.
      instead of unwrapping manually.
 
 2. **Data — implementation** (`:networking` for remote, app `data` package for platform):
+   - `:networking` is a multiplatform module now (`commonMain`/`androidMain`/`iosMain`); put
+     shared logic in `commonMain` and only reach for `expect`/`actual` where a platform genuinely
+     forces it (see `PlatformHttpClient.kt`/`NetworkTransportClassification.kt` for the pattern).
    - Service: add to / mirror
-     `networking/src/main/java/com/jj/templateproject/data/google/service/TemplateService.kt`.
+     `networking/src/commonMain/kotlin/com/jj/templateproject/data/google/service/TemplateService.kt`.
    - Repo impl:
-     `networking/src/main/java/com/jj/templateproject/data/profile/DefaultProfileRepository.kt`,
+     `networking/src/commonMain/kotlin/com/jj/templateproject/data/profile/DefaultProfileRepository.kt`,
      using `withContext(dispatcherProvider.io)` and mapping responses via `toResult`/
-     `safeApiCall` from `networking/.../data/utils/NetworkUtils.kt`.
+     `safeApiCall` from `networking/.../data/utils/NetworkUtils.kt`. Networking runs on Ktor
+     (`TemplateHttpClientFactory`), not Retrofit; read that file's doc comments for why each
+     plugin (retry, timeout, logging) is configured where it is.
    - Persistence instead goes through `AppPreferencesRepository`-style DataStore impls in `:app`.
 
 3. **Presentation — ViewModel exposing `UiState`** (`:app`):
@@ -122,9 +129,14 @@ End-to-end, following the layering. Example: a "profile" feature.
      example.
 
 5. **Koin wiring** — register in the right module:
-   - Use cases / platform managers: `core/src/main/java/com/jj/templateproject/core/di/coreModule.kt`.
-   - Repo impls / networking: `networking/src/main/java/com/jj/templateproject/di/networkingModule.kt`.
-   - ViewModels / app glue: `app/src/main/java/com/jj/templateproject/di/koin/mainModule.kt`
+   - Platform-agnostic use cases: `core/src/commonMain/kotlin/com/jj/templateproject/core/di/coreModule.kt`.
+   - Anything needing a platform context (`Context` on Android, nothing on iOS): the `expect fun
+     platformCoreModule()` in that same package, with its `androidMain`/`iosMain` actuals. Add a
+     new platform-specific singleton to the actual for the platform(s) it applies to; if it is
+     Android-only with no iOS story yet (the way `InitializeBack4App` is), simply do not bind it
+     in the iOS actual rather than inventing a stand-in.
+   - Repo impls / networking: `networking/src/commonMain/kotlin/com/jj/templateproject/di/networkingModule.kt`.
+   - ViewModels / app glue (still Android-only pending Phase F): `app/src/main/java/com/jj/templateproject/di/koin/mainModule.kt`
      (modules are assembled in `KoinLauncher.kt`).
 
 6. **Route** — add a `Route` entry in
@@ -138,16 +150,30 @@ End-to-end, following the layering. Example: a "profile" feature.
 
 ## Writing device-free tests
 
-The whole suite runs without an emulator (JUnit5 + Robolectric + MockK + Turbine + MockWebServer):
+The whole suite runs without an emulator. Which tools are available depends on where the test
+lives, because `:domain`/`:networking`/`:core`/`:design` are multiplatform modules and `:app` is
+still Android-only:
 
+- **`commonTest`** (in any multiplatform module): `kotlin.test` only. No MockK, no Robolectric —
+  neither is available on a non-JVM target. Fake a dependency by hand-writing a small class that
+  implements the same interface (see `FakeTemplateRepository`/`FakeTemplateNetwork` in `:domain`/
+  `:networking` for the house style) rather than reaching for a mocking library.
+- **`androidUnitTest`** (in a multiplatform module) / `:app`'s `src/test` (JUnit5): Robolectric
+  and MockK are both fine here, since the test only ever runs on the JVM. Note the JUnit runner
+  differs: `:app` uses JUnit5 (`useJUnitPlatform()`), while a multiplatform module's
+  `androidUnitTest` does not — write those with `kotlin.test` assertions plus plain
+  `org.junit.Before`/`org.junit.After` (JUnit4-style) rather than JUnit5 annotations.
 - **Coroutines/time**: extend with `MainDispatcherExtension`
   (`app/src/test/java/com/jj/templateproject/util/MainDispatcherExtension.kt`) and inject
   `TestDispatcherProvider`
-  (`networking/src/test/java/com/jj/templateproject/data/TestDispatcherProvider.kt`) in place of
-  the real `DispatcherProvider`.
-- **Network**: drive repo impls with MockWebServer and assert the `BaseResult`/`NetworkError`
-  mapping.
-- **ViewModel**: assert `UiState` emissions with Turbine.
+  (`networking/src/commonTest/kotlin/com/jj/templateproject/data/TestDispatcherProvider.kt`) in
+  place of the real `DispatcherProvider`.
+- **Network**: `:networking`'s own commonTest suite uses Ktor's `MockEngine` (see
+  `MockResponses.kt`) to test plugin behaviour without a real socket. `MockWebServer` (real OkHttp
+  engine, real loopback socket) is reserved for the one `androidUnitTest` integration test
+  (`NetworkingIntegrationTest.kt`) that exists specifically to catch an engine-wiring mistake
+  `MockEngine` cannot see — reach for `MockEngine` first when adding a new endpoint's tests.
+- **ViewModel**: assert `UiState` emissions with Turbine (still `:app`-only for now).
 - **Compose UI**: use `createAndroidComposeRule` against `ComponentActivity` (Robolectric shadow
   PackageManager). Extend the provided base classes:
   - design components: `design/src/androidUnitTest/kotlin/com/jj/templateproject/design/ComponentUiTest.kt`
