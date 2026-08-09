@@ -1,8 +1,8 @@
 [versions]
-agp = "8.10.1"
-konsist = "0.17.2"
-detekt = "1.23.7"
-kotlin = "2.2.0"
+agp = "8.13.2"
+konsist = "0.17.3"
+detekt = "1.23.8"
+kotlin = "2.3.20"
 googleServices = "4.4.3"
 firebaseCrashlyticsPlugin = "3.0.7"
 sonarqube = "7.3.1.8318"
