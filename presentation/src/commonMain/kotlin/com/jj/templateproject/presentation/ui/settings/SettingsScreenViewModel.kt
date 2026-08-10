@@ -7,6 +7,7 @@ import com.jj.templateproject.domain.app.GetIsInstalledFromValidSource
 import com.jj.templateproject.domain.game.DemoProgressTracker
 import com.jj.templateproject.domain.google.GetGoogleDataUseCase
 import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
+import com.jj.templateproject.domain.streak.StreakController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
@@ -31,6 +32,7 @@ class SettingsScreenViewModel(
     getThemeModeUseCase: GetThemeModeUseCase,
     private val setThemeModeUseCase: SetThemeModeUseCase,
     private val demoProgressTracker: DemoProgressTracker,
+    private val streakController: StreakController,
 ) : ViewModel() {
 
     private val _viewState = MutableStateFlow(
@@ -44,6 +46,7 @@ class SettingsScreenViewModel(
         fetchApiData()
         fetchInstallationValidity()
         loadSavedGameState()
+        loadStreakState()
         getThemeModeUseCase()
             .onEach { mode -> _viewState.update { it.copy(themeMode = mode) } }
             .launchIn(viewModelScope)
@@ -76,11 +79,31 @@ class SettingsScreenViewModel(
         }
     }
 
+    /** Records today's check-in; safe to tap more than once a day — the count only changes once. */
+    fun checkInToday() {
+        val streak = streakController.recordCheckIn()
+        _viewState.update { it.copy(currentStreak = streak) }
+    }
+
+    fun setReminderEnabled(enabled: Boolean) {
+        streakController.setReminderEnabled(enabled)
+        _viewState.update { it.copy(reminderEnabled = enabled) }
+    }
+
     private fun loadSavedGameState() {
         viewModelScope.launch {
             _viewState.update { it.copy(savedGameState = demoProgressTracker.loadSavedState(DEMO_SLOT)) }
         }
         refreshUnlockedAchievements()
+    }
+
+    private fun loadStreakState() {
+        _viewState.update {
+            it.copy(
+                currentStreak = streakController.currentStreak(),
+                reminderEnabled = streakController.isReminderEnabled(),
+            )
+        }
     }
 
     private fun refreshUnlockedAchievements() {

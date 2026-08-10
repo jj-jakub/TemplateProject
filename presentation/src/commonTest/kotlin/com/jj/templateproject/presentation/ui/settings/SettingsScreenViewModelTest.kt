@@ -11,6 +11,8 @@ import com.jj.templateproject.domain.google.GetGoogleStatusUseCase
 import com.jj.templateproject.domain.google.exception.NetworkError
 import com.jj.templateproject.domain.review.NoOpReviewPrompter
 import com.jj.templateproject.domain.review.ReviewController
+import com.jj.templateproject.domain.streak.NoOpReminderScheduler
+import com.jj.templateproject.domain.streak.StreakController
 import com.jj.templateproject.domain.theme.GetThemeModeUseCase
 import com.jj.templateproject.domain.theme.SetThemeModeUseCase
 import com.jj.templateproject.domain.theme.ThemeMode
@@ -20,6 +22,7 @@ import com.jj.templateproject.presentation.FakeAppPreferencesRepository
 import com.jj.templateproject.presentation.FakeAppVersionInfo
 import com.jj.templateproject.presentation.FakeGameStateStorage
 import com.jj.templateproject.presentation.FakeReviewPromptStore
+import com.jj.templateproject.presentation.FakeStreakStore
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
 import com.jj.templateproject.presentation.ui.state.UiState
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +35,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -56,6 +60,7 @@ class SettingsScreenViewModelTest {
     private val gameStateStorage = FakeGameStateStorage()
     private val reviewPromptStore = FakeReviewPromptStore()
     private val achievementStore = FakeAchievementStore()
+    private val streakStore = FakeStreakStore()
     private val clock = FixedClock(now = 1_000L)
     private val demoProgressTracker = DemoProgressTracker(
         gameStateStorage = gameStateStorage,
@@ -63,11 +68,13 @@ class SettingsScreenViewModelTest {
         achievementUnlocker = AchievementUnlocker(achievementStore),
         clock = clock,
     )
+    private val streakController = StreakController(streakStore, clock, NoOpReminderScheduler)
 
     private fun createViewModel(
         versionText: String = "v",
         themeMode: ThemeMode = ThemeMode.SYSTEM,
         tracker: DemoProgressTracker = demoProgressTracker,
+        streaks: StreakController = streakController,
     ): SettingsScreenViewModel {
         // Reuse the shared fake for the common (SYSTEM) case; a non-default starting mode needs its
         // own instance, since FakeAppPreferencesRepository's theme mode is set at construction.
@@ -84,6 +91,7 @@ class SettingsScreenViewModelTest {
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
             demoProgressTracker = tracker,
+            streakController = streaks,
         )
     }
 
@@ -163,6 +171,7 @@ class SettingsScreenViewModelTest {
             getThemeModeUseCase = GetThemeModeUseCase(preferences),
             setThemeModeUseCase = SetThemeModeUseCase(preferences),
             demoProgressTracker = demoProgressTracker,
+            streakController = streakController,
         )
 
         viewModel.setThemeMode(ThemeMode.LIGHT)
@@ -255,5 +264,62 @@ class SettingsScreenViewModelTest {
         val state = createViewModel().viewState.value
 
         assertEquals(setOf(Achievement.FIRST_SAVE), state.unlockedAchievements)
+    }
+
+    @Test
+    fun `the streak is 0 in state before any check-in`() {
+        val state = createViewModel().viewState.value
+
+        assertEquals(0, state.currentStreak)
+    }
+
+    @Test
+    fun `checking in updates the streak in state`() {
+        val viewModel = createViewModel()
+
+        viewModel.checkInToday()
+
+        assertEquals(1, viewModel.viewState.value.currentStreak)
+    }
+
+    @Test
+    fun `an existing streak is loaded into state on creation`() {
+        val store = FakeStreakStore(count = 4, lastCheckInEpochDay = clock.nowMillis() / MILLIS_PER_DAY)
+        val streaks = StreakController(store, clock, NoOpReminderScheduler)
+
+        val state = createViewModel(streaks = streaks).viewState.value
+
+        assertEquals(4, state.currentStreak)
+    }
+
+    @Test
+    fun `the reminder is disabled in state by default`() {
+        val state = createViewModel().viewState.value
+
+        assertFalse(state.reminderEnabled)
+    }
+
+    @Test
+    fun `enabling the reminder is reflected in state`() {
+        val viewModel = createViewModel()
+
+        viewModel.setReminderEnabled(true)
+
+        assertTrue(viewModel.viewState.value.reminderEnabled)
+    }
+
+    @Test
+    fun `disabling the reminder is reflected in state`() {
+        val store = FakeStreakStore(reminderEnabled = true)
+        val streaks = StreakController(store, clock, NoOpReminderScheduler)
+        val viewModel = createViewModel(streaks = streaks)
+
+        viewModel.setReminderEnabled(false)
+
+        assertFalse(viewModel.viewState.value.reminderEnabled)
+    }
+
+    private companion object {
+        const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
     }
 }

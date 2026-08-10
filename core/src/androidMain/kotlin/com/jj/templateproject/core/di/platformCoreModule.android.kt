@@ -12,6 +12,8 @@ import com.jj.templateproject.core.data.notifications.AndroidNotificationManager
 import com.jj.templateproject.core.data.reliability.SharedPreferencesLaunchAttemptStore
 import com.jj.templateproject.core.data.review.SharedPreferencesReviewPromptStore
 import com.jj.templateproject.core.data.sharing.AndroidContentSharer
+import com.jj.templateproject.core.data.streak.AndroidReminderScheduler
+import com.jj.templateproject.core.data.streak.SharedPreferencesStreakStore
 import com.jj.templateproject.core.data.time.SystemClock
 import com.jj.templateproject.domain.achievement.AchievementStore
 import com.jj.templateproject.domain.crosspromo.UrlOpener
@@ -23,6 +25,8 @@ import com.jj.templateproject.domain.notifications.NotificationManager
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.review.ReviewPromptStore
 import com.jj.templateproject.domain.sharing.ContentSharer
+import com.jj.templateproject.domain.streak.ReminderScheduler
+import com.jj.templateproject.domain.streak.StreakStore
 import com.jj.templateproject.domain.time.Clock
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -42,6 +46,8 @@ actual fun platformCoreModule(): Module = module {
     }
     single<InstallIdStore> { SharedPreferencesInstallIdStore(context = androidContext()) }
     single<AchievementStore> { SharedPreferencesAchievementStore(context = androidContext()) }
+    single<StreakStore> { SharedPreferencesStreakStore(context = androidContext()) }
+    single<ReminderScheduler> { AndroidReminderScheduler(context = androidContext()) }
 
     // Platform capabilities, each behind a domain interface with a test double beside it, so nothing
     // above this layer has to know which SDK answers the question.

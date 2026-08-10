@@ -39,6 +39,9 @@ import com.jj.templateproject.domain.reliability.LaunchStability
 import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.review.ReviewPrompter
 import com.jj.templateproject.domain.sharing.ContentSharer
+import com.jj.templateproject.domain.streak.ReminderScheduler
+import com.jj.templateproject.domain.streak.StreakController
+import com.jj.templateproject.domain.streak.StreakStore
 import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.MainRootViewModel
 import com.jj.templateproject.presentation.di.presentationModule
@@ -124,6 +127,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<GetCrossPromoConfigUseCase>())
         assertNotNull(get<AchievementUnlocker>())
         assertNotNull(get<DemoProgressTracker>())
+        assertNotNull(get<StreakController>())
     }
 
     @Test
@@ -138,6 +142,8 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<InstallIdStore>())
         assertNotNull(get<UrlOpener>())
         assertNotNull(get<AchievementStore>())
+        assertNotNull(get<StreakStore>())
+        assertNotNull(get<ReminderScheduler>())
     }
 
     @Test

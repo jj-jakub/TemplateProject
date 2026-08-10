@@ -33,18 +33,25 @@ import com.jj.templateproject.presentation.generated.resources.achievement_statu
 import com.jj.templateproject.presentation.generated.resources.achievements_section
 import com.jj.templateproject.presentation.generated.resources.api_call_data
 import com.jj.templateproject.presentation.generated.resources.api_call_status
+import com.jj.templateproject.presentation.generated.resources.check_in_action
 import com.jj.templateproject.presentation.generated.resources.installed_from_valid_source_value
 import com.jj.templateproject.presentation.generated.resources.loading
 import com.jj.templateproject.presentation.generated.resources.save_progress_action
 import com.jj.templateproject.presentation.generated.resources.saved_progress_none
 import com.jj.templateproject.presentation.generated.resources.saved_progress_section
 import com.jj.templateproject.presentation.generated.resources.saved_progress_value
+import com.jj.templateproject.presentation.generated.resources.streak_reminder_disabled
+import com.jj.templateproject.presentation.generated.resources.streak_reminder_enabled
+import com.jj.templateproject.presentation.generated.resources.streak_reminder_toggle_section
+import com.jj.templateproject.presentation.generated.resources.streak_section
+import com.jj.templateproject.presentation.generated.resources.streak_value
 import com.jj.templateproject.presentation.generated.resources.theme_dark
 import com.jj.templateproject.presentation.generated.resources.theme_light
 import com.jj.templateproject.presentation.generated.resources.theme_section
 import com.jj.templateproject.presentation.generated.resources.theme_system
 import com.jj.templateproject.presentation.generated.resources.version
 import com.jj.templateproject.presentation.ui.settings.model.ApiData
+import com.jj.templateproject.presentation.ui.settings.model.SettingsScreenViewState
 import com.jj.templateproject.presentation.ui.state.UiState
 import com.jj.templateproject.presentation.ui.state.UiStateContent
 import org.jetbrains.compose.resources.StringResource
@@ -58,30 +65,29 @@ fun SettingsScreen(
     RequestNotificationPermissionOnLaunch()
 
     SettingsScreenViewContent(
-        versionText = state.versionText,
-        apiState = state.apiState,
-        installedFromValidSource = state.installedFromValidSource,
-        themeMode = state.themeMode,
-        savedGameState = state.savedGameState,
-        unlockedAchievements = state.unlockedAchievements,
+        state = state,
         onRetry = viewModel::retry,
         onSelectTheme = viewModel::setThemeMode,
         onSaveProgress = viewModel::saveDemoProgress,
+        onCheckIn = viewModel::checkInToday,
+        onToggleReminder = viewModel::setReminderEnabled,
     )
 }
 
 // internal, not private: see MainScreen.kt's identical note on why the preview lives elsewhere.
+// Takes the whole SettingsScreenViewState rather than one param per field: this screen bundles
+// several independent demo features (theme, API status, saved progress, achievements, a streak),
+// and a param per field would mean every new one grows this signature indefinitely — a new piece
+// of *state* should not require touching this composable's shape at all, only a new *interaction*
+// (one of the callbacks below) does.
 @Composable
 internal fun SettingsScreenViewContent(
-    versionText: String,
-    apiState: UiState<ApiData>,
-    installedFromValidSource: Boolean?,
-    themeMode: ThemeMode,
-    savedGameState: SavedGameState?,
-    unlockedAchievements: Set<Achievement>,
+    state: SettingsScreenViewState,
     onRetry: () -> Unit,
     onSelectTheme: (ThemeMode) -> Unit,
     onSaveProgress: () -> Unit,
+    onCheckIn: () -> Unit,
+    onToggleReminder: (Boolean) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -96,9 +102,9 @@ internal fun SettingsScreenViewContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            SettingsTextField(text = stringResource(Res.string.version, versionText))
+            SettingsTextField(text = stringResource(Res.string.version, state.versionText))
 
-            UiStateContent(state = apiState, onRetry = onRetry) { apiData ->
+            UiStateContent(state = state.apiState, onRetry = onRetry) { apiData ->
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -111,15 +117,60 @@ internal fun SettingsScreenViewContent(
             SettingsTextField(
                 text = stringResource(
                     Res.string.installed_from_valid_source_value,
-                    installedFromValidSource?.toString() ?: stringResource(Res.string.loading),
+                    state.installedFromValidSource?.toString() ?: stringResource(Res.string.loading),
                 ),
             )
 
-            ThemeSelector(selectedMode = themeMode, onSelect = onSelectTheme)
+            ThemeSelector(selectedMode = state.themeMode, onSelect = onSelectTheme)
 
-            SavedProgressSection(savedGameState = savedGameState, onSaveProgress = onSaveProgress)
+            SavedProgressSection(savedGameState = state.savedGameState, onSaveProgress = onSaveProgress)
 
-            AchievementsSection(unlockedAchievements = unlockedAchievements)
+            AchievementsSection(unlockedAchievements = state.unlockedAchievements)
+
+            StreakSection(
+                currentStreak = state.currentStreak,
+                reminderEnabled = state.reminderEnabled,
+                onCheckIn = onCheckIn,
+                onToggleReminder = onToggleReminder,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StreakSection(
+    currentStreak: Int,
+    reminderEnabled: Boolean,
+    onCheckIn: () -> Unit,
+    onToggleReminder: (Boolean) -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 8.dp),
+    ) {
+        SectionHeader(text = stringResource(Res.string.streak_section))
+        SettingsTextField(text = stringResource(Res.string.streak_value, currentStreak))
+        PrimaryButton(text = stringResource(Res.string.check_in_action), onClick = onCheckIn)
+
+        SectionHeader(text = stringResource(Res.string.streak_reminder_toggle_section))
+        // selectableGroup() + per-option `selected` semantics, matching ThemeSelector's own
+        // pattern below for the same TalkBack reason.
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.selectableGroup(),
+        ) {
+            listOf(true, false).forEach { enabled ->
+                val label = stringResource(
+                    if (enabled) Res.string.streak_reminder_enabled else Res.string.streak_reminder_disabled,
+                )
+                val optionModifier = Modifier.semantics { selected = (enabled == reminderEnabled) }
+                if (enabled == reminderEnabled) {
+                    PrimaryButton(text = label, onClick = { onToggleReminder(enabled) }, modifier = optionModifier)
+                } else {
+                    SecondaryButton(text = label, onClick = { onToggleReminder(enabled) }, modifier = optionModifier)
+                }
+            }
         }
     }
 }

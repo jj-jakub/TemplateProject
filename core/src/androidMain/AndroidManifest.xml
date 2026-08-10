@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This module's first manifest entry: DailyReminderReceiver (see AndroidReminderScheduler),
+  merged into :app's manifest at build time the same way any Android library's manifest is.
+  exported="false" — only this app's own AlarmManager-scheduled PendingIntent ever fires it.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver
+            android:name=".data.streak.DailyReminderReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

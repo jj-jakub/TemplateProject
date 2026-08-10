@@ -44,6 +44,7 @@ val presentationModule = module {
             getThemeModeUseCase = get(),
             setThemeModeUseCase = get(),
             demoProgressTracker = get(),
+            streakController = get(),
         )
     }
     viewModel {

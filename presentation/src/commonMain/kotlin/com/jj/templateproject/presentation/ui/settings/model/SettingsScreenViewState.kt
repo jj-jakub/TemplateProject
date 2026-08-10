@@ -13,6 +13,8 @@ data class SettingsScreenViewState(
     /** `null` means "nothing saved to the demo slot yet", not "still loading". */
     val savedGameState: SavedGameState? = null,
     val unlockedAchievements: Set<Achievement> = emptySet(),
+    val currentStreak: Int = 0,
+    val reminderEnabled: Boolean = false,
 )
 
 /** The data fetched from the API, shown once [SettingsScreenViewState.apiState] is a success. */

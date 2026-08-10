@@ -3,4 +3,6 @@
     <string name="back4app_server_url">https://parseapi.back4app.com/</string>
     <string name="back4app_app_id" tools:ignore="Typos">NZU1hvFLfGVajY1B6Er6fZT8MJPtPaQiaVCQ3SQT</string>
     <string name="back4app_client_key">UQcFJ008bTBxmfqxDtZolM7CqNitHJ22Z1jRSCV0</string>
+    <string name="streak_reminder_title">Keep your streak going</string>
+    <string name="streak_reminder_body">Check in today to keep your streak alive.</string>
 </resources>

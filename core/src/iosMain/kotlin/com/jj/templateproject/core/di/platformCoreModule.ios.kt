@@ -11,6 +11,7 @@ import com.jj.templateproject.core.data.preferences.UserDefaultsAppPreferencesRe
 import com.jj.templateproject.core.data.reliability.UserDefaultsLaunchAttemptStore
 import com.jj.templateproject.core.data.review.UserDefaultsReviewPromptStore
 import com.jj.templateproject.core.data.sharing.IosContentSharer
+import com.jj.templateproject.core.data.streak.UserDefaultsStreakStore
 import com.jj.templateproject.core.data.time.IosSystemClock
 import com.jj.templateproject.domain.achievement.AchievementStore
 import com.jj.templateproject.domain.crosspromo.UrlOpener
@@ -24,6 +25,9 @@ import com.jj.templateproject.domain.preferences.AppPreferencesRepository
 import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.review.ReviewPromptStore
 import com.jj.templateproject.domain.sharing.ContentSharer
+import com.jj.templateproject.domain.streak.NoOpReminderScheduler
+import com.jj.templateproject.domain.streak.ReminderScheduler
+import com.jj.templateproject.domain.streak.StreakStore
 import com.jj.templateproject.domain.time.Clock
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -56,6 +60,10 @@ actual fun platformCoreModule(): Module = module {
     single<GameStateStorage> { DefaultGameStateStorage(fileTextStore = IosFileTextStore()) }
     single<InstallIdStore> { UserDefaultsInstallIdStore() }
     single<AchievementStore> { UserDefaultsAchievementStore() }
+    single<StreakStore> { UserDefaultsStreakStore() }
+    // No local-notification scheduling wired up on iOS yet, mirroring NotificationManager's own
+    // no-op above — the streak itself still tracks via StreakStore, just with no reminder to show.
+    single<ReminderScheduler> { NoOpReminderScheduler }
     // createdAtStart for the same reason as Android's: it reads UIApplication's state and registers
     // notification observers, which belongs on the main thread during startup.
     single<AppLifecycle>(createdAtStart = true) { NotificationCenterAppLifecycle() }

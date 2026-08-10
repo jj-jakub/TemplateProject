@@ -30,4 +30,10 @@
     <string name="achievement_five_saves">Five saves</string>
     <string name="achievement_status_unlocked">✓ %1$s</string>
     <string name="achievement_status_locked">%1$s (locked)</string>
+    <string name="streak_section">Daily streak (demo)</string>
+    <string name="streak_value">Current streak: %1$d days</string>
+    <string name="check_in_action">Check in today</string>
+    <string name="streak_reminder_toggle_section">Daily reminder</string>
+    <string name="streak_reminder_enabled">On</string>
+    <string name="streak_reminder_disabled">Off</string>
 </resources>

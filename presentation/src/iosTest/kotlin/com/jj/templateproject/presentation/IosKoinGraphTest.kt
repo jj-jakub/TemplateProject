@@ -27,6 +27,9 @@ import com.jj.templateproject.domain.reliability.LaunchAttemptStore
 import com.jj.templateproject.domain.review.ReviewController
 import com.jj.templateproject.domain.review.ReviewPrompter
 import com.jj.templateproject.domain.sharing.ContentSharer
+import com.jj.templateproject.domain.streak.ReminderScheduler
+import com.jj.templateproject.domain.streak.StreakController
+import com.jj.templateproject.domain.streak.StreakStore
 import com.jj.templateproject.domain.time.Clock
 import com.jj.templateproject.presentation.di.presentationModule
 import com.jj.templateproject.presentation.ui.main.MainScreenViewModel
@@ -90,6 +93,9 @@ class IosKoinGraphTest {
         assertNotNull(koin.get<AchievementStore>())
         assertNotNull(koin.get<AchievementUnlocker>())
         assertNotNull(koin.get<DemoProgressTracker>())
+        assertNotNull(koin.get<StreakStore>())
+        assertNotNull(koin.get<ReminderScheduler>())
+        assertNotNull(koin.get<StreakController>())
     }
 
     @Test

@@ -35,4 +35,10 @@
     <string name="achievement_five_saves">Cinco guardados</string>
     <string name="achievement_status_unlocked">✓ %1$s</string>
     <string name="achievement_status_locked">%1$s (bloqueado)</string>
+    <string name="streak_section">Racha diaria (demo)</string>
+    <string name="streak_value">Racha actual: %1$d días</string>
+    <string name="check_in_action">Registrar hoy</string>
+    <string name="streak_reminder_toggle_section">Recordatorio diario</string>
+    <string name="streak_reminder_enabled">Activado</string>
+    <string name="streak_reminder_disabled">Desactivado</string>
 </resources>
