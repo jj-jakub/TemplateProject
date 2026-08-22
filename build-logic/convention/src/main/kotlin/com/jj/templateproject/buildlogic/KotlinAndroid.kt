@@ -13,21 +13,25 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
  * duplicated in each module's build.gradle.kts.
  */
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    // AGP 9's new public DSL made CommonExtension non-generic (it used to carry six type
+    // parameters for the build-type/product-flavor/variant family); this signature tracks that.
+    commonExtension: CommonExtension,
 ) {
+    // AGP 9's CommonExtension dropped the defaultConfig/compileOptions/testOptions block-lambdas in
+    // favor of plain property getters; configure each via .apply on that property instead.
     commonExtension.apply {
         compileSdk = COMPILE_SDK
 
-        defaultConfig {
+        defaultConfig.apply {
             minSdk = MIN_SDK
         }
 
-        compileOptions {
+        compileOptions.apply {
             sourceCompatibility = JavaVersion.VERSION_17
             targetCompatibility = JavaVersion.VERSION_17
         }
 
-        testOptions {
+        testOptions.apply {
             unitTests.isIncludeAndroidResources = true
             unitTests.all {
                 it.useJUnitPlatform()

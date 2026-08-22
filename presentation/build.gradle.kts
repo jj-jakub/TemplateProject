@@ -55,7 +55,7 @@ kotlin {
             implementation(libs.coroutinesTest)
             implementation(libs.turbine)
         }
-        val androidUnitTest by getting {
+        getByName("androidUnitTest") {
             dependencies {
                 // A few Android navigation/lifecycle types (NavBackStackEntry, SavedStateHandle)
                 // are mocked directly rather than faked by hand: they are platform framework

@@ -16,21 +16,25 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * been converted yet.
  */
 internal fun Project.configureKotlinMultiplatform(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    // AGP 9's new public DSL made CommonExtension non-generic (it used to carry six type
+    // parameters for the build-type/product-flavor/variant family); this signature tracks that.
+    commonExtension: CommonExtension,
 ) {
+    // AGP 9's CommonExtension dropped the defaultConfig/compileOptions/testOptions block-lambdas in
+    // favor of plain property getters; configure each via .apply on that property instead.
     commonExtension.apply {
         compileSdk = COMPILE_SDK
 
-        defaultConfig {
+        defaultConfig.apply {
             minSdk = MIN_SDK
         }
 
-        compileOptions {
+        compileOptions.apply {
             sourceCompatibility = JavaVersion.VERSION_17
             targetCompatibility = JavaVersion.VERSION_17
         }
 
-        testOptions {
+        testOptions.apply {
             unitTests.isIncludeAndroidResources = true
             // Deliberately NOT useJUnitPlatform() here, unlike the Android-only modules: shared tests
             // are written against kotlin.test, which maps to JUnit 4 on the Android target. Forcing

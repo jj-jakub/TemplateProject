@@ -35,7 +35,7 @@ kotlin {
         // than in commonTest: it is the one test that runs the real OkHttp engine end to end
         // (retry included) instead of MockEngine, so it is worth keeping even though it cannot
         // run on iOS.
-        val androidUnitTest by getting {
+        getByName("androidUnitTest") {
             dependencies {
                 implementation(libs.mockwebserver)
             }

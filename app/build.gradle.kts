@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.templateproject.android.application)
     alias(libs.plugins.templateproject.android.application.compose)
@@ -35,7 +37,7 @@ val gitShortHash = providers.exec {
 }.standardOutput.asText.map { it.trim() }
 
 val propertiesFile = rootProject.file("local.properties")
-val properties = `java.util`.Properties()
+val properties = Properties()
 if (propertiesFile.exists()) {
     propertiesFile.inputStream().use(properties::load)
 }

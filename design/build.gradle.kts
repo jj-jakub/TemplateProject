@@ -35,7 +35,7 @@ kotlin {
         // everywhere. What they cover (that a component renders and reacts to a click) is the
         // Android half of the design system's contract; the palette, type scale, shape scale and
         // grid math are covered by commonTest and run on both platforms.
-        val androidUnitTest by getting {
+        getByName("androidUnitTest") {
             dependencies {
                 implementation(libs.junit4)
                 implementation(libs.robolectric)

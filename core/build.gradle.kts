@@ -28,7 +28,7 @@ kotlin {
         }
         // Robolectric is a JVM/Android test runtime, so the device-class test it drives cannot move
         // to commonTest however platform-neutral its subject looks.
-        val androidUnitTest by getting {
+        getByName("androidUnitTest") {
             dependencies {
                 implementation(libs.junit4)
                 implementation(libs.robolectric)
