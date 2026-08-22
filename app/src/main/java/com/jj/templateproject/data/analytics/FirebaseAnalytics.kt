@@ -24,10 +24,15 @@ class FirebaseAnalyticsLogger(
         firebaseAnalytics.logEvent(
             name,
             Bundle().apply {
-                params.forEach { (key, value) -> putString(key, value) }
+                // Plain for-loops, not Map.forEach: AGP 9.0.0's bundled lint misresolves the Kotlin
+                // stdlib's inline Map<K, V>.forEach (destructured lambda) as the java.util.Map#forEach
+                // default method added in API 24, a false NewApi error against this module's minSdk 23
+                // (confirmed by inspecting the compiled bytecode, which never calls that method either
+                // way). A for-loop sidesteps the misresolution; revisit once AGP is back on 9.3.1.
+                for ((key, value) in params) putString(key, value)
                 // putLong, not putString: a metric registered in the Firebase console can be summed
                 // and averaged, but only if it arrives as a number.
-                metrics.forEach { (key, value) -> putLong(key, value) }
+                for ((key, value) in metrics) putLong(key, value)
             },
         )
     }
