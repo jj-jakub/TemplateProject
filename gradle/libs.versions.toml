@@ -2,17 +2,17 @@
 agp = "8.13.2"
 konsist = "0.17.3"
 detekt = "1.23.8"
-kotlin = "2.3.20"
-googleServices = "4.4.3"
-firebaseCrashlyticsPlugin = "3.0.7"
-sonarqube = "7.3.1.8318"
+kotlin = "2.4.10"
+googleServices = "4.5.0"
+firebaseCrashlyticsPlugin = "3.0.8"
+sonarqube = "7.4.0.8496"
 koin = "4.2.2"
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 lifecycle = "2.9.2"
-androidxCore = "1.13.1"
+androidxCore = "1.19.0"
 datastore = "1.1.1"
 navigationKtx = "2.9.3"
-accompanistPermissions = "0.34.0"
+accompanistPermissions = "0.37.3"
 # These three are what Compose Multiplatform 1.11.1 pins the androidx.compose artifacts to, and
 # they are declared here rather than left to conflict resolution so the catalog states the version
 # the build actually uses. Compose Multiplatform publishes `strictly` constraints on the whole
@@ -30,7 +30,7 @@ composeMultiplatform = "1.11.1"
 # the icon set by name instead of inheriting it. Deliberately unversioned against composeUi.
 materialIconsCore = "1.7.8"
 composeNavigation = "2.9.3"
-composeActivity = "1.10.1"
+composeActivity = "1.13.0"
 composeKoin = "4.2.2"
 firebaseBom = "33.16.0"
 googleAds = "24.4.0"
@@ -43,7 +43,7 @@ okhttpInterceptor = "4.12.0"
 ktor = "3.5.2"
 kotlinxIo = "0.9.1"
 
-kotlinxSerialization = "1.9.0"
+kotlinxSerialization = "1.11.0"
 
 # JetBrains' multiplatform ports of navigation-compose and the lifecycle-viewmodel family, for the
 # one module (:presentation) that needs them on iOS too. Published under androidx.* package names
@@ -54,20 +54,20 @@ kotlinxSerialization = "1.9.0"
 jbNavigationCompose = "2.9.2"
 # Frozen below 2.11.0: that line's Android variant (lifecycle-viewmodel-compose-android) declares
 # an AGP 9.1.0+ requirement in its Gradle module metadata, and this project runs AGP 8.13.2.
-jbLifecycle = "2.10.0"
+jbLifecycle = "2.11.0"
 
 junit4 = "4.13.2"
 junit5 = "5.13.3"
 junitPlatformLauncher = "1.13.3"
-mockk = "1.14.4"
-mockkAndroid = "1.13.11"
+mockk = "1.14.11"
+mockkAndroid = "1.14.11"
 androidTestRules = "1.7.0"
-uiAutomator = "2.3.0"
+uiAutomator = "2.4.0"
 koinTest = "4.2.2"
 androidxNavTesting = "2.9.3"
 uiTestJunit4Android = "1.11.2"
-robolectric = "4.12.2"
-turbine = "1.2.0"
+robolectric = "4.16.1"
+turbine = "1.2.1"
 
 [libraries]
 # Used only by the build-logic convention plugins to compile against the AGP / Kotlin DSL.
