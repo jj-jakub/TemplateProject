@@ -1,11 +1,11 @@
 [versions]
-agp = "9.0.0" # pinned below latest stable (9.3.1): installed Android Studio (Otter, 2025.2) only supports up to an AGP 9.0.0 release candidate; bump back to 9.3.1+ once Android Studio is updated to Quail 3 (2026.1.3) or newer, which supports AGP up to 9.3
+agp = "9.4.0" # pinned below latest stable (9.3.1): installed Android Studio (Otter, 2025.2) only supports up to an AGP 9.0.0 release candidate; bump back to 9.3.1+ once Android Studio is updated to Quail 3 (2026.1.3) or newer, which supports AGP up to 9.3
 konsist = "0.17.3"
 detekt = "1.23.8"
 kotlin = "2.4.10"
 googleServices = "4.5.0"
 firebaseCrashlyticsPlugin = "3.0.8"
-sonarqube = "7.4.0.8496"
+sonarqube = "7.5.0.8588"
 koin = "4.2.2"
 coroutines = "1.11.0"
 # Kept in lockstep with jbLifecycle below (both 2.10.0): androidx.lifecycle version-aligns its whole
@@ -14,9 +14,9 @@ coroutines = "1.11.0"
 lifecycle = "2.10.0"
 # Frozen at 1.18.0: androidx.core 1.19.0's AAR metadata declares minCompileSdk=37, and this project
 # deliberately stays on compileSdk 36 (a separate decision from this Kotlin/AGP/Gradle upgrade).
-androidxCore = "1.18.0"
+androidxCore = "1.19.0"
 datastore = "1.2.1"
-navigationKtx = "2.9.8"
+navigationKtx = "2.10.0"
 accompanistPermissions = "0.37.3"
 # These three are what Compose Multiplatform 1.11.1 pins the androidx.compose artifacts to, and
 # they are declared here rather than left to conflict resolution so the catalog states the version
@@ -29,12 +29,12 @@ composeMaterial3 = "1.4.0"
 # it stays put across the Kotlin 2.4.10 bump above. It does not replace composeUi/composeMaterial3:
 # those stay for the Android-only modules and the JVM test artifacts, and on the Android target
 # Compose Multiplatform resolves to the very same androidx.compose artifacts anyway.
-composeMultiplatform = "1.11.1"
+composeMultiplatform = "1.12.0"
 # Frozen at 1.7.8, which is where androidx stopped publishing it. material3 1.4.0 dropped
 # material-icons-core from its api dependencies, so an app that uses Icons.Default.* now asks for
 # the icon set by name instead of inheriting it. Deliberately unversioned against composeUi.
 materialIconsCore = "1.7.8"
-composeNavigation = "2.9.8"
+composeNavigation = "2.10.0"
 composeActivity = "1.13.0"
 composeKoin = "4.2.2"
 firebaseBom = "34.18.0"
@@ -66,7 +66,7 @@ jbNavigationCompose = "2.9.2"
 # Now on AGP 9.3.1, so that original reason is gone, but 2.11.0 introduced its own new constraint:
 # its Android-variant AAR metadata now declares minCompileSdk=37, and this project deliberately
 # stays on compileSdk 36 (a separate decision from this upgrade), so the freeze stays at 2.10.0.
-jbLifecycle = "2.10.0"
+jbLifecycle = "2.11.0"
 
 junit4 = "4.13.2"
 # JUnit unified Jupiter/Platform/Vintage versioning at major version 6 (previously 5.x/1.x); this
@@ -78,7 +78,7 @@ mockkAndroid = "1.14.11"
 androidTestRules = "1.7.0"
 uiAutomator = "2.4.0"
 koinTest = "4.2.2"
-androidxNavTesting = "2.9.8"
+androidxNavTesting = "2.10.0"
 # Deliberately left tracking composeUi (both at 1.11.2) rather than the newer 1.12.0 androidx.compose.ui
 # has otherwise published: this artifact is in the same androidx.compose.ui group that Compose
 # Multiplatform 1.11.1 constrains `strictly` to 1.11.2 across the graph, so keeping it in lockstep
